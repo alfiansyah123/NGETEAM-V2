@@ -11,13 +11,19 @@ function App() {
   // Check if on admin page
   const isAdminPage = window.location.pathname === '/admin';
 
-  // If admin page, render Admin component
   if (isAdminPage) {
     return <Admin />;
   }
+
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
+  const [selectedDomain, setSelectedDomain] = useState('__RANDOM__')
   const [activeTab, setActiveTab] = useState('generator')
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark')
+
+  // Appearance Settings
+  const [brandName, setBrandName] = useState('GEN LINK')
+  const [brandBadge, setBrandBadge] = useState('PLAT_AG')
 
   // Generator State
   const [targetUrls, setTargetUrls] = useState('')
@@ -26,10 +32,8 @@ function App() {
   const [jumlah, setJumlah] = useState(1)
   const [deskripsi, setDeskripsi] = useState('')
   const [imageUrl, setImageUrl] = useState('')
-  const [blockIndonesia, setBlockIndonesia] = useState(false)
 
   const [domains, setDomains] = useState([])
-  const [selectedDomain, setSelectedDomain] = useState('')
 
   const [output, setOutput] = useState([])
   const [imageError, setImageError] = useState(false)
@@ -39,7 +43,6 @@ function App() {
   // History State
   const [history, setHistory] = useState([])
 
-  // Check if already logged in
   useEffect(() => {
     const token = localStorage.getItem('auth_token')
     if (token) {
@@ -48,7 +51,6 @@ function App() {
     setCheckingAuth(false)
   }, [])
 
-  // Load History from LocalStorage
   useEffect(() => {
     const savedHistory = localStorage.getItem('link_history')
     if (savedHistory) {
@@ -59,22 +61,47 @@ function App() {
   const loadDomains = async () => {
     try {
       const data = await fetchDomains()
-      if (data.domains && data.domains.length > 0) {
-        setDomains(data.domains)
-        // Only set selected if not already set, or if current selection is invalid
-        if (!selectedDomain || !data.domains.includes(selectedDomain)) {
-          setSelectedDomain(data.domains[0])
-        }
-      }
+      setDomains(data.domains || [])
     } catch (err) {
-      console.error('Failed to fetch domains:', err)
+      console.error(err)
     }
   }
 
-  // Fetch domains on mount
+  // Fetch Appearance Settings
+  const fetchAppearance = async () => {
+    try {
+      const nameRes = await fetch('/api/get-settings?key=brand_name');
+      const nameData = await nameRes.json();
+      if (nameData.success && nameData.data) setBrandName(nameData.data.value);
+
+      const badgeRes = await fetch('/api/get-settings?key=brand_badge');
+      const badgeData = await badgeRes.json();
+      if (badgeData.success && badgeData.data) setBrandBadge(badgeData.data.value);
+    } catch (err) {
+      console.error('Failed to fetch appearance:', err);
+    }
+  };
+
   useEffect(() => {
-    loadDomains()
+    loadDomains();
+    fetchAppearance();
   }, [])
+
+  // Re-fetch branding when tab changes to ensure UI is in sync
+  useEffect(() => {
+    if (activeTab === 'generator') {
+      fetchAppearance();
+    }
+  }, [activeTab])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+  }
 
   const handleAddDomain = async () => {
     const newDomain = prompt('Masukkan domain baru (contoh: mylink.com):')
@@ -98,8 +125,7 @@ function App() {
     setImageError(false)
   }, [imageUrl])
 
-  // Generate random slug
-  const generateRandomSlug = (length = 8) => {
+  const generateRandomSlug = (length = 16) => {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let slug = ''
     for (let i = 0; i < length; i++) {
@@ -147,7 +173,6 @@ function App() {
           let randomSlug
           if (customSlug && customSlug.trim() !== '') {
             if (totalItems > 1) {
-              // If generating multiple, append counter to avoid duplicate slug error
               randomSlug = `${customSlug.trim()}-${processCount}`
             } else {
               randomSlug = customSlug.trim()
@@ -156,25 +181,21 @@ function App() {
             randomSlug = generateRandomSlug(16)
           }
 
-          // Pick domain - random or selected
           let domainToUse = selectedDomain
           if (selectedDomain === '__RANDOM__' && domains.length > 0) {
             domainToUse = domains[Math.floor(Math.random() * domains.length)]
           }
 
-          // Auto-detect localhost for testing
           const protocol = domainToUse.includes('localhost') ? 'http' : 'https'
           const generatedLink = `${protocol}://${domainToUse}/${randomSlug}`
 
-          // Save to Database
           await saveLink({
             slug: randomSlug,
             original_url: url,
             domain_url: domainToUse,
             title: judul,
             description: deskripsi,
-            image_url: imageUrl,
-            block_indonesia: blockIndonesia
+            image_url: imageUrl
           })
 
           generated.push(generatedLink)
@@ -184,8 +205,6 @@ function App() {
       if (generated.length > 0) {
         setOutput(generated)
         addToHistory(generated)
-        // Only clear slug if success to allow rapid regeneration if needed, or clear it?
-        // Let's clear custom slug to avoid accidental reuse if user forgets
         if (customSlug) setCustomSlug('')
       }
     } catch (err) {
@@ -218,7 +237,6 @@ function App() {
     setIsLoggedIn(false)
   }
 
-  // Show loading while checking auth
   if (checkingAuth) {
     return (
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
@@ -227,291 +245,226 @@ function App() {
     )
   }
 
-  // Show login if not authenticated
   if (!isLoggedIn) {
     return <Login onLogin={() => setIsLoggedIn(true)} />
   }
 
   return (
-    <div className="container">
-      {/* Header */}
-      <header className="header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div></div>
-          <h1 className="title">NGE-team</h1>
-          <button
-            onClick={handleLogout}
-            style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              color: '#ef4444',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              fontWeight: '500'
-            }}
+    <div className="container fade-in">
+      {/* MNX Top Bar */}
+      <div className="mnx-top-bar">
+        <div className="mnx-logo-group">
+          <div className="mnx-logo-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </div>
+          <div className="mnx-logo-text">
+            {/* Split brandName for styling if it contains space, else use default pattern */}
+            {brandName.includes(' ') ? (
+              <h1>{brandName.split(' ')[0]} <span>{brandName.split(' ').slice(1).join(' ')}</span></h1>
+            ) : (
+              <h1>{brandName}</h1>
+            )}
+            <span className="mnx-logo-badge">{brandBadge}</span>
+          </div>
+        </div>
+
+        <div className="mnx-status-controls">
+          <div className="mnx-pill-select">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            IMONETIZEIT
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+          <div
+            onClick={toggleTheme}
+            className="mnx-theme-toggle"
           >
-            Logout
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke={theme === 'light' ? 'var(--accent-orange)' : 'var(--accent-blue)'} strokeWidth="2" fill="none">
+              {theme === 'light' ? (
+                <path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+              ) : (
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              )}
+            </svg>
+            <div className={`mnx-toggle ${theme === 'dark' ? 'active' : ''}`}></div>
+          </div>
+
+          <button className="mnx-power-btn" onClick={handleLogout}>
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
           </button>
         </div>
-        <p className="subtitle">
-          Generate multiple secure <span className="highlight">links</span> with custom OG Meta tags in seconds.
-        </p>
-      </header>
-
-      {/* Tabs */}
-      <div className="tabs">
-        <button
-          className={`tab-btn ${activeTab === 'generator' ? 'active' : ''}`}
-          onClick={() => setActiveTab('generator')}
-        >
-          Generator
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-          onClick={() => setActiveTab('history')}
-        >
-          History
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
-          onClick={() => setActiveTab('reports')}
-        >
-          Reports
-        </button>
       </div>
 
+      {/* Cyber Tabs Navigation */}
+      <div className="cyber-tabs">
+        <div className={`cyber-tab ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+          Generate Link
+        </div>
+        <div className={`cyber-tab ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          Reports
+        </div>
+      </div>
+
+      {/* Content Area */}
       {activeTab === 'generator' ? (
-        <div className="dashboard-grid">
-          <main className="main-content single-col">
-            {/* Input Card */}
-            <div className="card input-card">
-              <div className="form-group">
-                <label className="label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>DOMAIN</span>
-                  <button
-                    onClick={handleAddDomain}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#f97316',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem',
-                      fontWeight: '600'
-                    }}
-                  >
-                    + ADD NEW
-                  </button>
-                </label>
-                <select
-                  className="select"
-                  value={selectedDomain}
-                  onChange={(e) => setSelectedDomain(e.target.value)}
-                  disabled={domains.length === 0}
-                >
-                  {domains.length > 0 ? (
-                    <>
-                      <option value="__RANDOM__">🎲 Random Domain</option>
-                      {domains.map((domain) => (
-                        <option key={domain} value={domain}>
-                          {domain}
-                        </option>
-                      ))}
-                    </>
-                  ) : (
-                    <option>Loading domains...</option>
-                  )}
-                </select>
-              </div>
+        <div className="mnx-card-container fade-in">
+          <div className="mnx-card">
 
-              <div className="form-group">
-                <label className="label">
-                  TARGET URLS <span className="label-hint">(ONE PER LINE)</span>
-                </label>
-                <textarea
-                  className="textarea"
-                  placeholder="Paste link disini..."
-                  rows={3}
-                  value={targetUrls}
-                  onChange={(e) => setTargetUrls(e.target.value)}
-                  style={{ minHeight: '80px' }}
-                />
+            {/* Domain Selection */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span className="section-label" style={{ marginBottom: 0 }}>SELECTED DOMAIN</span>
+              <button
+                onClick={handleAddDomain}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--accent-orange)',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: '800',
+                  letterSpacing: '1px'
+                }}
+              >
+                + ADD NEW
+              </button>
+            </div>
+            <div className="mnx-input-group">
+              <div className="mnx-input-prepend">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                DOMAIN
               </div>
+              <select
+                className="mnx-input"
+                style={{ background: 'transparent', color: 'var(--text-primary)', appearance: 'auto' }}
+                value={selectedDomain}
+                onChange={(e) => setSelectedDomain(e.target.value)}
+              >
+                <option value="__RANDOM__" style={{ background: 'var(--bg-surface)' }}>Random Domain</option>
+                {domains.map(d => <option key={d} value={d} style={{ background: 'var(--bg-surface)' }}>{d}</option>)}
+              </select>
+            </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px', gap: '20px' }}>
-                <div className="form-group">
-                  <label className="label">CUSTOM SLUG</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Ex: viral"
-                    value={customSlug}
-                    onChange={(e) => setCustomSlug(e.target.value)}
-                  />
+            {/* URL Canonical / Target URLs (Moved here) */}
+            <span className="section-label">URL CANONICAL / TARGET URLS</span>
+            <div className="mnx-input-group" style={{ alignItems: 'flex-start', padding: '10px' }}>
+              <textarea
+                className="mnx-input"
+                style={{ minHeight: '120px', resize: 'vertical' }}
+                placeholder="Paste URL Target Disini (Satu per baris)..."
+                value={targetUrls}
+                onChange={(e) => setTargetUrls(e.target.value)}
+              />
+            </div>
+
+            {/* Slug & Metadata Row */}
+            <div className="mnx-grid" style={{ gridTemplateColumns: '1fr 1fr 120px' }}>
+              <div>
+                <span className="section-label">CUSTOM SLUG</span>
+                <div className="mnx-input-group">
+                  <input className="mnx-input" placeholder="slug-viral" value={customSlug} onChange={(e) => setCustomSlug(e.target.value)} />
                 </div>
-                <div className="form-group">
-                  <label className="label">JUDUL</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Input Judul"
-                    value={judul}
-                    onChange={(e) => setJudul(e.target.value)}
-                  />
+              </div>
+              <div>
+                <span className="section-label">JUDUL META</span>
+                <div className="mnx-input-group">
+                  <input className="mnx-input" placeholder="Input Judul Link..." value={judul} onChange={(e) => setJudul(e.target.value)} />
                 </div>
-                <div className="form-group">
-                  <label className="label">JUMLAH</label>
+              </div>
+              <div>
+                <span className="section-label">JUMLAH</span>
+                <div className="mnx-input-group" style={{ padding: '4px 10px' }}>
                   <input
                     type="number"
-                    className="input"
-                    style={{ textAlign: 'center' }}
+                    className="mnx-input"
+                    style={{ textAlign: 'center', padding: '14px 0' }}
                     value={jumlah}
-                    min={1}
                     onChange={(e) => setJumlah(parseInt(e.target.value) || 1)}
                   />
                 </div>
               </div>
+            </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div className="form-group">
-                  <label className="label">DESKRIPSI</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Input Deskripsi"
-                    value={deskripsi}
-                    onChange={(e) => setDeskripsi(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="label">IMAGE URL</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="https://..."
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                  />
+            {/* Metadata Fields (Image & Description) */}
+            <div className="mnx-grid">
+              <div>
+                <span className="section-label">IMAGE URL</span>
+                <div className="mnx-input-group">
+                  <div className="mnx-input-prepend" style={{ minWidth: 'auto', padding: '10px 15px' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                  </div>
+                  <input className="mnx-input" style={{ padding: '10px 15px' }} placeholder="https://image.url/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
                 </div>
               </div>
+              <div>
+                <span className="section-label">DESKRIPSI META</span>
+                <div className="mnx-input-group">
+                  <div className="mnx-input-prepend" style={{ minWidth: 'auto', padding: '10px 15px' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  </div>
+                  <input className="mnx-input" style={{ padding: '10px 15px' }} placeholder="Deskripsi link..." value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
+                </div>
+              </div>
+            </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(150px, 200px) 1fr', gap: '20px', alignItems: 'end' }}>
-                <div className="image-preview" style={{ marginBottom: 0, height: '120px' }}>
-                  {imageUrl && !imageError ? (
-                    <img
-                      src={imageUrl}
-                      alt="Preview"
-                      onError={() => setImageError(true)}
-                    />
-                  ) : (
-                    <div className="preview-text">
-                      <span style={{ fontSize: '0.8rem' }}>Image Preview</span>
+
+            {/* Main Action Button */}
+            <button className="btn-mnx-main" onClick={generateLinks} disabled={loading}>
+              {loading ? <div className="spinner"></div> : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                  GENERATE CROT
+                </>
+              )}
+            </button>
+
+            {/* Result Area */}
+            <div className="mnx-output-bar">
+              {output.length > 0 ? (
+                <div className="output-scroll">
+                  {output.map((link, idx) => (
+                    <div key={idx} className="mnx-output-item">
+                      <span>{link}</span>
+                      <svg onClick={() => { navigator.clipboard.writeText(link); alert('Copied!'); }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ cursor: 'pointer' }}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     </div>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <div className="form-group toggle-group" style={{ marginBottom: 0 }}>
-                    <label className="toggle-label">
-                      <input
-                        type="checkbox"
-                        checked={blockIndonesia}
-                        onChange={(e) => setBlockIndonesia(e.target.checked)}
-                      />
-                      <span className="toggle-switch"></span>
-                      <span className="toggle-text">🇮🇩 Block Indonesia</span>
-                    </label>
-                  </div>
-
-                  <button className="btn-generate" onClick={generateLinks} disabled={loading} style={{ height: '54px' }}>
-                    {loading ? (
-                      <div className="spinner"></div>
-                    ) : (
-                      <>
-                        <span>⚡ GENERATE LINKS</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Output Section (Merged) */}
-              {output.length > 0 && (
-                <div className="output-section" style={{ marginTop: '30px', borderTop: '1px solid rgba(0,0,0,0.1)', paddingTop: '20px' }}>
-                  <label className="label">GENERATED OUTPUT</label>
-                  <div className="output-area" style={{ minHeight: '200px', maxHeight: '400px' }}>
-                    {output.map((link, index) => (
-                      <div key={index} className="output-link">{link}</div>
-                    ))}
-                  </div>
-                  <div className="output-actions">
-                    <button className="btn-copy" onClick={copyAll}>
-                      {copied ? (
-                        <>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                          <span>Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
-                          <span>Copy All</span>
-                        </>
-                      )}
-                    </button>
-                    <button className="btn-clear" onClick={clearOutput}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
-                      <span>Clear</span>
-                    </button>
+                  ))}
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                    <button className="service-btn active" onClick={copyAll}>{copied ? 'COPIED!' : 'COPY ALL'}</button>
+                    <button className="service-btn" onClick={clearOutput}>CLEAR</button>
                   </div>
                 </div>
+              ) : (
+                "Resulting link..."
               )}
             </div>
-          </main>
 
-          {/* Sidebar with LiveTraffic */}
-          <aside className="sidebar">
-            <LiveTraffic />
-          </aside>
+          </div>
+
+          <div className="mnx-footer">
+            ccpXengine &nbsp; V 1 . 0
+          </div>
         </div>
       ) : activeTab === 'reports' ? (
-        <main className="main-content single-col">
+        <div className="mnx-card fade-in">
           <Reports />
-        </main>
-      ) : (
-        <main className="main-content single-col">
-          <div className="card">
-            <div className="history-list">
-              {history.length > 0 ? (
-                history.map((item) => (
-                  <div key={item.id} className="history-item">
-                    <div className="history-info">
-                      <strong>{item.title}</strong>
-                      <small>{item.count} links generated</small>
-                    </div>
-                    <span className="history-date">{item.date}</span>
-                    <button
-                      className="btn-copy"
-                      style={{ width: 'auto', padding: '8px 16px', fontSize: '0.8rem' }}
-                      onClick={() => {
-                        setOutput(item.links)
-                        setActiveTab('generator')
-                      }}
-                    >
-                      Load
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <div className="output-placeholder" style={{ padding: '40px' }}>
-                  <span>Belum ada history generation.</span>
-                </div>
-              )}
-            </div>
+        </div>
+      ) : null
+      }
+
+      {/* Floating Traffic Sidebar if in Generator */}
+      {
+        activeTab === 'generator' && (
+          <div style={{ marginTop: '40px' }} className="fade-in">
+            <LiveTraffic />
           </div>
-        </main>
-      )}
-    </div>
+        )
+      }
+
+    </div >
   )
 }
 

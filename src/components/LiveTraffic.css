@@ -1,39 +1,46 @@
 .live-traffic {
-    background: rgba(255, 255, 255, 0.45);
+    background: var(--bg-card);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
     border-radius: 24px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow:
-        0 8px 32px 0 rgba(31, 38, 135, 0.05),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 24px;
+    border: 1px solid var(--border-glass);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: mnx-rgb-shadow 8s linear infinite;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.live-traffic:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
 }
 
 .live-traffic-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+    gap: 12px;
+    margin-bottom: 20px;
     padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-glass);
 }
 
 .live-traffic-header h3 {
     margin: 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #1f2937;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--accent-blue);
+    letter-spacing: 1px;
+    text-transform: uppercase;
     flex: 1;
 }
 
 .live-dot {
     width: 8px;
     height: 8px;
-    background: #22c55e;
+    background: var(--accent-cyan);
     border-radius: 50%;
     animation: pulse 2s ease-in-out infinite;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    box-shadow: 0 0 10px var(--accent-cyan);
 }
 
 @keyframes pulse {
@@ -45,40 +52,60 @@
     }
 
     50% {
-        opacity: 0.6;
-        transform: scale(0.9);
+        opacity: 0.5;
+        transform: scale(0.85);
     }
 }
 
 .traffic-count {
     font-size: 0.7rem;
-    color: rgba(31, 38, 135, 0.6);
-    background: rgba(249, 115, 22, 0.1);
-    padding: 2px 8px;
-    border-radius: 10px;
+    color: var(--accent-cyan);
+    background: rgba(34, 211, 238, 0.1);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 700;
 }
 
 .traffic-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    max-height: 300px;
+    gap: 8px;
+    max-height: 400px;
     overflow-y: auto;
+}
+
+.traffic-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.traffic-list::-webkit-scrollbar-thumb {
+    background: var(--border-glass);
+    border-radius: 4px;
 }
 
 .traffic-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    background: rgba(249, 115, 22, 0.05);
-    border-radius: 8px;
-    animation: slideIn 0.3s ease-out forwards;
-    opacity: 0;
-    transform: translateX(-10px);
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    transition: all 0.2s;
+    animation: slideIn 0.4s ease-out forwards;
+}
+
+.traffic-item:hover {
+    background: var(--bg-surface);
+    border-color: var(--accent-blue);
 }
 
 @keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -89,44 +116,29 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-}
-
-.traffic-flag {
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: 4px;
 }
 
 .flag-img {
-    width: 22px;
-    height: 15px;
+    width: 20px;
+    height: 14px;
     object-fit: cover;
-    border-radius: 3px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.1);
-    display: block;
-}
-
-.traffic-os {
-    font-size: 0.8rem;
+    border-radius: 2px;
+    opacity: 0.9;
 }
 
 .traffic-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
 .traffic-slug {
-    font-size: 0.8rem;
-    color: #f97316;
-    font-family: monospace;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .traffic-meta {
@@ -136,35 +148,20 @@
 }
 
 .traffic-ip {
-    font-size: 0.65rem;
-    color: rgba(31, 38, 135, 0.5);
-    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .traffic-time {
     font-size: 0.65rem;
-    color: rgba(31, 38, 135, 0.4);
+    color: var(--text-dim);
 }
 
 .no-traffic,
 .traffic-loading {
     text-align: center;
-    padding: 20px;
-    color: rgba(31, 38, 135, 0.4);
+    padding: 40px;
+    color: var(--text-dim);
     font-size: 0.85rem;
-}
-
-/* Scrollbar styling */
-.traffic-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-.traffic-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-}
-
-.traffic-list::-webkit-scrollbar-thumb {
-    background: rgba(249, 115, 22, 0.3);
-    border-radius: 4px;
 }

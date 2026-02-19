@@ -123,10 +123,7 @@ exports.handler = async (event, context) => {
             }
         }
 
-        // GEO-BLOCK: Redirect Indonesia if enabled for this link
-        if (country === 'ID' && link.block_indonesia) {
-            target = 'https://i.pinimg.com/736x/ec/bf/95/ecbf95a2b86066b6e0966989b118b8fb.jpg';
-        }
+        // GEO-BLOCK: (Feature removed)
 
         // CLOAKING: Serve OG tags for bots
         if (isBot(userAgent)) {

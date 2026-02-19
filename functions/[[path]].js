@@ -195,12 +195,7 @@ export async function onRequest(context) {
 
     // 4. Geo Blocking
     const country = context.request.cf?.country || 'XX';
-    if (link.block_indonesia && country === 'ID') {
-        const domainUrl = link.domains?.url || 'https://google.com';
-        // Add protocol if missing
-        const redirectUrl = domainUrl.startsWith('http') ? domainUrl : `https://${domainUrl}`;
-        return Response.redirect(redirectUrl, 302);
-    }
+    // Simplified: Link Share / Block Indo feature removed
 
     // 5. Cloaking: Serve OG meta tags for bots (social media preview)
     // Only intercept bots if user has set custom metadata (title, description, or image_url)

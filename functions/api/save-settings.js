@@ -6,8 +6,8 @@ export async function onRequestPost(context) {
     const body = await request.json();
     const { key, value } = body;
 
-    if (!key || !value) {
-        return new Response(JSON.stringify({ error: 'Missing key or value' }), {
+    if (key === undefined || key === null || value === undefined || value === null) {
+        return new Response(JSON.stringify({ error: 'Missing key or value (can be empty string, but not null/undefined)' }), {
             status: 400,
             headers: { 'Content-Type': 'application/json' }
         });
@@ -17,7 +17,7 @@ export async function onRequestPost(context) {
 
     const { error } = await supabase
         .from('settings')
-        .upsert({ key, value, updated_at: new Date().toISOString() });
+        .upsert({ key, value }); // Remove updated_at to be safe if column doesn't exist
 
     if (error) {
         return new Response(JSON.stringify({ error: error.message }), {

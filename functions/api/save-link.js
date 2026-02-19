@@ -12,7 +12,7 @@ export async function onRequestPost(context) {
 
     try {
         const body = await context.request.json();
-        const { slug, original_url, domain_url, title, description, image_url, block_indonesia } = body;
+        const { slug, original_url, domain_url, title, description, image_url } = body;
 
         if (!slug || !original_url || !domain_url) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers });
@@ -38,8 +38,7 @@ export async function onRequestPost(context) {
                 domain_id: domain.id,
                 title: title || null,
                 description: description || null,
-                image_url: image_url || null,
-                block_indonesia: block_indonesia || false
+                image_url: image_url || null
             });
 
         if (insertError) {

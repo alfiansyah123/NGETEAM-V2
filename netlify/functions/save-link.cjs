@@ -32,7 +32,7 @@ exports.handler = async (event, context) => {
     try {
         const data = JSON.parse(event.body);
 
-        const { slug, original_url, domain_url, title, description, image_url, block_indonesia } = data;
+        const { slug, original_url, domain_url, title, description, image_url } = data;
 
         if (!slug || !original_url || !domain_url) {
             return {
@@ -57,9 +57,9 @@ exports.handler = async (event, context) => {
 
         // Insert link
         await pool.query(
-            `INSERT INTO links (slug, original_url, domain_id, title, description, image_url, block_indonesia) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            [slug, original_url, domain_id, title || null, description || null, image_url || null, block_indonesia || false]
+            `INSERT INTO links (slug, original_url, domain_id, title, description, image_url) 
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+            [slug, original_url, domain_id, title || null, description || null, image_url || null]
         );
 
         return {

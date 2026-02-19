@@ -15,17 +15,17 @@
 
 .reports-header h2 {
     font-size: 1.5rem;
-    color: #1f2937;
+    color: var(--text-primary);
     margin: 0;
 }
 
 .period-filters {
     display: flex;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--bg-input);
     padding: 4px;
     border-radius: 12px;
-    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
 }
 
 .filter-btn {
@@ -36,7 +36,7 @@
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
-    color: #4b5563;
+    color: var(--text-secondary);
     transition: all 0.3s ease;
 }
 
@@ -53,16 +53,20 @@
 
 /* Liquid Glass Card Styling */
 .reports-card {
-    background: rgba(255, 255, 255, 0.45);
+    background: var(--bg-card);
     border-radius: 24px;
     padding: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow:
-        0 8px 32px 0 rgba(31, 38, 135, 0.05),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--border-glass);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
     overflow: hidden;
+    animation: mnx-rgb-shadow 8s linear infinite;
+    transition: transform 0.3s ease;
+}
+
+.reports-card:hover {
+    transform: translateY(-5px);
 }
 
 .table-responsive {
@@ -78,16 +82,16 @@
 .reports-table th {
     text-align: left;
     padding: 16px;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-weight: 600;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--border-glass);
     white-space: nowrap;
 }
 
 .reports-table td {
     padding: 16px;
-    color: #374151;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-glass);
     vertical-align: middle;
 }
 
@@ -96,7 +100,7 @@
 }
 
 .reports-table tr:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--bg-input);
 }
 
 .mono {
