@@ -11,11 +11,7 @@ export async function onRequestGet(context) {
     const period = url.searchParams.get('period') || 'today';
 
     try {
-        // ... (imports)
-        const supabase = createSupabaseClient(context.env);
-        // ...
-
-        let query = supabase
+        const { data: clicks, error } = await supabase
             .from('clicks')
             .select(`
                 id,
@@ -33,10 +29,6 @@ export async function onRequestGet(context) {
             .order('created_at', { ascending: false })
             .limit(500);
 
-        // ... (date logic)
-
-        const { data: clicks, error } = await query;
-
         if (error) throw error;
 
         // Map response to match expected frontend format
@@ -50,15 +42,14 @@ export async function onRequestGet(context) {
             os: row.os || 'Unknown',
             browser: row.browser || 'Other',
             referer: row.referer || null,
-            // Handle flatting joined data
+            // Handle flattening joined data
             originalUrl: row.links?.original_url || '-'
         }));
 
         return new Response(JSON.stringify({ clicks: mappedClicks }), { status: 200, headers });
-        // ... (catch block)
 
     } catch (err) {
         console.error('Reports Error:', err);
-        return new Response(JSON.stringify({ error: 'Failed to fetch messages' }), { status: 500, headers });
+        return new Response(JSON.stringify({ error: 'Failed to fetch reports: ' + err.message }), { status: 500, headers });
     }
 }
