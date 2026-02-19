@@ -159,15 +159,31 @@ async function recordClick(supabase, link, request) {
 }
 
 export async function onRequest(context) {
-    const url = new URL(context.request.url);
-    const path = url.pathname.replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
+    const supabase = createSupabaseClient(context.env);
 
-    // Passthrough for API, assets, files (with extension), or root
-    if (path.startsWith('api/') || path.startsWith('assets/') || path === '' || path.includes('.')) {
-        return context.next();
+    const url = new URL(context.request.url);
+    const path = url.pathname.replace(/^\//, '');
+
+    // 0. Handle /t/ prefix (Team Links & Team Generator)
+    let lookUpSlug = path;
+    if (path.startsWith('t/')) {
+        const segments = path.split('/');
+        lookUpSlug = segments[1]; // Get the ID after /t/
     }
 
-    const supabase = createSupabaseClient(context.env);
+    // SPECIAL BYPASS: If slug matches a Team Member ID, serve the generator (frontend)
+    if (lookUpSlug) {
+        const { data: teamMember } = await supabase
+            .from('team')
+            .select('id')
+            .eq('user_id', lookUpSlug)
+            .maybeSingle();
+
+        if (teamMember) {
+            // It's a team member visiting their generator link!
+            return context.next();
+        }
+    }
 
     // 1. Fetch Link
     const { data: link, error } = await supabase
@@ -176,11 +192,11 @@ export async function onRequest(context) {
             *,
             domains ( url )
         `)
-        .eq('slug', path)
+        .eq('slug', lookUpSlug)
         .single();
 
     if (error || !link) {
-        // Not found -> pass to frontend (SPA 404)
+        // Not found -> pass to frontend (SPA 404/Generator)
         return context.next();
     }
 

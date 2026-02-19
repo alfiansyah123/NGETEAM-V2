@@ -1,9 +1,57 @@
 /* Admin specific overrides */
 .admin-container {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
     min-height: 100vh;
+}
+
+/* Sidebar Layout */
+.admin-layout {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.admin-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-content {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.sidebar-nav-item:hover {
+    border-color: rgba(6, 182, 212, 0.3);
+    background: rgba(15, 23, 42, 0.6);
+    color: #f8fafc;
+}
+
+.sidebar-nav-item.active {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
+    border-color: #06b6d4;
+    color: #06b6d4;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.1);
 }
 
 /* Domain List Item Adjustments */
@@ -41,6 +89,23 @@
 .admin-container code {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
+}
+
+@media (max-width: 900px) {
+    .admin-layout {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .sidebar-nav-item {
+        white-space: nowrap;
+    }
 }
 
 @media (max-width: 600px) {

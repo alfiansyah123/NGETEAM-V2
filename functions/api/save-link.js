@@ -12,7 +12,7 @@ export async function onRequestPost(context) {
 
     try {
         const body = await context.request.json();
-        let { slug, original_url, domain_url, title, description, image_url } = body;
+        let { slug, original_url, domain_url, title, description, image_url, user_id } = body;
 
         // Resilience: Handle 'domain' key and trim
         domain_url = (domain_url || body.domain || '').trim();
@@ -44,6 +44,7 @@ export async function onRequestPost(context) {
                 slug,
                 original_url,
                 domain_id: domainId,
+                user_id: user_id || null,
                 title: title || null,
                 description: description || null,
                 image_url: image_url || null

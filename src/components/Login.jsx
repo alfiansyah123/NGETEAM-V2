@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Login.css';
 
-const Login = ({ onLogin }) => {
-    const [username, setUsername] = useState('');
+const Login = ({ onLogin, teamContext }) => {
+    const [username, setUsername] = useState(teamContext?.user_id || '');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Sync username if teamContext loads late
+    useEffect(() => {
+        if (teamContext?.user_id) {
+            setUsername(teamContext.user_id);
+        }
+    }, [teamContext]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -41,24 +48,31 @@ const Login = ({ onLogin }) => {
 
             <div className="login-card">
                 <div className="login-header">
-                    <h1 className="login-title">NGE-team</h1>
-                    <p className="login-subtitle">Link Generator Dashboard</p>
+                    <h1 className="login-title">
+                        {teamContext ? teamContext.name : 'NGE-team'}
+                    </h1>
+                    <p className="login-subtitle">
+                        {teamContext ? `Team Portal: /t/${teamContext.user_id}` : 'Premium Link Generator'}
+                    </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="login-form">
                     {error && <div className="login-error">{error}</div>}
 
-                    <div className="login-field">
-                        <label>Username</label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Enter username"
-                            required
-                            autoComplete="username"
-                        />
-                    </div>
+                    {/* Only show username for non-team login */}
+                    {!teamContext && (
+                        <div className="login-field">
+                            <label>Username</label>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Enter username"
+                                required
+                                autoComplete="username"
+                            />
+                        </div>
+                    )}
 
                     <div className="login-field">
                         <label>Password</label>

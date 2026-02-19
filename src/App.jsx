@@ -20,6 +20,56 @@ function App() {
   const [selectedDomain, setSelectedDomain] = useState('__RANDOM__')
   const [activeTab, setActiveTab] = useState('generator')
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark')
+  const [teamMode, setTeamMode] = useState(null) // { userId, name, targetUrl }
+  const [subId, setSubId] = useState('')
+
+  // Consolidate App Initialization
+  useEffect(() => {
+    const initApp = async () => {
+      const token = localStorage.getItem('auth_token');
+      const loggedUser = localStorage.getItem('auth_user');
+      const path = window.location.pathname;
+      const segments = path.split('/').filter(Boolean);
+
+      let authenticated = !!token;
+
+      // Special Check for Team Routes (/t/...)
+      if (segments[0] === 't' && segments.length === 2) {
+        const userIdFromUrl = segments[1];
+
+        // CRITICAL: Always load team context/branding regardless of login status
+        await loadTeamContext(userIdFromUrl);
+
+        // Deny access if not logged in OR mismatched user (and not admin)
+        if (!token || !loggedUser || (loggedUser !== userIdFromUrl && loggedUser !== 'admin')) {
+          authenticated = false;
+        } else {
+          authenticated = true;
+        }
+      }
+
+      setIsLoggedIn(authenticated);
+      setCheckingAuth(false);
+    };
+
+    initApp();
+  }, []);
+
+  const loadTeamContext = async (userId) => {
+    try {
+      const res = await fetch(`/api/get-smartlink-by-user?user_id=${userId}`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        setTeamMode(data.data);
+        setSubId(data.data.user_id || '');
+        if (data.data.target_url) {
+          setTargetUrls(data.data.target_url);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load team context:', err);
+    }
+  };
 
   // Appearance Settings
   const [brandName, setBrandName] = useState('GEN LINK')
@@ -44,13 +94,6 @@ function App() {
   // History State
   const [history, setHistory] = useState([])
 
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token')
-    if (token) {
-      setIsLoggedIn(true)
-    }
-    setCheckingAuth(false)
-  }, [])
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('link_history')
@@ -121,6 +164,20 @@ function App() {
       alert(err.message)
     }
   }
+
+  // Helper for Team Mode Sub-ID replacement
+  const handleSubIdChange = (val) => {
+    setSubId(val);
+    if (!targetUrls) return;
+
+    const params = ['click_id', 'clickid', 'subid'];
+    let updatedText = targetUrls;
+    params.forEach(param => {
+      const regex = new RegExp(`(${param}=)([^&\\s]+)`, 'gi');
+      updatedText = updatedText.replace(regex, `$1${val}`);
+    });
+    setTargetUrls(updatedText);
+  };
 
   useEffect(() => {
     setImageError(false)
@@ -271,7 +328,20 @@ function App() {
   }
 
   if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} />
+    return (
+      <Login
+        teamContext={teamMode}
+        onLogin={() => {
+          setIsLoggedIn(true);
+          // Check if we are on a team path to load context immediately after login
+          const path = window.location.pathname;
+          const segments = path.split('/').filter(Boolean);
+          if (segments[0] === 't' && segments.length === 2) {
+            loadTeamContext(segments[1]);
+          }
+        }}
+      />
+    );
   }
 
   return (
@@ -298,6 +368,12 @@ function App() {
         </div>
 
         <div className="mnx-status-controls">
+          {teamMode && (
+            <div className="mnx-pill-select" style={{ border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', gap: '8px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              {teamMode.name.toUpperCase()}
+            </div>
+          )}
           <div className="mnx-pill-select">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             IMONETIZEIT
@@ -374,17 +450,52 @@ function App() {
               </select>
             </div>
 
-            {/* URL Canonical / Target URLs (Moved here) */}
-            <span className="section-label">URL CANONICAL / TARGET URLS</span>
-            <div className="mnx-input-group" style={{ alignItems: 'flex-start', padding: '10px' }}>
-              <textarea
-                className="mnx-input"
-                style={{ minHeight: '120px', resize: 'vertical' }}
-                placeholder="Paste URL Target Disini (Satu per baris)..."
-                value={targetUrls}
-                onChange={(e) => setTargetUrls(e.target.value)}
-              />
+            {/* URL Canonical / Target URLs */}
+            <span className="section-label">TARGET URLS {teamMode && <span style={{ color: 'var(--accent-orange)' }}>(LOCKED)</span>}</span>
+            <div className="mnx-input-group" style={{ alignItems: teamMode ? 'center' : 'flex-start', padding: teamMode ? '0' : '10px', background: 'transparent', marginBottom: '20px' }}>
+              {teamMode ? (
+                <>
+                  <div className="mnx-input-prepend" style={{ height: 'auto', alignSelf: 'stretch', display: 'flex', alignItems: 'center' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    LOCKED
+                  </div>
+                  <textarea
+                    className="mnx-input"
+                    style={{ minHeight: '60px', padding: '12px', background: 'transparent', cursor: 'not-allowed' }}
+                    value={targetUrls}
+                    readOnly
+                  />
+                </>
+              ) : (
+                <textarea
+                  className="mnx-input"
+                  style={{ minHeight: '120px', resize: 'vertical' }}
+                  placeholder="Paste URL Target Disini (Satu per baris)..."
+                  value={targetUrls}
+                  onChange={(e) => setTargetUrls(e.target.value)}
+                />
+              )}
             </div>
+
+            {/* INTEGRATED CLICK ID ADJUSTMENT - ALIGNED WITH DOMAIN SECTION */}
+            {teamMode && (
+              <div className="fade-in" style={{ marginBottom: '20px' }}>
+                <span className="section-label">CUSTOMIZE CLICK ID</span>
+                <div className="mnx-input-group">
+                  <div className="mnx-input-prepend">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    CLICK ID
+                  </div>
+                  <input
+                    className="mnx-input"
+                    style={{ background: 'transparent', color: 'var(--text-primary)' }}
+                    placeholder="e.g. Alcemits-ig"
+                    value={subId}
+                    onChange={(e) => handleSubIdChange(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Slug & Metadata Row */}
             <div className="mnx-grid" style={{ gridTemplateColumns: '1fr 1fr 120px' }}>
@@ -482,23 +593,20 @@ function App() {
             ccpXengine &nbsp; V 1 . 0
           </div>
         </div>
-      ) : activeTab === 'reports' ? (
+      ) : (
         <div className="mnx-card fade-in">
           <Reports />
         </div>
-      ) : null
-      }
+      )}
 
       {/* Floating Traffic Sidebar if in Generator */}
-      {
-        activeTab === 'generator' && (
-          <div style={{ marginTop: '40px' }} className="fade-in">
-            <LiveTraffic />
-          </div>
-        )
-      }
+      {activeTab === 'generator' && (
+        <div style={{ marginTop: '40px' }} className="fade-in">
+          <LiveTraffic />
+        </div>
+      )}
 
-    </div >
+    </div>
   )
 }
 

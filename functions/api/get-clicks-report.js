@@ -24,7 +24,7 @@ export async function onRequestGet(context) {
                 browser,
                 referer,
                 user_agent,
-                links ( original_url )
+                links ( original_url, user_id )
             `)
             .order('created_at', { ascending: false })
             .limit(500);
@@ -43,7 +43,8 @@ export async function onRequestGet(context) {
             browser: row.browser || 'Other',
             referer: row.referer || null,
             // Handle flattening joined data
-            originalUrl: row.links?.original_url || '-'
+            originalUrl: row.links?.original_url || '-',
+            owner: row.links?.user_id || '-'
         }));
 
         return new Response(JSON.stringify({ clicks: mappedClicks }), { status: 200, headers });

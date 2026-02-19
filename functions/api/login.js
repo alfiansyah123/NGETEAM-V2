@@ -5,17 +5,24 @@ const VALID_USERS = {
     'nge': 'supersecret123'
 };
 
+import { createSupabaseClient } from '../utils/supabase';
+
 // Generate simple token
 function generateToken(username) {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2);
-    // Cloudflare Workers don't have Buffer as global, likely need polyfill or btoa
-    // But modern Workers env supports Buffer usually? Or TextEncoder?
-    // Let's use btoa for base64 which is standard web API.
-    return btoa(`${username}:${timestamp}:${random}`);
+    const str = `${username}:${timestamp}:${random}`;
+    // Cloudflare Workers support btoa
+    try {
+        return btoa(str);
+    } catch (e) {
+        // Fallback for non-latin characters (though unlikely here)
+        return btoa(unescape(encodeURIComponent(str)));
+    }
 }
 
 export async function onRequestPost(context) {
+    const supabase = createSupabaseClient(context.env);
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -29,34 +36,40 @@ export async function onRequestPost(context) {
             return new Response(JSON.stringify({ success: false, error: 'Username and password required' }), { status: 400, headers });
         }
 
-        // Default credentials
-        let adminPass = 'NGEteam2025!';
-
-        // Try to fetch dynamic password for admin
+        // 1. Check Admin Credentials
         if (username === 'admin') {
+            let adminPass = 'NGEteam2025!';
             try {
-                const { createSupabaseClient } = await import('../utils/supabase');
-                const supabase = createSupabaseClient(context.env);
                 const { data } = await supabase.from('settings').select('value').eq('key', 'admin_password').single();
                 if (data?.value) adminPass = data.value;
-            } catch (e) {
-                // Ignore error, use default
+            } catch (e) { }
+
+            if (password === adminPass) {
+                const token = generateToken(username);
+                return new Response(JSON.stringify({
+                    success: true,
+                    role: 'admin',
+                    token,
+                    message: 'Admin login successful'
+                }), { status: 200, headers });
             }
         }
 
-        const VALID_USERS = {
-            'admin': adminPass,
-            'nge': 'supersecret123'
-        };
+        // 2. Check Team Member Credentials
+        const { data: teamMember, error: teamError } = await supabase
+            .from('team')
+            .select('*')
+            .eq('user_id', username)
+            .eq('password', password)
+            .maybeSingle();
 
-        // Check credentials
-        if (VALID_USERS[username] && VALID_USERS[username] === password) {
+        if (teamMember) {
             const token = generateToken(username);
-
             return new Response(JSON.stringify({
                 success: true,
+                role: 'member',
                 token,
-                message: 'Login successful'
+                message: 'Team login successful'
             }), { status: 200, headers });
         }
 
