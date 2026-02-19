@@ -15,14 +15,19 @@ export async function onRequest(context) {
 
     try {
         const supabase = createSupabaseClient(context.env);
-        const { domain } = await context.request.json();
+        const reqData = await context.request.json().catch(() => ({}));
+        const domain = reqData.domain || reqData.url;
 
         if (!domain) {
             return new Response(JSON.stringify({ error: 'Domain is required' }), { status: 400, headers });
         }
 
         // Clean URL
-        const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '').trim();
+        const cleanDomain = (domain || '').replace(/^https?:\/\//, '').replace(/\/$/, '').trim();
+
+        if (!cleanDomain) {
+            return new Response(JSON.stringify({ error: 'Valid domain is required' }), { status: 400, headers });
+        }
 
         // Perform Soft Delete (Set active = false)
         const { data, error } = await supabase

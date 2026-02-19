@@ -10,7 +10,7 @@ export async function onRequestPost(context) {
 
     try {
         const data = await context.request.json();
-        let url = data.url;
+        let url = data.url || data.domain || data.dns_target;
 
         if (!url) {
             return new Response(JSON.stringify({ error: 'Domain URL is required' }), { status: 400, headers });

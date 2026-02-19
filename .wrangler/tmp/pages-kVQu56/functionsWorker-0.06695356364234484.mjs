@@ -9,8 +9,86 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// api/cloudflare/add-zone.js
+// api/cloudflare/add-pages-domain.js
 async function onRequestPost(context) {
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Content-Type": "application/json"
+  };
+  try {
+    const { domain, cfToken, cfAccountId } = await context.request.json();
+    if (!domain || !cfToken || !cfAccountId) {
+      return new Response(JSON.stringify({
+        error: "Missing required fields: domain, cfToken, cfAccountId"
+      }), { status: 400, headers });
+    }
+    const projectName = context.env.PAGES_PROJECT_NAME || "gen-codot";
+    const domainsToLink = [domain, `*.${domain}`];
+    const results = [];
+    let hasError = false;
+    for (const domainName of domainsToLink) {
+      const cfResponse = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/pages/projects/${projectName}/domains`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${cfToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: domainName
+          })
+        }
+      );
+      const cfData = await cfResponse.json();
+      if (!cfData.success) {
+        const errors = cfData.errors || [];
+        const alreadyExists = errors.some(
+          (e) => e.code === 8e6 || e.message?.toLowerCase().includes("already added") || e.message?.toLowerCase().includes("already exists") || e.message?.toLowerCase().includes("duplicate")
+        );
+        if (alreadyExists) {
+          results.push({ domain: domainName, message: "Already exists/added" });
+        } else {
+          hasError = true;
+          results.push({ domain: domainName, error: errors[0]?.message || "Failed" });
+        }
+      } else {
+        results.push({ domain: domainName, message: "Linked successfully" });
+      }
+    }
+    const rootSuccess = results.find((r) => r.domain === domain && (r.message || !r.error));
+    return new Response(JSON.stringify({
+      success: !!rootSuccess,
+      results,
+      error: !rootSuccess ? results.find((r) => r.error)?.error : null,
+      message: !rootSuccess ? "Root domain failed to link" : hasError ? "Root linked, but Wildcard failed (Plan limitation?)" : "Pages domain setup complete"
+    }), { status: rootSuccess ? 200 : 400, headers });
+  } catch (err) {
+    return new Response(JSON.stringify({
+      error: err.message
+    }), { status: 500, headers });
+  }
+}
+async function onRequestOptions() {
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    }
+  });
+}
+var init_add_pages_domain = __esm({
+  "api/cloudflare/add-pages-domain.js"() {
+    init_functionsRoutes_0_41049075424490455();
+    __name(onRequestPost, "onRequestPost");
+    __name(onRequestOptions, "onRequestOptions");
+  }
+});
+
+// api/cloudflare/add-zone.js
+async function onRequestPost2(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -81,7 +159,7 @@ async function onRequestPost(context) {
     }), { status: 500, headers });
   }
 }
-async function onRequestOptions() {
+async function onRequestOptions2() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -93,13 +171,13 @@ async function onRequestOptions() {
 var init_add_zone = __esm({
   "api/cloudflare/add-zone.js"() {
     init_functionsRoutes_0_41049075424490455();
-    __name(onRequestPost, "onRequestPost");
-    __name(onRequestOptions, "onRequestOptions");
+    __name(onRequestPost2, "onRequestPost");
+    __name(onRequestOptions2, "onRequestOptions");
   }
 });
 
 // api/cloudflare/delete-zone.js
-async function onRequestPost2(context) {
+async function onRequestPost3(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -156,7 +234,7 @@ async function onRequestPost2(context) {
     }), { status: 500, headers });
   }
 }
-async function onRequestOptions2() {
+async function onRequestOptions3() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -168,13 +246,13 @@ async function onRequestOptions2() {
 var init_delete_zone = __esm({
   "api/cloudflare/delete-zone.js"() {
     init_functionsRoutes_0_41049075424490455();
-    __name(onRequestPost2, "onRequestPost");
-    __name(onRequestOptions2, "onRequestOptions");
+    __name(onRequestPost3, "onRequestPost");
+    __name(onRequestOptions3, "onRequestOptions");
   }
 });
 
 // api/cloudflare/setup-dns.js
-async function onRequestPost3(context) {
+async function onRequestPost4(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -187,7 +265,7 @@ async function onRequestPost3(context) {
         error: "Missing required fields: zoneId, domain, cfToken"
       }), { status: 400, headers });
     }
-    const pagesTarget = context.env.PAGES_DOMAIN || "gen-cloack.pages.dev";
+    const pagesTarget = context.env.PAGES_DOMAIN || "gen-codot.pages.dev";
     const records = [
       { type: "CNAME", name: "@", content: pagesTarget, proxied: true },
       { type: "CNAME", name: "*", content: pagesTarget, proxied: true }
@@ -265,7 +343,7 @@ async function onRequestPost3(context) {
     }), { status: 500, headers });
   }
 }
-async function onRequestOptions3() {
+async function onRequestOptions4() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -277,8 +355,128 @@ async function onRequestOptions3() {
 var init_setup_dns = __esm({
   "api/cloudflare/setup-dns.js"() {
     init_functionsRoutes_0_41049075424490455();
-    __name(onRequestPost3, "onRequestPost");
-    __name(onRequestOptions3, "onRequestOptions");
+    __name(onRequestPost4, "onRequestPost");
+    __name(onRequestOptions4, "onRequestOptions");
+  }
+});
+
+// api/cloudflare/setup-worker-proxy.js
+async function onRequestPost5(context) {
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Content-Type": "application/json"
+  };
+  try {
+    const { domain, cfToken, cfAccountId } = await context.request.json();
+    if (!domain || !cfToken || !cfAccountId) {
+      return new Response(JSON.stringify({
+        error: "Missing required fields: domain, cfToken, cfAccountId"
+      }), { status: 400, headers });
+    }
+    const pagesTarget = context.env.PAGES_DOMAIN || "gen-codot.pages.dev";
+    const workerName = `proxy-${domain.replace(/\./g, "-")}`;
+    const scriptContent = `
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+})
+
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  url.hostname = '${pagesTarget}';
+  url.protocol = 'https:';
+  
+  // Create new request
+  const newRequest = new Request(url, request);
+  
+  // Ensure host header matches the Pages target
+  newRequest.headers.set('Host', '${pagesTarget}');
+  
+  try {
+    return await fetch(newRequest);
+  } catch (e) {
+    return new Response('Worker Proxy Error: ' + e.message, { status: 502 });
+  }
+}
+        `;
+    const uploadRes = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/workers/scripts/${workerName}`,
+      {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${cfToken}`,
+          "Content-Type": "application/javascript"
+        },
+        body: scriptContent
+      }
+    );
+    const uploadData = await uploadRes.json();
+    if (!uploadData.success) {
+      return new Response(JSON.stringify({
+        error: `Worker Upload Failed: ${uploadData.errors?.[0]?.message || "Unknown error"}`,
+        details: uploadData.errors
+      }), { status: 400, headers });
+    }
+    const routes2 = [`${domain}/*`, `*.${domain}/*`];
+    const routeResults = [];
+    const zoneRes = await fetch(
+      `https://api.cloudflare.com/client/v4/zones?name=${domain}`,
+      {
+        headers: {
+          "Authorization": `Bearer ${cfToken}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    const zoneData = await zoneRes.json();
+    if (!zoneData.success || zoneData.result.length === 0) {
+      throw new Error("Could not find Zone ID for domain: " + domain);
+    }
+    const zoneId = zoneData.result[0].id;
+    for (const pattern of routes2) {
+      const routeRes = await fetch(
+        `https://api.cloudflare.com/client/v4/zones/${zoneId}/workers/routes`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${cfToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            pattern,
+            script: workerName
+          })
+        }
+      );
+      const routeData = await routeRes.json();
+      routeResults.push({ pattern, success: routeData.success, error: routeData.errors?.[0]?.message });
+    }
+    return new Response(JSON.stringify({
+      success: true,
+      workerName,
+      routeResults,
+      message: "Worker Sakti deployed and routes configured!"
+    }), { status: 200, headers });
+  } catch (err) {
+    return new Response(JSON.stringify({
+      error: err.message
+    }), { status: 500, headers });
+  }
+}
+async function onRequestOptions5() {
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    }
+  });
+}
+var init_setup_worker_proxy = __esm({
+  "api/cloudflare/setup-worker-proxy.js"() {
+    init_functionsRoutes_0_41049075424490455();
+    __name(onRequestPost5, "onRequestPost");
+    __name(onRequestOptions5, "onRequestOptions");
   }
 });
 
@@ -12358,7 +12556,7 @@ var init_supabase = __esm({
 });
 
 // api/add-domain.js
-async function onRequestPost4(context) {
+async function onRequestPost6(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12367,7 +12565,7 @@ async function onRequestPost4(context) {
   };
   try {
     const data = await context.request.json();
-    let url = data.url;
+    let url = data.url || data.domain || data.dns_target;
     if (!url) {
       return new Response(JSON.stringify({ error: "Domain URL is required" }), { status: 400, headers });
     }
@@ -12389,7 +12587,7 @@ async function onRequestPost4(context) {
     return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500, headers });
   }
 }
-async function onRequestOptions4() {
+async function onRequestOptions6() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12402,13 +12600,13 @@ var init_add_domain = __esm({
   "api/add-domain.js"() {
     init_functionsRoutes_0_41049075424490455();
     init_supabase();
-    __name(onRequestPost4, "onRequestPost");
-    __name(onRequestOptions4, "onRequestOptions");
+    __name(onRequestPost6, "onRequestPost");
+    __name(onRequestOptions6, "onRequestOptions");
   }
 });
 
 // api/change-password.js
-async function onRequestPost5(context) {
+async function onRequestPost7(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -12428,7 +12626,7 @@ async function onRequestPost5(context) {
     return new Response(JSON.stringify({ error: "Failed to update password: " + error.message }), { status: 500, headers });
   }
 }
-async function onRequestOptions5() {
+async function onRequestOptions7() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12441,8 +12639,8 @@ var init_change_password = __esm({
   "api/change-password.js"() {
     init_functionsRoutes_0_41049075424490455();
     init_supabase();
-    __name(onRequestPost5, "onRequestPost");
-    __name(onRequestOptions5, "onRequestOptions");
+    __name(onRequestPost7, "onRequestPost");
+    __name(onRequestOptions7, "onRequestOptions");
   }
 });
 
@@ -12458,11 +12656,15 @@ async function onRequest(context) {
   };
   try {
     const supabase = createSupabaseClient(context.env);
-    const { domain } = await context.request.json();
+    const reqData = await context.request.json().catch(() => ({}));
+    const domain = reqData.domain || reqData.url;
     if (!domain) {
       return new Response(JSON.stringify({ error: "Domain is required" }), { status: 400, headers });
     }
-    const cleanDomain = domain.replace(/^https?:\/\//, "").replace(/\/$/, "").trim();
+    const cleanDomain = (domain || "").replace(/^https?:\/\//, "").replace(/\/$/, "").trim();
+    if (!cleanDomain) {
+      return new Response(JSON.stringify({ error: "Valid domain is required" }), { status: 400, headers });
+    }
     const { data, error } = await supabase.from("domains").update({ active: false }).eq("url", cleanDomain).select();
     if (error) throw error;
     const numUpdated = data ? data.length : 0;
@@ -12482,7 +12684,7 @@ async function onRequest(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-async function onRequestOptions6() {
+async function onRequestOptions8() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12496,7 +12698,7 @@ var init_delete_domain = __esm({
     init_functionsRoutes_0_41049075424490455();
     init_supabase();
     __name(onRequest, "onRequest");
-    __name(onRequestOptions6, "onRequestOptions");
+    __name(onRequestOptions8, "onRequestOptions");
   }
 });
 
@@ -12687,7 +12889,7 @@ function generateToken(username) {
   const random = Math.random().toString(36).substring(2);
   return btoa(`${username}:${timestamp}:${random}`);
 }
-async function onRequestPost6(context) {
+async function onRequestPost8(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -12725,7 +12927,7 @@ async function onRequestPost6(context) {
     return new Response(JSON.stringify({ success: false, error: "Server error: " + error.message }), { status: 500, headers });
   }
 }
-async function onRequestOptions7() {
+async function onRequestOptions9() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12738,13 +12940,13 @@ var init_login = __esm({
   "api/login.js"() {
     init_functionsRoutes_0_41049075424490455();
     __name(generateToken, "generateToken");
-    __name(onRequestPost6, "onRequestPost");
-    __name(onRequestOptions7, "onRequestOptions");
+    __name(onRequestPost8, "onRequestPost");
+    __name(onRequestOptions9, "onRequestOptions");
   }
 });
 
 // api/save-link.js
-async function onRequestPost7(context) {
+async function onRequestPost9(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12753,18 +12955,23 @@ async function onRequestPost7(context) {
   };
   try {
     const body = await context.request.json();
-    const { slug, original_url, domain_url, title, description, image_url } = body;
+    let { slug, original_url, domain_url, title, description, image_url } = body;
+    domain_url = (domain_url || body.domain || "").trim();
+    if (domain_url) {
+      domain_url = domain_url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    }
     if (!slug || !original_url || !domain_url) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers });
     }
-    const { data: domain, error: domainError } = await supabase.from("domains").select("id").eq("url", domain_url).single();
-    if (domainError || !domain) {
-      return new Response(JSON.stringify({ error: "Domain not found" }), { status: 400, headers });
+    const { data: domainList, error: domainError } = await supabase.from("domains").select("id").ilike("url", domain_url).eq("active", true);
+    if (domainError || !domainList || domainList.length === 0) {
+      return new Response(JSON.stringify({ error: `Domain "${domain_url}" not found or inactive` }), { status: 400, headers });
     }
+    const domainId = domainList[0].id;
     const { error: insertError } = await supabase.from("links").insert({
       slug,
       original_url,
-      domain_id: domain.id,
+      domain_id: domainId,
       title: title || null,
       description: description || null,
       image_url: image_url || null
@@ -12781,7 +12988,7 @@ async function onRequestPost7(context) {
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500, headers });
   }
 }
-async function onRequestOptions8() {
+async function onRequestOptions10() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12794,13 +13001,13 @@ var init_save_link = __esm({
   "api/save-link.js"() {
     init_functionsRoutes_0_41049075424490455();
     init_supabase();
-    __name(onRequestPost7, "onRequestPost");
-    __name(onRequestOptions8, "onRequestOptions");
+    __name(onRequestPost9, "onRequestPost");
+    __name(onRequestOptions10, "onRequestOptions");
   }
 });
 
 // api/save-settings.js
-async function onRequestPost8(context) {
+async function onRequestPost10(context) {
   const { request, env } = context;
   const body = await request.json();
   const { key, value } = body;
@@ -12827,7 +13034,7 @@ var init_save_settings = __esm({
   "api/save-settings.js"() {
     init_functionsRoutes_0_41049075424490455();
     init_supabase();
-    __name(onRequestPost8, "onRequestPost");
+    __name(onRequestPost10, "onRequestPost");
   }
 });
 
@@ -13057,12 +13264,16 @@ var init_path = __esm({
 var routes;
 var init_functionsRoutes_0_41049075424490455 = __esm({
   "../.wrangler/tmp/pages-kVQu56/functionsRoutes-0.41049075424490455.mjs"() {
+    init_add_pages_domain();
+    init_add_pages_domain();
     init_add_zone();
     init_add_zone();
     init_delete_zone();
     init_delete_zone();
     init_setup_dns();
     init_setup_dns();
+    init_setup_worker_proxy();
+    init_setup_worker_proxy();
     init_add_domain();
     init_add_domain();
     init_change_password();
@@ -13082,81 +13293,109 @@ var init_functionsRoutes_0_41049075424490455 = __esm({
     init_path();
     routes = [
       {
-        routePath: "/api/cloudflare/add-zone",
+        routePath: "/api/cloudflare/add-pages-domain",
         mountPath: "/api/cloudflare",
         method: "OPTIONS",
         middlewares: [],
         modules: [onRequestOptions]
       },
       {
-        routePath: "/api/cloudflare/add-zone",
+        routePath: "/api/cloudflare/add-pages-domain",
         mountPath: "/api/cloudflare",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost]
       },
       {
-        routePath: "/api/cloudflare/delete-zone",
+        routePath: "/api/cloudflare/add-zone",
         mountPath: "/api/cloudflare",
         method: "OPTIONS",
         middlewares: [],
         modules: [onRequestOptions2]
       },
       {
-        routePath: "/api/cloudflare/delete-zone",
+        routePath: "/api/cloudflare/add-zone",
         mountPath: "/api/cloudflare",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost2]
       },
       {
-        routePath: "/api/cloudflare/setup-dns",
+        routePath: "/api/cloudflare/delete-zone",
         mountPath: "/api/cloudflare",
         method: "OPTIONS",
         middlewares: [],
         modules: [onRequestOptions3]
       },
       {
-        routePath: "/api/cloudflare/setup-dns",
+        routePath: "/api/cloudflare/delete-zone",
         mountPath: "/api/cloudflare",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost3]
       },
       {
-        routePath: "/api/add-domain",
-        mountPath: "/api",
+        routePath: "/api/cloudflare/setup-dns",
+        mountPath: "/api/cloudflare",
         method: "OPTIONS",
         middlewares: [],
         modules: [onRequestOptions4]
       },
       {
+        routePath: "/api/cloudflare/setup-dns",
+        mountPath: "/api/cloudflare",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost4]
+      },
+      {
+        routePath: "/api/cloudflare/setup-worker-proxy",
+        mountPath: "/api/cloudflare",
+        method: "OPTIONS",
+        middlewares: [],
+        modules: [onRequestOptions5]
+      },
+      {
+        routePath: "/api/cloudflare/setup-worker-proxy",
+        mountPath: "/api/cloudflare",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost5]
+      },
+      {
+        routePath: "/api/add-domain",
+        mountPath: "/api",
+        method: "OPTIONS",
+        middlewares: [],
+        modules: [onRequestOptions6]
+      },
+      {
         routePath: "/api/add-domain",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
-        modules: [onRequestPost4]
+        modules: [onRequestPost6]
       },
       {
         routePath: "/api/change-password",
         mountPath: "/api",
         method: "OPTIONS",
         middlewares: [],
-        modules: [onRequestOptions5]
+        modules: [onRequestOptions7]
       },
       {
         routePath: "/api/change-password",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
-        modules: [onRequestPost5]
+        modules: [onRequestPost7]
       },
       {
         routePath: "/api/delete-domain",
         mountPath: "/api",
         method: "OPTIONS",
         middlewares: [],
-        modules: [onRequestOptions6]
+        modules: [onRequestOptions8]
       },
       {
         routePath: "/api/get-admin-password",
@@ -13198,35 +13437,35 @@ var init_functionsRoutes_0_41049075424490455 = __esm({
         mountPath: "/api",
         method: "OPTIONS",
         middlewares: [],
-        modules: [onRequestOptions7]
+        modules: [onRequestOptions9]
       },
       {
         routePath: "/api/login",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
-        modules: [onRequestPost6]
+        modules: [onRequestPost8]
       },
       {
         routePath: "/api/save-link",
         mountPath: "/api",
         method: "OPTIONS",
         middlewares: [],
-        modules: [onRequestOptions8]
+        modules: [onRequestOptions10]
       },
       {
         routePath: "/api/save-link",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
-        modules: [onRequestPost7]
+        modules: [onRequestPost9]
       },
       {
         routePath: "/api/save-settings",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
-        modules: [onRequestPost8]
+        modules: [onRequestPost10]
       },
       {
         routePath: "/api/delete-domain",
@@ -13246,10 +13485,10 @@ var init_functionsRoutes_0_41049075424490455 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-g7v9E6/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-I8gN8O/middleware-loader.entry.ts
 init_functionsRoutes_0_41049075424490455();
 
-// ../.wrangler/tmp/bundle-g7v9E6/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-I8gN8O/middleware-insertion-facade.js
 init_functionsRoutes_0_41049075424490455();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -13745,7 +13984,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-g7v9E6/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-I8gN8O/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13778,7 +14017,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-g7v9E6/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-I8gN8O/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

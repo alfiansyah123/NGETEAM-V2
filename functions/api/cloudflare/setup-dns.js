@@ -16,7 +16,7 @@ export async function onRequestPost(context) {
         }
 
         // Get the pages.dev target from environment or use default
-        const pagesTarget = context.env.PAGES_DOMAIN || 'gen-cloack.pages.dev';
+        const pagesTarget = context.env.PAGES_DOMAIN || 'gen-codot.pages.dev';
 
         // DNS records to create
         const records = [

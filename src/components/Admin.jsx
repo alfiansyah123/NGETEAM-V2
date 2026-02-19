@@ -176,15 +176,49 @@ const Admin = () => {
                 throw new Error(dnsData.error || 'Failed to setup DNS');
             }
 
-            // Step 3: Save domain to database
+            // Step 3: Link domain to Pages project
+            const addPagesRes = await fetch('/api/cloudflare/add-pages-domain', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    domain: newDomain.trim(),
+                    cfToken,
+                    cfAccountId
+                })
+            });
+
+            const pagesData = await addPagesRes.json();
+
+            if (!addPagesRes.ok) {
+                throw new Error(pagesData.error || 'Failed to link to Pages project');
+            }
+
+            // Step 4: Save domain to database
             const saveRes = await fetch('/api/add-domain', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ domain: newDomain.trim() })
+                body: JSON.stringify({ url: newDomain.trim() })
             });
 
+            const dbData = await saveRes.json();
+
             if (!saveRes.ok) {
-                throw new Error('Failed to save domain to database');
+                throw new Error(dbData.error || 'Failed to save domain to database');
+            }
+
+            // Step 5: Deploy Worker Sakti (Proxy for Wildcard)
+            const proxyRes = await fetch('/api/cloudflare/setup-worker-proxy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    domain: newDomain.trim(),
+                    cfToken,
+                    cfAccountId
+                })
+            });
+            const proxyData = await proxyRes.json();
+            if (!proxyRes.ok) {
+                throw new Error(`Cara Sakti Failed: ${proxyData.error || 'Check API Permissions (Workers Scripts)'}`);
             }
 
             // Success!
@@ -236,16 +270,24 @@ const Admin = () => {
         try {
             // 1. Delete from Cloudflare (if credentials exist)
             if (cfToken && cfAccountId) {
-                await fetch('/api/cloudflare/delete-zone', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ domain, cfToken, cfAccountId })
-                });
+                try {
+                    const cfRes = await fetch('/api/cloudflare/delete-zone', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ domain, cfToken, cfAccountId })
+                    });
+                    const cfData = await cfRes.json();
+                    if (!cfRes.ok) {
+                        console.warn('Cloudflare deletion failed, but proceeding to DB:', cfData.error);
+                    }
+                } catch (cfErr) {
+                    console.error('Cloudflare fetch error:', cfErr);
+                }
             }
 
             // 2. Delete from Database
             const dbRes = await fetch('/api/delete-domain', {
-                method: 'DELETE',
+                method: 'POST', // Using POST for better compatibility
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ domain })
             });

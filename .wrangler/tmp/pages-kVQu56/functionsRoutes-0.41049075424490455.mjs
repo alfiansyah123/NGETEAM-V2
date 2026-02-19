@@ -1,9 +1,13 @@
+import { onRequestOptions as __api_cloudflare_add_pages_domain_js_onRequestOptions } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\add-pages-domain.js"
+import { onRequestPost as __api_cloudflare_add_pages_domain_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\add-pages-domain.js"
 import { onRequestOptions as __api_cloudflare_add_zone_js_onRequestOptions } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\add-zone.js"
 import { onRequestPost as __api_cloudflare_add_zone_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\add-zone.js"
 import { onRequestOptions as __api_cloudflare_delete_zone_js_onRequestOptions } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\delete-zone.js"
 import { onRequestPost as __api_cloudflare_delete_zone_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\delete-zone.js"
 import { onRequestOptions as __api_cloudflare_setup_dns_js_onRequestOptions } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\setup-dns.js"
 import { onRequestPost as __api_cloudflare_setup_dns_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\setup-dns.js"
+import { onRequestOptions as __api_cloudflare_setup_worker_proxy_js_onRequestOptions } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\setup-worker-proxy.js"
+import { onRequestPost as __api_cloudflare_setup_worker_proxy_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\cloudflare\\setup-worker-proxy.js"
 import { onRequestOptions as __api_add_domain_js_onRequestOptions } from "C:\\project\\Link Generator - Copy\\functions\\api\\add-domain.js"
 import { onRequestPost as __api_add_domain_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\add-domain.js"
 import { onRequestOptions as __api_change_password_js_onRequestOptions } from "C:\\project\\Link Generator - Copy\\functions\\api\\change-password.js"
@@ -24,6 +28,20 @@ import { onRequest as ____path___js_onRequest } from "C:\\project\\Link Generato
 
 export const routes = [
     {
+      routePath: "/api/cloudflare/add-pages-domain",
+      mountPath: "/api/cloudflare",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_cloudflare_add_pages_domain_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/cloudflare/add-pages-domain",
+      mountPath: "/api/cloudflare",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_cloudflare_add_pages_domain_js_onRequestPost],
+    },
+  {
       routePath: "/api/cloudflare/add-zone",
       mountPath: "/api/cloudflare",
       method: "OPTIONS",
@@ -64,6 +82,20 @@ export const routes = [
       method: "POST",
       middlewares: [],
       modules: [__api_cloudflare_setup_dns_js_onRequestPost],
+    },
+  {
+      routePath: "/api/cloudflare/setup-worker-proxy",
+      mountPath: "/api/cloudflare",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_cloudflare_setup_worker_proxy_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/cloudflare/setup-worker-proxy",
+      mountPath: "/api/cloudflare",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_cloudflare_setup_worker_proxy_js_onRequestPost],
     },
   {
       routePath: "/api/add-domain",

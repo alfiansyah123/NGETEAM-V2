@@ -32,6 +32,7 @@ function App() {
   const [jumlah, setJumlah] = useState(1)
   const [deskripsi, setDeskripsi] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [useFSubdomain, setUseFSubdomain] = useState(false)
 
   const [domains, setDomains] = useState([])
 
@@ -134,6 +135,23 @@ function App() {
     return slug
   }
 
+  const femaleNames = [
+    'olivia', 'emma', 'amelia', 'sophia', 'charlotte', 'ava', 'isabella', 'mia', 'evelyn', 'harper',
+    'luna', 'camila', 'gianna', 'elizabeth', 'eleanor', 'ella', 'abigail', 'sofia', 'avery', 'scarlett',
+    'emily', 'aria', 'penelope', 'chloe', 'layla', 'mila', 'nora', 'hazel', 'madison', 'ellie',
+    'lily', 'nova', 'isla', 'grace', 'violet', 'aurora', 'riley', 'zoey', 'willow', 'emilia',
+    'stella', 'zoe', 'victoria', 'hannah', 'addison', 'leah', 'lucy', 'eliana', 'ivy', 'everly',
+    'lillian', 'paisley', 'elena', 'naomi', 'maya', 'natalie', 'kinsley', 'delilah', 'claire', 'audrey',
+    'aaliyah', 'ruby', 'brooklyn', 'alice', 'aubrey', 'autumn', 'leilani', 'savannah', 'valentina', 'kennedy',
+    'madelyn', 'josephine', 'bella', 'skylar', 'genesis', 'sophie', 'hailey', 'sadie', 'natalia', 'quinn',
+    'caroline', 'allison', 'gabriella', 'anna', 'serenity', 'nevaeh', 'cora', 'ariana', 'emery', 'lydia',
+    'jade', 'sarah', 'eva', 'adeline', 'madeline', 'piper', 'rylee', 'athena', 'peyton', 'vivian',
+    'clara', 'raelynn', 'lilyana', 'brielle', 'mary', 'julia', 'hadley', 'leia', 'lola', 'jordyn',
+    'reagan', 'mackenzie', 'lani', 'khloe', 'alaina', 'melanie', 'daisy', 'lilly', 'sienna', 'ariel',
+    'angelina', 'isabel', 'reese', 'harlow', 'finley', 'katherine', 'adelaide', 'eliza', 'samantha', 'maggie',
+    'liana', 'laila', 'lucia', 'valerie', 'alana', 'brianna', 'melody', 'kora', 'amara', 'rose'
+  ]
+
   const addToHistory = (links) => {
     const newEntry = {
       id: Date.now(),
@@ -186,8 +204,15 @@ function App() {
             domainToUse = domains[Math.floor(Math.random() * domains.length)]
           }
 
+          let finalDomain = domainToUse
+          if (useFSubdomain && !domainToUse.includes('localhost')) {
+            const randomName = femaleNames[Math.floor(Math.random() * femaleNames.length)]
+            const randSuffix = Math.floor(Math.random() * 100)
+            finalDomain = `${randomName}${randSuffix}.${domainToUse}`
+          }
+
           const protocol = domainToUse.includes('localhost') ? 'http' : 'https'
-          const generatedLink = `${protocol}://${domainToUse}/${randomSlug}`
+          const generatedLink = `${protocol}://${finalDomain}/${randomSlug}`
 
           await saveLink({
             slug: randomSlug,
@@ -413,14 +438,23 @@ function App() {
 
 
             {/* Main Action Button */}
-            <button className="btn-mnx-main" onClick={generateLinks} disabled={loading}>
-              {loading ? <div className="spinner"></div> : (
-                <>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                  GENERATE CROT
-                </>
-              )}
-            </button>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+              <button
+                className={`service-btn ${useFSubdomain ? 'active' : ''}`}
+                onClick={() => setUseFSubdomain(!useFSubdomain)}
+                style={{ flex: 1, padding: '15px', fontSize: '0.9rem' }}
+              >
+                {useFSubdomain ? 'F-SUBDOMAIN: ON' : 'F-SUBDOMAIN: OFF'}
+              </button>
+              <button className="btn-mnx-main" style={{ flex: 2 }} onClick={generateLinks} disabled={loading}>
+                {loading ? 'GENERATING...' : (
+                  <>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                    GENERATE LINK
+                  </>
+                )}
+              </button>
+            </div>
 
             {/* Result Area */}
             <div className="mnx-output-bar">

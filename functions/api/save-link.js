@@ -12,22 +12,30 @@ export async function onRequestPost(context) {
 
     try {
         const body = await context.request.json();
-        const { slug, original_url, domain_url, title, description, image_url } = body;
+        let { slug, original_url, domain_url, title, description, image_url } = body;
+
+        // Resilience: Handle 'domain' key and trim
+        domain_url = (domain_url || body.domain || '').trim();
+        if (domain_url) {
+            domain_url = domain_url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        }
 
         if (!slug || !original_url || !domain_url) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers });
         }
 
-        // 1. Get Domain ID
-        const { data: domain, error: domainError } = await supabase
+        // 1. Get Domain ID (Resilient lookup)
+        const { data: domainList, error: domainError } = await supabase
             .from('domains')
             .select('id')
-            .eq('url', domain_url)
-            .single();
+            .ilike('url', domain_url)
+            .eq('active', true);
 
-        if (domainError || !domain) {
-            return new Response(JSON.stringify({ error: 'Domain not found' }), { status: 400, headers });
+        if (domainError || !domainList || domainList.length === 0) {
+            return new Response(JSON.stringify({ error: `Domain "${domain_url}" not found or inactive` }), { status: 400, headers });
         }
+
+        const domainId = domainList[0].id;
 
         // 2. Insert Link
         const { error: insertError } = await supabase
@@ -35,7 +43,7 @@ export async function onRequestPost(context) {
             .insert({
                 slug,
                 original_url,
-                domain_id: domain.id,
+                domain_id: domainId,
                 title: title || null,
                 description: description || null,
                 image_url: image_url || null
