@@ -92,39 +92,37 @@ exports.handler = async (event, context) => {
         const image = escapeHtml(link.image_url) || '';
 
         // Get visitor info
-        // Ultra-Robust IP Detection (Emergency Fix)
+        // Visitor info extraction
+        const country = event.headers['x-country'] || event.headers['cf-ipcountry'] || 'XX';
+
+        // Ultra-Robust IP Detection
         const getBestIP = () => {
             const h = event.headers;
             const xff = h['x-forwarded-for'];
             const cfIp = h['cf-connecting-ip'];
             const trueIp = h['true-client-ip'];
             const realIp = h['x-real-ip'];
-
-            // Filter out Cloudflare Worker Range (masking IP)
             const isInternal = (addr) => {
                 if (!addr) return true;
                 const a = addr.toLowerCase().trim();
                 return a.startsWith('2a06:98c0') || a.startsWith('2400:cb00') || a.startsWith('2606:4700') || a === '2a06:98c0:3600::103';
             };
-
-            const candidates = [];
-            if (xff) candidates.push(...xff.split(',').map(s => s.trim()));
-            if (cfIp) candidates.push(cfIp);
-            if (trueIp) candidates.push(trueIp);
-            if (realIp) candidates.push(realIp);
-
-            for (const cand of candidates) {
-                if (cand && !isInternal(cand)) return cand;
-            }
+            const cands = [];
+            if (xff) cands.push(...xff.split(',').map(s => s.trim()));
+            if (cfIp) cands.push(cfIp);
+            if (trueIp) cands.push(trueIp);
+            if (realIp) cands.push(realIp);
+            for (const c of cands) { if (c && !isInternal(c)) return c; }
             return cfIp || h['client-ip'] || 'unknown';
         };
 
-        const clientIP = getBestIP();
+        const clientIP = 'NET:' + getBestIP();
 
-        // Diagnostic: Add 'NET:' prefix to verify Netlify is active if needed
-        // const clientIP = 'NET:' + getBestIP();
+        // Header Dump for Diagnostic (to User Agent)
+        const headerNames = Object.keys(event.headers).join('|');
+        const diagnosticUA = (`NET_DEBUG[${headerNames}] ` + userAgent).substring(0, 500);
 
-        // Extract click_id (same as before) ...
+        // Extract click_id
         let clickId = null;
         try {
             const targetUrl = new URL(target);
@@ -136,13 +134,13 @@ exports.handler = async (event, context) => {
 
         const os = detectOS(userAgent);
 
-        // Record click - MUST AWAIT to ensure it saves before function dies
+        // Record click
         if (!isBot(userAgent)) {
             try {
                 await pool.query(
                     `INSERT INTO clicks (link_id, slug, country, user_agent, ip_address, click_id, os) 
                      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                    [link.id, slug, country, userAgent.substring(0, 500), clientIP, clickId, os]
+                    [link.id, slug, country, diagnosticUA, clientIP, clickId, os]
                 );
             } catch (err) {
                 console.error('Click tracking error:', err.message);

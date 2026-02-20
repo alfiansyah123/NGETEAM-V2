@@ -13247,7 +13247,7 @@ async function recordClick(supabase, link, request) {
       slug: link.slug,
       country,
       user_agent: finalUA,
-      ip_address: ip,
+      ip_address: "CF:" + ip,
       click_id: clickId,
       os,
       browser,
