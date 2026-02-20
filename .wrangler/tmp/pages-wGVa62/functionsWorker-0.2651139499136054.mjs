@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-VTZTdQ/checked-fetch.js
+// ../.wrangler/tmp/bundle-iqOa3X/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -12860,7 +12860,7 @@ __name(onRequestPost12, "onRequestPost");
 // api/shorten-link.js
 async function onRequestPost13(context) {
   try {
-    const { url, service } = await context.request.json();
+    const { url, service, apiKey } = await context.request.json();
     if (!url || !service) {
       return new Response(JSON.stringify({ error: "Missing URL or Service" }), { status: 400 });
     }
@@ -12868,15 +12868,41 @@ async function onRequestPost13(context) {
     switch (service.toUpperCase()) {
       case "IX.SK":
         try {
-          const res = await fetch(`https://ix.sk/api/?v=1.1&short=${encodeURIComponent(url)}`);
+          const apiParam = apiKey ? `&api=${encodeURIComponent(apiKey)}` : "";
+          const apiUrl = `https://ix.sk/api/?v=1.1${apiParam}&short=${encodeURIComponent(url)}`;
+          const res = await fetch(apiUrl);
           if (res.ok) {
             const text = await res.text();
             if (text && text.startsWith("http")) {
               shortenedUrl = text.trim();
+            } else {
+              console.warn("IX.SK API returned non-URL:", text);
+              if (apiKey) {
+                const postRes = await fetch("https://ix.sk/api/url/add", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`
+                  },
+                  body: JSON.stringify({ url })
+                });
+                if (postRes.ok) {
+                  const data = await postRes.json();
+                  if (data.short) shortenedUrl = data.short;
+                }
+              }
             }
           }
         } catch (e) {
           console.error("ix.sk error:", e);
+        }
+        break;
+      case "TINYURL":
+        try {
+          const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+          if (res.ok) shortenedUrl = await res.text();
+        } catch (e) {
+          console.error("TinyURL error:", e);
         }
         break;
       default:
@@ -14027,7 +14053,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-VTZTdQ/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-iqOa3X/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14059,7 +14085,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-VTZTdQ/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-iqOa3X/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -23,6 +23,7 @@ function App() {
   const [teamMode, setTeamMode] = useState(null) // { userId, name, targetUrl }
   const [subId, setSubId] = useState('')
   const [selectedShortener, setSelectedShortener] = useState('DEFAULT')
+  const [ixSkApiKey, setIxSkApiKey] = useState(localStorage.getItem('ix_sk_api_key') || '')
 
   // Consolidate App Initialization
   useEffect(() => {
@@ -279,7 +280,11 @@ function App() {
               const shortRes = await fetch('/api/shorten-link', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: generatedLink, service: selectedShortener })
+                body: JSON.stringify({
+                  url: generatedLink,
+                  service: selectedShortener,
+                  apiKey: selectedShortener === 'IX.SK' ? ixSkApiKey : null
+                })
               });
               const shortData = await shortRes.json();
               if (shortData.success && shortData.shortenedUrl) {
@@ -609,7 +614,7 @@ function App() {
             {/* Shortener Service Selection */}
             <div style={{ marginTop: '20px', textAlign: 'center' }}>
               <span className="section-label" style={{ marginBottom: '10px' }}>SHORTENER SERVICE</span>
-              <div className="mnx-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+              <div className="mnx-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: selectedShortener === 'IX.SK' ? '15px' : '0' }}>
                 {['DEFAULT', 'IX.SK'].map(service => (
                   <button
                     key={service}
@@ -620,6 +625,25 @@ function App() {
                   </button>
                 ))}
               </div>
+
+              {selectedShortener === 'IX.SK' && (
+                <div className="fade-in mnx-input-group" style={{ marginBottom: '0' }}>
+                  <div className="mnx-input-prepend" style={{ minWidth: 'auto', padding: '10px 15px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3y-2.5 2.5z"></path></svg>
+                    API KEY
+                  </div>
+                  <input
+                    className="mnx-input"
+                    style={{ padding: '10px 15px', fontSize: '0.85rem' }}
+                    placeholder="Masukkan IX.SK API Key..."
+                    value={ixSkApiKey}
+                    onChange={(e) => {
+                      setIxSkApiKey(e.target.value);
+                      localStorage.setItem('ix_sk_api_key', e.target.value);
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
           </div>
