@@ -180,7 +180,7 @@ async function recordClick(supabase, link, request) {
     }
 
     try {
-        await supabase.from('clicks').insert({
+        const { data, error } = await supabase.from('clicks').insert({
             link_id: link.id,
             slug: link.slug,
             country: country,
@@ -190,9 +190,16 @@ async function recordClick(supabase, link, request) {
             os: os,
             browser: browser,
             referer: referer
-        });
+        }).select('id').single(); // Select the ID of the inserted row
+
+        if (error) {
+            console.error('Click tracking error:', error);
+            return null; // Indicate failure
+        }
+        return data.id; // Return the ID of the new click record
     } catch (err) {
         console.error('Click tracking error:', err);
+        return null; // Indicate failure
     }
 }
 
@@ -244,8 +251,8 @@ export async function onRequest(context) {
         return new Response('Access Denied', { status: 403 });
     }
 
-    // 3. Track Click (Non-blocking)
-    context.waitUntil(recordClick(supabase, link, context.request));
+    // 3. Track Click (Non-blocking) - Get the click ID for potential client-side update
+    const clickId = await recordClick(supabase, link, context.request);
 
     // 4. Geo Blocking
     const country = context.request.cf?.country || 'XX';

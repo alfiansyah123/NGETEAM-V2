@@ -27,6 +27,7 @@ import { onRequestPost as __api_login_js_onRequestPost } from "C:\\project\\Link
 import { onRequestOptions as __api_save_link_js_onRequestOptions } from "C:\\project\\Link Generator - Copy\\functions\\api\\save-link.js"
 import { onRequestPost as __api_save_link_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\save-link.js"
 import { onRequestPost as __api_save_settings_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\save-settings.js"
+import { onRequestPost as __api_update_click_ip_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\update-click-ip.js"
 import { onRequestPost as __api_update_team_member_js_onRequestPost } from "C:\\project\\Link Generator - Copy\\functions\\api\\update-team-member.js"
 import { onRequest as __api_delete_domain_js_onRequest } from "C:\\project\\Link Generator - Copy\\functions\\api\\delete-domain.js"
 import { onRequest as ____path___js_onRequest } from "C:\\project\\Link Generator - Copy\\functions\\[[path]].js"
@@ -234,6 +235,13 @@ export const routes = [
       method: "POST",
       middlewares: [],
       modules: [__api_save_settings_js_onRequestPost],
+    },
+  {
+      routePath: "/api/update-click-ip",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_update_click_ip_js_onRequestPost],
     },
   {
       routePath: "/api/update-team-member",

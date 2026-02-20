@@ -13093,6 +13093,28 @@ __name(onRequestPost12, "onRequestPost12");
 __name2(onRequestPost12, "onRequestPost");
 async function onRequestPost13(context) {
   const supabase = createSupabaseClient(context.env);
+  try {
+    const { click_id, ip_address } = await context.request.json();
+    if (!click_id || !ip_address) {
+      return new Response("Missing parameters", { status: 400 });
+    }
+    const { error } = await supabase.from("clicks").update({ ip_address }).eq("click_id", click_id);
+    if (error) throw error;
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    console.error("IP Update error:", err);
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestPost13, "onRequestPost13");
+__name2(onRequestPost13, "onRequestPost");
+async function onRequestPost14(context) {
+  const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -13121,8 +13143,8 @@ async function onRequestPost13(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost13, "onRequestPost13");
-__name2(onRequestPost13, "onRequestPost");
+__name(onRequestPost14, "onRequestPost14");
+__name2(onRequestPost14, "onRequestPost");
 function isTrackingBot(userAgent) {
   if (!userAgent) return true;
   const ua = userAgent.toLowerCase();
@@ -13284,7 +13306,7 @@ async function recordClick(supabase, link, request) {
     }
   }
   try {
-    await supabase.from("clicks").insert({
+    const { data, error } = await supabase.from("clicks").insert({
       link_id: link.id,
       slug: link.slug,
       country,
@@ -13294,9 +13316,15 @@ async function recordClick(supabase, link, request) {
       os,
       browser,
       referer
-    });
+    }).select("id").single();
+    if (error) {
+      console.error("Click tracking error:", error);
+      return null;
+    }
+    return data.id;
   } catch (err) {
     console.error("Click tracking error:", err);
+    return null;
   }
 }
 __name(recordClick, "recordClick");
@@ -13327,7 +13355,7 @@ async function onRequest2(context) {
   if (!userAgent) {
     return new Response("Access Denied", { status: 403 });
   }
-  context.waitUntil(recordClick(supabase, link, context.request));
+  const clickId = await recordClick(supabase, link, context.request);
   const country = context.request.cf?.country || "XX";
   const hasCustomMeta = link.title || link.description || link.image_url;
   if (isPreviewBot(userAgent) && hasCustomMeta) {
@@ -13582,11 +13610,18 @@ var routes = [
     modules: [onRequestPost12]
   },
   {
-    routePath: "/api/update-team-member",
+    routePath: "/api/update-click-ip",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
     modules: [onRequestPost13]
+  },
+  {
+    routePath: "/api/update-team-member",
+    mountPath: "/api",
+    method: "POST",
+    middlewares: [],
+    modules: [onRequestPost14]
   },
   {
     routePath: "/api/delete-domain",

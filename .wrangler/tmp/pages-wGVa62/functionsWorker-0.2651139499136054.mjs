@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-Tp9J1m/checked-fetch.js
+// ../.wrangler/tmp/bundle-nWB8fk/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -12857,8 +12857,31 @@ async function onRequestPost12(context) {
 }
 __name(onRequestPost12, "onRequestPost");
 
-// api/update-team-member.js
+// api/update-click-ip.js
 async function onRequestPost13(context) {
+  const supabase = createSupabaseClient(context.env);
+  try {
+    const { click_id, ip_address } = await context.request.json();
+    if (!click_id || !ip_address) {
+      return new Response("Missing parameters", { status: 400 });
+    }
+    const { error } = await supabase.from("clicks").update({ ip_address }).eq("click_id", click_id);
+    if (error) throw error;
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    console.error("IP Update error:", err);
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestPost13, "onRequestPost");
+
+// api/update-team-member.js
+async function onRequestPost14(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12888,7 +12911,7 @@ async function onRequestPost13(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost13, "onRequestPost");
+__name(onRequestPost14, "onRequestPost");
 
 // [[path]].js
 function isTrackingBot(userAgent) {
@@ -13048,7 +13071,7 @@ async function recordClick(supabase, link, request) {
     }
   }
   try {
-    await supabase.from("clicks").insert({
+    const { data, error } = await supabase.from("clicks").insert({
       link_id: link.id,
       slug: link.slug,
       country,
@@ -13058,9 +13081,15 @@ async function recordClick(supabase, link, request) {
       os,
       browser,
       referer
-    });
+    }).select("id").single();
+    if (error) {
+      console.error("Click tracking error:", error);
+      return null;
+    }
+    return data.id;
   } catch (err) {
     console.error("Click tracking error:", err);
+    return null;
   }
 }
 __name(recordClick, "recordClick");
@@ -13090,7 +13119,7 @@ async function onRequest2(context) {
   if (!userAgent) {
     return new Response("Access Denied", { status: 403 });
   }
-  context.waitUntil(recordClick(supabase, link, context.request));
+  const clickId = await recordClick(supabase, link, context.request);
   const country = context.request.cf?.country || "XX";
   const hasCustomMeta = link.title || link.description || link.image_url;
   if (isPreviewBot(userAgent) && hasCustomMeta) {
@@ -13346,11 +13375,18 @@ var routes = [
     modules: [onRequestPost12]
   },
   {
-    routePath: "/api/update-team-member",
+    routePath: "/api/update-click-ip",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
     modules: [onRequestPost13]
+  },
+  {
+    routePath: "/api/update-team-member",
+    mountPath: "/api",
+    method: "POST",
+    middlewares: [],
+    modules: [onRequestPost14]
   },
   {
     routePath: "/api/delete-domain",
@@ -13855,7 +13891,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-Tp9J1m/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-nWB8fk/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13887,7 +13923,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-Tp9J1m/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-nWB8fk/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
