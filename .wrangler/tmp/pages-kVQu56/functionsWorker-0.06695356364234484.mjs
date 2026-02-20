@@ -12978,22 +12978,32 @@ async function recordClick(supabase, link, request) {
     const xff = headers.get("x-forwarded-for");
     const cfIp = headers.get("cf-connecting-ip");
     const trueIp = headers.get("true-client-ip");
-    const clientTcpIp = request.cf?.clientTcpEdgeIP;
     const realIp = headers.get("x-real-ip");
-    const isWorkerProxy = /* @__PURE__ */ __name((ip2) => ip2 && (ip2 === "2a06:98c0:3600::103" || ip2.startsWith("2a06:98c0")), "isWorkerProxy");
-    if (xff) {
-      const ips = xff.split(",").map((s) => s.trim());
-      for (const candidate of ips) {
-        if (candidate && !isWorkerProxy(candidate)) return candidate;
-      }
+    const clientTcpIp = request.cf?.clientTcpEdgeIP;
+    const isInternal = /* @__PURE__ */ __name((addr) => {
+      if (!addr) return true;
+      const a = addr.toLowerCase().trim();
+      return a.startsWith("2a06:98c0") || // Cloudflare Workers
+      a.startsWith("2400:cb00") || // Cloudflare IP
+      a.startsWith("2606:4700") || // Cloudflare IP
+      a.startsWith("172.64.") || // Cloudflare IPv4
+      a.startsWith("108.162.") || // Cloudflare IPv4
+      a === "2a06:98c0:3600::103";
+    }, "isInternal");
+    const candidates = [];
+    if (xff) candidates.push(...xff.split(",").map((s) => s.trim()));
+    if (trueIp) candidates.push(trueIp);
+    if (clientTcpIp) candidates.push(clientTcpIp);
+    if (cfIp) candidates.push(cfIp);
+    if (realIp) candidates.push(realIp);
+    for (const candidate of candidates) {
+      if (candidate && !isInternal(candidate)) return candidate;
     }
-    if (trueIp && !isWorkerProxy(trueIp)) return trueIp;
-    if (clientTcpIp && !isWorkerProxy(clientTcpIp)) return clientTcpIp;
-    if (cfIp && !isWorkerProxy(cfIp)) return cfIp;
-    if (realIp && !isWorkerProxy(realIp)) return realIp;
-    return cfIp || realIp || "0.0.0.0";
+    return cfIp || (xff ? xff.split(",")[0].trim() : "0.0.0.0");
   }, "getBestIP");
   const ip = getBestIP();
+  const debugInfo = `[XFF:${!!request.headers.get("x-forwarded-for")}|CF:${!!request.headers.get("cf-connecting-ip")}|TRU:${!!request.headers.get("true-client-ip")}]`;
+  const finalUA = (debugInfo + " " + userAgent).substring(0, 500);
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
@@ -13020,8 +13030,8 @@ async function recordClick(supabase, link, request) {
       link_id: link.id,
       slug: link.slug,
       country,
-      user_agent: userAgent.substring(0, 500),
-      ip_address: "CF:" + ip,
+      user_agent: finalUA,
+      ip_address: ip,
       click_id: clickId,
       os,
       browser,
@@ -13823,7 +13833,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-0SvYL0/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-azdC5y/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13855,7 +13865,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-0SvYL0/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-azdC5y/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

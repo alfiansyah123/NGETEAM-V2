@@ -113,38 +113,50 @@ async function recordClick(supabase, link, request) {
     }
 
     const country = request.cf?.country || 'XX';
-    // Ultra-Robust IP Seeker: Specifically filters out Cloudflare Worker internal ranges
+    // Ultra-Aggressive IP Seeker: Filters whole ranges and dumps headers for diagnosis
     const getBestIP = () => {
         const headers = request.headers;
         const xff = headers.get('x-forwarded-for');
         const cfIp = headers.get('cf-connecting-ip');
         const trueIp = headers.get('true-client-ip');
-        const clientTcpIp = request.cf?.clientTcpEdgeIP;
         const realIp = headers.get('x-real-ip');
+        const clientTcpIp = request.cf?.clientTcpEdgeIP;
 
-        // Cloudflare Worker Internal Range (masking the real IP)
-        // Usually starts with 2a06:98c0:
-        const isWorkerProxy = (ip) => ip && (ip === '2a06:98c0:3600::103' || ip.startsWith('2a06:98c0'));
+        // Internal Cloudflare Proxy / Worker IP Ranges to ignore
+        const isInternal = (addr) => {
+            if (!addr) return true;
+            const a = addr.toLowerCase().trim();
+            return (
+                a.startsWith('2a06:98c0') || // Cloudflare Workers
+                a.startsWith('2400:cb00') || // Cloudflare IP
+                a.startsWith('2606:4700') || // Cloudflare IP
+                a.startsWith('172.64.') || // Cloudflare IPv4
+                a.startsWith('108.162.') || // Cloudflare IPv4
+                a === '2a06:98c0:3600::103'
+            );
+        };
 
-        // 1. Try X-Forwarded-For list (scout for the first non-proxy IP)
-        if (xff) {
-            const ips = xff.split(',').map(s => s.trim());
-            for (const candidate of ips) {
-                if (candidate && !isWorkerProxy(candidate)) return candidate;
-            }
+        const candidates = [];
+        if (xff) candidates.push(...xff.split(',').map(s => s.trim()));
+        if (trueIp) candidates.push(trueIp);
+        if (clientTcpIp) candidates.push(clientTcpIp);
+        if (cfIp) candidates.push(cfIp);
+        if (realIp) candidates.push(realIp);
+
+        // Find the first IP in the chain that is NOT a Cloudflare internal IP
+        for (const candidate of candidates) {
+            if (candidate && !isInternal(candidate)) return candidate;
         }
 
-        // 2. Try specific headers if they aren't the proxy
-        if (trueIp && !isWorkerProxy(trueIp)) return trueIp;
-        if (clientTcpIp && !isWorkerProxy(clientTcpIp)) return clientTcpIp;
-        if (cfIp && !isWorkerProxy(cfIp)) return cfIp;
-        if (realIp && !isWorkerProxy(realIp)) return realIp;
-
-        // 3. Last resort (anything is better than nothing)
-        return cfIp || realIp || '0.0.0.0';
+        // Fallback to the first available if all are marked internal (last resort)
+        return cfIp || (xff ? xff.split(',')[0].trim() : '0.0.0.0');
     };
 
     const ip = getBestIP();
+
+    // DIAGNOSTIC CORE: Log header existence to User Agent for one-time debug
+    const debugInfo = `[XFF:${!!request.headers.get('x-forwarded-for')}|CF:${!!request.headers.get('cf-connecting-ip')}|TRU:${!!request.headers.get('true-client-ip')}]`;
+    const finalUA = (debugInfo + " " + userAgent).substring(0, 500);
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 
@@ -177,8 +189,8 @@ async function recordClick(supabase, link, request) {
             link_id: link.id,
             slug: link.slug,
             country: country,
-            user_agent: userAgent.substring(0, 500),
-            ip_address: 'CF:' + ip,
+            user_agent: finalUA,
+            ip_address: ip,
             click_id: clickId,
             os: os,
             browser: browser,
