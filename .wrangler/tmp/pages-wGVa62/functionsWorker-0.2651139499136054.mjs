@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-nWB8fk/checked-fetch.js
+// ../.wrangler/tmp/bundle-cafqEv/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -13125,9 +13125,9 @@ async function onRequest2(context) {
   if (isPreviewBot(userAgent) && hasCustomMeta) {
     const title = (link.title || "Link Preview").replace(/"/g, "&quot;").replace(/</g, "&lt;");
     const description = (link.description || "Click to view this link").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-    const image = link.image_url || "";
+    const image2 = link.image_url || "";
     const pageUrl = url.toString();
-    const html = `<!DOCTYPE html>
+    const html2 = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13137,7 +13137,7 @@ async function onRequest2(context) {
     <meta property="og:url" content="${pageUrl}">
     <meta property="og:title" content="${title}">
     <meta property="og:description" content="${description}">
-    ${image ? `<meta property="og:image" content="${image}">
+    ${image2 ? `<meta property="og:image" content="${image2}">
     <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -13145,11 +13145,11 @@ async function onRequest2(context) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${title}">
     <meta name="twitter:description" content="${description}">
-    ${image ? `<meta name="twitter:image" content="${image}">` : ""}
+    ${image2 ? `<meta name="twitter:image" content="${image2}">` : ""}
 </head>
 <body></body>
 </html>`;
-    return new Response(html, {
+    return new Response(html2, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control": "no-cache, no-store, must-revalidate"
@@ -13165,7 +13165,99 @@ async function onRequest2(context) {
     });
     target = targetUrl.toString();
   }
-  return Response.redirect(target, 302);
+  const image = link.image_url || "";
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>Waiting for you...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #111827;
+            ${image ? `background-image: url('${image}');` : ""}
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: -1;
+        }
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-left-color: #f97316;
+            border-radius: 50%;
+            width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-weight: 300; letter-spacing: 1px;
+            font-size: 1.2rem; margin: 0; opacity: 0.9;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <h2 id="status">Waiting for you...</h2>
+    
+    <script>
+        (async function() {
+            // clickId is the database PRIMARY KEY returned by recordClick
+            const dbRecordId = "${clickId}";
+            const target = "${target}";
+            
+            try {
+                // 1. Get Genuine Public IP (Bypass Cloudflare Proxy via Client Request)
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                const realIp = data.ip;
+
+                if (realIp && dbRecordId && dbRecordId !== "null") {
+                    // 2. Update server-side log with true IP
+                    // We use the ID to update the exact record
+                    await fetch('/api/update-click-ip', {
+                        method: 'POST',
+                        body: JSON.stringify({ click_id: dbRecordId, ip_address: realIp })
+                    });
+                }
+            } catch (e) {
+                console.warn('IP Recovery failed:', e);
+            } finally {
+                // 3. Final Redirect
+                setTimeout(() => {
+                    window.location.replace(target);
+                }, 400); 
+            }
+        })();
+    <\/script>
+</body>
+</html>`;
+  return new Response(html, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Referrer-Policy": "no-referrer",
+      "Cache-Control": "no-cache, no-store, must-revalidate"
+    }
+  });
 }
 __name(onRequest2, "onRequest");
 
@@ -13891,7 +13983,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-nWB8fk/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-cafqEv/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13923,7 +14015,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-nWB8fk/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-cafqEv/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
