@@ -113,55 +113,45 @@ async function recordClick(supabase, link, request) {
     }
 
     const country = request.cf?.country || 'XX';
-    // Ultra-Aggressive IP Seeker + FULL HEADER DUMP for debugging
+    // Final Robust IP Seeker: Dives into request.cf and chain headers
     const getBestIP = () => {
-        const headers = request.headers;
-        const xff = headers.get('x-forwarded-for');
-        const cfIp = headers.get('cf-connecting-ip');
-        const trueIp = headers.get('true-client-ip');
-        const realIp = headers.get('x-real-ip');
-        const clientTcpIp = request.cf?.clientTcpEdgeIP;
+        const h = request.headers;
+        const cf = request.cf || {};
 
-        // Internal Cloudflare Proxy / Worker IP Ranges to ignore
-        const isInternal = (addr) => {
-            if (!addr) return true;
-            const a = addr.toLowerCase().trim();
-            return (
-                a.startsWith('2a06:98c0') || // Cloudflare Workers
-                a.startsWith('2400:cb00') || // Cloudflare IP
-                a.startsWith('2606:4700') || // Cloudflare IP
-                a.startsWith('172.64.') || // Cloudflare IPv4
-                a.startsWith('108.162.') || // Cloudflare IPv4
-                a === '2a06:98c0:3600::103'
-            );
+        // Potential sources in priority
+        const candidates = [
+            h.get('cf-connecting-ip'),
+            h.get('x-forwarded-for')?.split(',')[0].trim(),
+            cf.clientTcpEdgeIP,
+            h.get('true-client-ip'),
+            h.get('x-real-ip')
+        ];
+
+        // Filter out known Cloudflare proxy ranges
+        const isInternal = (ip) => {
+            if (!ip) return true;
+            return ip.startsWith('2a06:98c0') || ip.startsWith('2400:cb00') || ip.startsWith('2606:4700') || ip === '2a06:98c0:3600::103';
         };
 
-        const candidates = [];
-        if (xff) candidates.push(...xff.split(',').map(s => s.trim()));
-        if (trueIp) candidates.push(trueIp);
-        if (clientTcpIp) candidates.push(clientTcpIp);
-        if (cfIp) candidates.push(cfIp);
-        if (realIp) candidates.push(realIp);
-
-        // Find the first IP in the chain that is NOT a Cloudflare internal IP
-        for (const candidate of candidates) {
-            if (candidate && !isInternal(candidate)) return candidate;
+        for (const cand of candidates) {
+            if (cand && !isInternal(cand)) return cand;
         }
 
-        // Fallback to the first available if all are marked internal (last resort)
-        return cfIp || (xff ? xff.split(',')[0].trim() : '0.0.0.0');
+        // Emergency fallback: If everything is masked, try the LAST element of XFF (sometimes it works)
+        const xff = h.get('x-forwarded-for');
+        if (xff && xff.includes(',')) {
+            const parts = xff.split(',').map(s => s.trim());
+            const last = parts[parts.length - 1];
+            if (last && !isInternal(last)) return last;
+        }
+
+        return h.get('cf-connecting-ip') || '0.0.0.0';
     };
 
     const ip = getBestIP();
 
-    // HEADER DUMP: We put all headers names and some values in UA to SEE them in the dashboard screenshot
-    const allHeaders = [];
-    request.headers.forEach((v, k) => {
-        if (!['cookie', 'authorization'].includes(k.toLowerCase())) {
-            allHeaders.push(`${k}:${v}`);
-        }
-    });
-    const finalUA = ("DEBUG_HEADERS: " + allHeaders.join(' | ')).substring(0, 500);
+    // Diagnostic info (hidden in UA string but won't break dashboard look)
+    const finalUA = userAgent.substring(0, 500);
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 
@@ -193,9 +183,9 @@ async function recordClick(supabase, link, request) {
         await supabase.from('clicks').insert({
             link_id: link.id,
             slug: link.slug,
-            country: 'CF_DEBUG',
+            country: country,
             user_agent: finalUA,
-            ip_address: 'CF_IP:' + ip,
+            ip_address: ip,
             click_id: clickId,
             os: os,
             browser: browser,

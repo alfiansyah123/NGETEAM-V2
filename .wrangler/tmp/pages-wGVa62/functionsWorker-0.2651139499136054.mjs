@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-HlrjaP/checked-fetch.js
+// ../.wrangler/tmp/bundle-Tp9J1m/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -13000,41 +13000,32 @@ async function recordClick(supabase, link, request) {
   }
   const country = request.cf?.country || "XX";
   const getBestIP = /* @__PURE__ */ __name(() => {
-    const headers = request.headers;
-    const xff = headers.get("x-forwarded-for");
-    const cfIp = headers.get("cf-connecting-ip");
-    const trueIp = headers.get("true-client-ip");
-    const realIp = headers.get("x-real-ip");
-    const clientTcpIp = request.cf?.clientTcpEdgeIP;
-    const isInternal = /* @__PURE__ */ __name((addr) => {
-      if (!addr) return true;
-      const a = addr.toLowerCase().trim();
-      return a.startsWith("2a06:98c0") || // Cloudflare Workers
-      a.startsWith("2400:cb00") || // Cloudflare IP
-      a.startsWith("2606:4700") || // Cloudflare IP
-      a.startsWith("172.64.") || // Cloudflare IPv4
-      a.startsWith("108.162.") || // Cloudflare IPv4
-      a === "2a06:98c0:3600::103";
+    const h = request.headers;
+    const cf = request.cf || {};
+    const candidates = [
+      h.get("cf-connecting-ip"),
+      h.get("x-forwarded-for")?.split(",")[0].trim(),
+      cf.clientTcpEdgeIP,
+      h.get("true-client-ip"),
+      h.get("x-real-ip")
+    ];
+    const isInternal = /* @__PURE__ */ __name((ip2) => {
+      if (!ip2) return true;
+      return ip2.startsWith("2a06:98c0") || ip2.startsWith("2400:cb00") || ip2.startsWith("2606:4700") || ip2 === "2a06:98c0:3600::103";
     }, "isInternal");
-    const candidates = [];
-    if (xff) candidates.push(...xff.split(",").map((s) => s.trim()));
-    if (trueIp) candidates.push(trueIp);
-    if (clientTcpIp) candidates.push(clientTcpIp);
-    if (cfIp) candidates.push(cfIp);
-    if (realIp) candidates.push(realIp);
-    for (const candidate of candidates) {
-      if (candidate && !isInternal(candidate)) return candidate;
+    for (const cand of candidates) {
+      if (cand && !isInternal(cand)) return cand;
     }
-    return cfIp || (xff ? xff.split(",")[0].trim() : "0.0.0.0");
+    const xff = h.get("x-forwarded-for");
+    if (xff && xff.includes(",")) {
+      const parts = xff.split(",").map((s) => s.trim());
+      const last = parts[parts.length - 1];
+      if (last && !isInternal(last)) return last;
+    }
+    return h.get("cf-connecting-ip") || "0.0.0.0";
   }, "getBestIP");
   const ip = getBestIP();
-  const allHeaders = [];
-  request.headers.forEach((v, k) => {
-    if (!["cookie", "authorization"].includes(k.toLowerCase())) {
-      allHeaders.push(`${k}:${v}`);
-    }
-  });
-  const finalUA = ("DEBUG_HEADERS: " + allHeaders.join(" | ")).substring(0, 500);
+  const finalUA = userAgent.substring(0, 500);
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
@@ -13062,7 +13053,7 @@ async function recordClick(supabase, link, request) {
       slug: link.slug,
       country,
       user_agent: finalUA,
-      ip_address: "CF:" + ip,
+      ip_address: ip,
       click_id: clickId,
       os,
       browser,
@@ -13864,7 +13855,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-HlrjaP/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-Tp9J1m/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13896,7 +13887,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-HlrjaP/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-Tp9J1m/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

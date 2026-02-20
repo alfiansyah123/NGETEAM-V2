@@ -140,7 +140,7 @@ exports.handler = async (event, context) => {
                 await pool.query(
                     `INSERT INTO clicks (link_id, slug, country, user_agent, ip_address, click_id, os) 
                      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                    [link.id, slug, '!!NET!!', diagnosticUA, 'NET_IP:' + getBestIP(), clickId, os]
+                    [link.id, slug, country, userAgent.substring(0, 500), getBestIP(), clickId, os]
                 );
             } catch (err) {
                 console.error('Click tracking error:', err.message);
