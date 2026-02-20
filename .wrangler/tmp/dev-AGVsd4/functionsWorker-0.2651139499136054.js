@@ -13099,14 +13099,6 @@ async function onRequestPost13(context) {
     }
     let shortenedUrl = url;
     switch (service.toUpperCase()) {
-      case "TINYURL":
-        try {
-          const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
-          if (res.ok) shortenedUrl = await res.text();
-        } catch (e) {
-          console.error("TinyURL error:", e);
-        }
-        break;
       case "IX.SK":
         try {
           const res = await fetch(`https://ix.sk/api/?v=1.1&short=${encodeURIComponent(url)}`);
@@ -13119,8 +13111,6 @@ async function onRequestPost13(context) {
         } catch (e) {
           console.error("ix.sk error:", e);
         }
-        break;
-      case "BIT.LY":
         break;
       default:
         shortenedUrl = url;

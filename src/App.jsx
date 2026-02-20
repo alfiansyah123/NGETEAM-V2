@@ -609,8 +609,8 @@ function App() {
             {/* Shortener Service Selection */}
             <div style={{ marginTop: '20px', textAlign: 'center' }}>
               <span className="section-label" style={{ marginBottom: '10px' }}>SHORTENER SERVICE</span>
-              <div className="mnx-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                {['DEFAULT', 'BIT.LY', 'TINYURL', 'FBME.APP', 'IX.SK', 'EU.ORG'].map(service => (
+              <div className="mnx-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                {['DEFAULT', 'IX.SK'].map(service => (
                   <button
                     key={service}
                     className={`service-btn ${selectedShortener === service ? 'active' : ''}`}

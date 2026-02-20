@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-Xo8rK6/checked-fetch.js
+// ../.wrangler/tmp/bundle-VTZTdQ/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -12866,14 +12866,6 @@ async function onRequestPost13(context) {
     }
     let shortenedUrl = url;
     switch (service.toUpperCase()) {
-      case "TINYURL":
-        try {
-          const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
-          if (res.ok) shortenedUrl = await res.text();
-        } catch (e) {
-          console.error("TinyURL error:", e);
-        }
-        break;
       case "IX.SK":
         try {
           const res = await fetch(`https://ix.sk/api/?v=1.1&short=${encodeURIComponent(url)}`);
@@ -12886,8 +12878,6 @@ async function onRequestPost13(context) {
         } catch (e) {
           console.error("ix.sk error:", e);
         }
-        break;
-      case "BIT.LY":
         break;
       default:
         shortenedUrl = url;
@@ -14037,7 +14027,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-Xo8rK6/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-VTZTdQ/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14069,7 +14059,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-Xo8rK6/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-VTZTdQ/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

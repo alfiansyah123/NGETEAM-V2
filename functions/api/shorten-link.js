@@ -9,15 +9,6 @@ export async function onRequestPost(context) {
         let shortenedUrl = url;
 
         switch (service.toUpperCase()) {
-            case 'TINYURL':
-                try {
-                    const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
-                    if (res.ok) shortenedUrl = await res.text();
-                } catch (e) {
-                    console.error('TinyURL error:', e);
-                }
-                break;
-
             case 'IX.SK':
                 try {
                     // Try the common ix.sk API pattern
@@ -31,11 +22,6 @@ export async function onRequestPost(context) {
                 } catch (e) {
                     console.error('ix.sk error:', e);
                 }
-                break;
-
-            case 'BIT.LY':
-                // Placeholder: Bitly requires OAuth/API token.
-                // If user provides BITLY_TOKEN in environment, we could implement it.
                 break;
 
             default:
