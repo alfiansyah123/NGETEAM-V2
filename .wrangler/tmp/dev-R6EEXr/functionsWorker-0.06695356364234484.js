@@ -13184,7 +13184,7 @@ async function recordClick(supabase, link, request) {
     clickId = requestUrl.searchParams.get("gclid") || requestUrl.searchParams.get("fbclid");
   }
   const country = request.cf?.country || "XX";
-  const ip = request.headers.get("cf-connecting-ip") || "0.0.0.0";
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || "0.0.0.0";
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
