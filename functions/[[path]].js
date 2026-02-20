@@ -113,10 +113,32 @@ async function recordClick(supabase, link, request) {
     }
 
     const country = request.cf?.country || 'XX';
-    const ip = (request.headers.get('x-forwarded-for')?.split(',')[0].trim()) ||
-        request.headers.get('cf-connecting-ip') ||
-        request.headers.get('x-real-ip') ||
-        '0.0.0.0';
+    // Intelligent IP Detection: Filters out known Cloudflare Worker proxy IPs
+    const getBestIP = () => {
+        const xff = request.headers.get('x-forwarded-for');
+        const cfIp = request.headers.get('cf-connecting-ip');
+        const realIp = request.headers.get('x-real-ip');
+        const clientIp = request.headers.get('true-client-ip');
+
+        // Known Cloudflare Worker Proxy IP to skip
+        const CLOUDFLARE_WORKER_IP = '2a06:98c0:3600::103';
+
+        // 1. Check X-Forwarded-For chain for the first non-Cloudflare IP
+        if (xff) {
+            const ips = xff.split(',').map(s => s.trim());
+            for (const candidate of ips) {
+                if (candidate && candidate !== CLOUDFLARE_WORKER_IP) return candidate;
+            }
+        }
+
+        // 2. Check CF-Connecting-IP if it's not the proxy IP
+        if (cfIp && cfIp !== CLOUDFLARE_WORKER_IP) return cfIp;
+
+        // 3. Fallbacks
+        return clientIp || realIp || cfIp || '0.0.0.0';
+    };
+
+    const ip = getBestIP();
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 

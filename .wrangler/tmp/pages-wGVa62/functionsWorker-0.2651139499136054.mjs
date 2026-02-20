@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-IKUueg/checked-fetch.js
+// ../.wrangler/tmp/bundle-ALXe4J/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -12999,7 +12999,22 @@ async function recordClick(supabase, link, request) {
     clickId = requestUrl.searchParams.get("gclid") || requestUrl.searchParams.get("fbclid");
   }
   const country = request.cf?.country || "XX";
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || "0.0.0.0";
+  const getBestIP = /* @__PURE__ */ __name(() => {
+    const xff = request.headers.get("x-forwarded-for");
+    const cfIp = request.headers.get("cf-connecting-ip");
+    const realIp = request.headers.get("x-real-ip");
+    const clientIp = request.headers.get("true-client-ip");
+    const CLOUDFLARE_WORKER_IP = "2a06:98c0:3600::103";
+    if (xff) {
+      const ips = xff.split(",").map((s) => s.trim());
+      for (const candidate of ips) {
+        if (candidate && candidate !== CLOUDFLARE_WORKER_IP) return candidate;
+      }
+    }
+    if (cfIp && cfIp !== CLOUDFLARE_WORKER_IP) return cfIp;
+    return clientIp || realIp || cfIp || "0.0.0.0";
+  }, "getBestIP");
+  const ip = getBestIP();
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
@@ -13829,7 +13844,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-IKUueg/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-ALXe4J/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13861,7 +13876,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-IKUueg/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-ALXe4J/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

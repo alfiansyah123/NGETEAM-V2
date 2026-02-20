@@ -13235,7 +13235,22 @@ async function recordClick(supabase, link, request) {
     clickId = requestUrl.searchParams.get("gclid") || requestUrl.searchParams.get("fbclid");
   }
   const country = request.cf?.country || "XX";
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || "0.0.0.0";
+  const getBestIP = /* @__PURE__ */ __name2(() => {
+    const xff = request.headers.get("x-forwarded-for");
+    const cfIp = request.headers.get("cf-connecting-ip");
+    const realIp = request.headers.get("x-real-ip");
+    const clientIp = request.headers.get("true-client-ip");
+    const CLOUDFLARE_WORKER_IP = "2a06:98c0:3600::103";
+    if (xff) {
+      const ips = xff.split(",").map((s) => s.trim());
+      for (const candidate of ips) {
+        if (candidate && candidate !== CLOUDFLARE_WORKER_IP) return candidate;
+      }
+    }
+    if (cfIp && cfIp !== CLOUDFLARE_WORKER_IP) return cfIp;
+    return clientIp || realIp || cfIp || "0.0.0.0";
+  }, "getBestIP");
+  const ip = getBestIP();
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
