@@ -13002,8 +13002,13 @@ async function recordClick(supabase, link, request) {
     return cfIp || (xff ? xff.split(",")[0].trim() : "0.0.0.0");
   }, "getBestIP");
   const ip = getBestIP();
-  const debugInfo = `[XFF:${!!request.headers.get("x-forwarded-for")}|CF:${!!request.headers.get("cf-connecting-ip")}|TRU:${!!request.headers.get("true-client-ip")}]`;
-  const finalUA = (debugInfo + " " + userAgent).substring(0, 500);
+  const allHeaders = [];
+  request.headers.forEach((v, k) => {
+    if (!["cookie", "authorization"].includes(k.toLowerCase())) {
+      allHeaders.push(`${k}:${v}`);
+    }
+  });
+  const finalUA = ("DEBUG_HEADERS: " + allHeaders.join(" | ")).substring(0, 500);
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
@@ -13833,7 +13838,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-azdC5y/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-NcSbqh/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13865,7 +13870,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-azdC5y/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-NcSbqh/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

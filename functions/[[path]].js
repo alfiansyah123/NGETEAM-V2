@@ -113,7 +113,7 @@ async function recordClick(supabase, link, request) {
     }
 
     const country = request.cf?.country || 'XX';
-    // Ultra-Aggressive IP Seeker: Filters whole ranges and dumps headers for diagnosis
+    // Ultra-Aggressive IP Seeker + FULL HEADER DUMP for debugging
     const getBestIP = () => {
         const headers = request.headers;
         const xff = headers.get('x-forwarded-for');
@@ -154,9 +154,14 @@ async function recordClick(supabase, link, request) {
 
     const ip = getBestIP();
 
-    // DIAGNOSTIC CORE: Log header existence to User Agent for one-time debug
-    const debugInfo = `[XFF:${!!request.headers.get('x-forwarded-for')}|CF:${!!request.headers.get('cf-connecting-ip')}|TRU:${!!request.headers.get('true-client-ip')}]`;
-    const finalUA = (debugInfo + " " + userAgent).substring(0, 500);
+    // HEADER DUMP: We put all headers names and some values in UA to SEE them in the dashboard screenshot
+    const allHeaders = [];
+    request.headers.forEach((v, k) => {
+        if (!['cookie', 'authorization'].includes(k.toLowerCase())) {
+            allHeaders.push(`${k}:${v}`);
+        }
+    });
+    const finalUA = ("DEBUG_HEADERS: " + allHeaders.join(' | ')).substring(0, 500);
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 

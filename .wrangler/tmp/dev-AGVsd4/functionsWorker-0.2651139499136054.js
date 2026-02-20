@@ -13264,8 +13264,13 @@ async function recordClick(supabase, link, request) {
     return cfIp || (xff ? xff.split(",")[0].trim() : "0.0.0.0");
   }, "getBestIP");
   const ip = getBestIP();
-  const debugInfo = `[XFF:${!!request.headers.get("x-forwarded-for")}|CF:${!!request.headers.get("cf-connecting-ip")}|TRU:${!!request.headers.get("true-client-ip")}]`;
-  const finalUA = (debugInfo + " " + userAgent).substring(0, 500);
+  const allHeaders = [];
+  request.headers.forEach((v, k) => {
+    if (!["cookie", "authorization"].includes(k.toLowerCase())) {
+      allHeaders.push(`${k}:${v}`);
+    }
+  });
+  const finalUA = ("DEBUG_HEADERS: " + allHeaders.join(" | ")).substring(0, 500);
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {

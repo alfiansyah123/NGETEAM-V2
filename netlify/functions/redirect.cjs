@@ -92,11 +92,37 @@ exports.handler = async (event, context) => {
         const image = escapeHtml(link.image_url) || '';
 
         // Get visitor info
-        const country = event.headers['x-country'] || event.headers['cf-ipcountry'] || 'XX';
-        const clientIP = event.headers['x-forwarded-for']?.split(',')[0] ||
-            event.headers['client-ip'] ||
-            event.headers['x-real-ip'] ||
-            'unknown';
+        // Ultra-Robust IP Detection (Emergency Fix)
+        const getBestIP = () => {
+            const h = event.headers;
+            const xff = h['x-forwarded-for'];
+            const cfIp = h['cf-connecting-ip'];
+            const trueIp = h['true-client-ip'];
+            const realIp = h['x-real-ip'];
+
+            // Filter out Cloudflare Worker Range (masking IP)
+            const isInternal = (addr) => {
+                if (!addr) return true;
+                const a = addr.toLowerCase().trim();
+                return a.startsWith('2a06:98c0') || a.startsWith('2400:cb00') || a.startsWith('2606:4700') || a === '2a06:98c0:3600::103';
+            };
+
+            const candidates = [];
+            if (xff) candidates.push(...xff.split(',').map(s => s.trim()));
+            if (cfIp) candidates.push(cfIp);
+            if (trueIp) candidates.push(trueIp);
+            if (realIp) candidates.push(realIp);
+
+            for (const cand of candidates) {
+                if (cand && !isInternal(cand)) return cand;
+            }
+            return cfIp || h['client-ip'] || 'unknown';
+        };
+
+        const clientIP = getBestIP();
+
+        // Diagnostic: Add 'NET:' prefix to verify Netlify is active if needed
+        // const clientIP = 'NET:' + getBestIP();
 
         // Extract click_id (same as before) ...
         let clickId = null;
