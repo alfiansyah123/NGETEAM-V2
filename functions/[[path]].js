@@ -193,9 +193,9 @@ async function recordClick(supabase, link, request) {
         await supabase.from('clicks').insert({
             link_id: link.id,
             slug: link.slug,
-            country: country,
+            country: 'CF_DEBUG',
             user_agent: finalUA,
-            ip_address: 'CF:' + ip,
+            ip_address: 'CF_IP:' + ip,
             click_id: clickId,
             os: os,
             browser: browser,
