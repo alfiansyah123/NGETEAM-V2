@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-iqOa3X/checked-fetch.js
+// ../.wrangler/tmp/bundle-BFV7bz/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -12672,10 +12672,19 @@ async function onRequestGet7(context) {
     "Content-Type": "application/json"
   };
   try {
-    console.log("API get-team started");
-    const { data: team, error: teamError } = await supabase.from("team").select("*").order("name", { ascending: true });
+    console.log("API get-team started (Safe Mode)");
+    const { data: team, error: teamError } = await supabase.from("team").select("id, name, user_id, password").order("name", { ascending: true });
     if (teamError) {
-      console.error("Supabase teamError:", teamError);
+      console.error("Supabase teamError (Specific Columns):", teamError);
+      if (teamError.message?.includes('column "password" does not exist')) {
+        const { data: retryTeam, error: retryError } = await supabase.from("team").select("id, name, user_id").order("name", { ascending: true });
+        if (retryError) throw retryError;
+        return new Response(JSON.stringify({
+          success: true,
+          team: retryTeam.map((t) => ({ ...t, password: "NOT_SETUP" })),
+          warning: "Password column missing in Supabase"
+        }), { status: 200, headers });
+      }
       throw teamError;
     }
     if (!team || team.length === 0) {
@@ -12702,7 +12711,11 @@ async function onRequestGet7(context) {
   } catch (error) {
     console.error("Database error in get-team:", error);
     const detailedError = error.message || (typeof error === "string" ? error : JSON.stringify(error));
-    return new Response(JSON.stringify({ success: false, error: "Failed to fetch team: " + detailedError }), { status: 500, headers });
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Failed to fetch team: " + detailedError,
+      hint: "Check if password column exists in team table"
+    }), { status: 500, headers });
   }
 }
 __name(onRequestGet7, "onRequestGet");
@@ -14053,7 +14066,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-iqOa3X/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-BFV7bz/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14085,7 +14098,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-iqOa3X/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-BFV7bz/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -273,24 +273,45 @@ const Admin = () => {
         setLoading(true);
         setMessage({ type: '', text: '' });
         try {
+            // 1. Add Zone to Cloudflare
             const addZoneRes = await fetch('/api/cloudflare/add-zone', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ domain: newDomain.trim(), cfToken, cfAccountId })
             });
             const zoneData = await addZoneRes.json();
-            if (!addZoneRes.ok) throw new Error(zoneData.error || 'Failed');
+            if (!addZoneRes.ok) throw new Error(zoneData.error || 'Failed to add Zone');
 
-            await fetch('/api/add-domain', {
+            const zoneId = zoneData.zone_id;
+
+            // 2. Setup DNS (CNAMEs)
+            const dnsRes = await fetch('/api/cloudflare/setup-dns', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: newDomain.trim() })
+                body: JSON.stringify({ domain: newDomain.trim(), zoneId, cfToken })
             });
+            if (!dnsRes.ok) console.warn('DNS Setup possibly incomplete');
 
+            // 3. Add to Pages Project Domains
+            const pagesRes = await fetch('/api/cloudflare/add-pages-domain', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ domain: newDomain.trim(), cfToken, cfAccountId })
+            });
+            if (!pagesRes.ok) console.warn('Pages Domain link possibly incomplete');
+
+            // 4. Setup Worker Proxy (Wildcard)
             await fetch('/api/cloudflare/setup-worker-proxy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ domain: newDomain.trim(), cfToken, cfAccountId })
+            });
+
+            // 5. Add to Database
+            await fetch('/api/add-domain', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: newDomain.trim() })
             });
 
             setNameservers(zoneData.nameservers);

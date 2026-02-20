@@ -8,15 +8,34 @@ export async function onRequestGet(context) {
     };
 
     try {
-        console.log('API get-team started');
-        // Step 1: Fetch all team members
+        console.log('API get-team started (Safe Mode)');
+
+        // Try to fetch specific columns first (safest approach)
+        // We exclude password initially to see if basic fetch works
         const { data: team, error: teamError } = await supabase
             .from('team')
-            .select('*')
+            .select('id, name, user_id, password')
             .order('name', { ascending: true });
 
         if (teamError) {
-            console.error('Supabase teamError:', teamError);
+            console.error('Supabase teamError (Specific Columns):', teamError);
+
+            // If it failed because 'password' column is missing, try without it
+            if (teamError.message?.includes('column "password" does not exist')) {
+                const { data: retryTeam, error: retryError } = await supabase
+                    .from('team')
+                    .select('id, name, user_id')
+                    .order('name', { ascending: true });
+
+                if (retryError) throw retryError;
+
+                return new Response(JSON.stringify({
+                    success: true,
+                    team: retryTeam.map(t => ({ ...t, password: 'NOT_SETUP' })),
+                    warning: 'Password column missing in Supabase'
+                }), { status: 200, headers });
+            }
+
             throw teamError;
         }
 
@@ -55,6 +74,10 @@ export async function onRequestGet(context) {
     } catch (error) {
         console.error('Database error in get-team:', error);
         const detailedError = error.message || (typeof error === 'string' ? error : JSON.stringify(error));
-        return new Response(JSON.stringify({ success: false, error: 'Failed to fetch team: ' + detailedError }), { status: 500, headers });
+        return new Response(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch team: ' + detailedError,
+            hint: 'Check if password column exists in team table'
+        }), { status: 500, headers });
     }
 }
