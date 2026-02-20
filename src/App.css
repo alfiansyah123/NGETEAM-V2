@@ -476,22 +476,34 @@ input[type=number] {
 }
 
 .service-btn {
-  background: var(--bg-surface);
+  background: rgba(30, 41, 59, 0.4);
   border: 1px solid var(--border-glass);
   color: var(--text-secondary);
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.service-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 .service-btn.active {
-  background: var(--accent-purple);
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
   color: #fff;
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  border: none;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px) scale(1.02);
 }
 
 /* Master Button */

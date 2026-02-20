@@ -22,6 +22,7 @@ function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark')
   const [teamMode, setTeamMode] = useState(null) // { userId, name, targetUrl }
   const [subId, setSubId] = useState('')
+  const [selectedShortener, setSelectedShortener] = useState('DEFAULT')
 
   // Consolidate App Initialization
   useEffect(() => {
@@ -270,6 +271,24 @@ function App() {
 
           const protocol = domainToUse.includes('localhost') ? 'http' : 'https'
           const generatedLink = `${protocol}://${finalDomain}/${randomSlug}`
+          let finalLink = generatedLink
+
+          // Shorten link if service is selected
+          if (selectedShortener !== 'DEFAULT') {
+            try {
+              const shortRes = await fetch('/api/shorten-link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: generatedLink, service: selectedShortener })
+              });
+              const shortData = await shortRes.json();
+              if (shortData.success && shortData.shortenedUrl) {
+                finalLink = shortData.shortenedUrl;
+              }
+            } catch (e) {
+              console.warn('Shortening failed:', e);
+            }
+          }
 
           await saveLink({
             slug: randomSlug,
@@ -280,7 +299,7 @@ function App() {
             image_url: imageUrl
           })
 
-          generated.push(generatedLink)
+          generated.push(finalLink)
         }
       }
 
@@ -585,6 +604,22 @@ function App() {
               ) : (
                 "Resulting link..."
               )}
+            </div>
+
+            {/* Shortener Service Selection */}
+            <div style={{ marginTop: '20px', textAlign: 'center' }}>
+              <span className="section-label" style={{ marginBottom: '10px' }}>SHORTENER SERVICE</span>
+              <div className="mnx-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                {['DEFAULT', 'BIT.LY', 'TINYURL', 'FBME.APP', 'IX.SK', 'EU.ORG'].map(service => (
+                  <button
+                    key={service}
+                    className={`service-btn ${selectedShortener === service ? 'active' : ''}`}
+                    onClick={() => setSelectedShortener(service)}
+                  >
+                    {service}
+                  </button>
+                ))}
+              </div>
             </div>
 
           </div>

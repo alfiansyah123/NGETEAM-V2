@@ -12831,8 +12831,55 @@ async function onRequestPost12(context) {
 }
 __name(onRequestPost12, "onRequestPost");
 
-// api/update-click-ip.js
+// api/shorten-link.js
 async function onRequestPost13(context) {
+  try {
+    const { url, service } = await context.request.json();
+    if (!url || !service) {
+      return new Response(JSON.stringify({ error: "Missing URL or Service" }), { status: 400 });
+    }
+    let shortenedUrl = url;
+    switch (service.toUpperCase()) {
+      case "TINYURL":
+        try {
+          const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+          if (res.ok) shortenedUrl = await res.text();
+        } catch (e) {
+          console.error("TinyURL error:", e);
+        }
+        break;
+      case "IX.SK":
+        try {
+          const res = await fetch(`https://ix.sk/api/?v=1.1&short=${encodeURIComponent(url)}`);
+          if (res.ok) {
+            const text = await res.text();
+            if (text && text.startsWith("http")) {
+              shortenedUrl = text.trim();
+            }
+          }
+        } catch (e) {
+          console.error("ix.sk error:", e);
+        }
+        break;
+      case "BIT.LY":
+        break;
+      default:
+        shortenedUrl = url;
+    }
+    return new Response(JSON.stringify({ success: true, shortenedUrl }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(onRequestPost13, "onRequestPost");
+
+// api/update-click-ip.js
+async function onRequestPost14(context) {
   const supabase = createSupabaseClient(context.env);
   try {
     const { click_id, ip_address } = await context.request.json();
@@ -12852,10 +12899,10 @@ async function onRequestPost13(context) {
     });
   }
 }
-__name(onRequestPost13, "onRequestPost");
+__name(onRequestPost14, "onRequestPost");
 
 // api/update-team-member.js
-async function onRequestPost14(context) {
+async function onRequestPost15(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12885,7 +12932,7 @@ async function onRequestPost14(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost14, "onRequestPost");
+__name(onRequestPost15, "onRequestPost");
 
 // [[path]].js
 function isTrackingBot(userAgent) {
@@ -13441,18 +13488,25 @@ var routes = [
     modules: [onRequestPost12]
   },
   {
-    routePath: "/api/update-click-ip",
+    routePath: "/api/shorten-link",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
     modules: [onRequestPost13]
   },
   {
-    routePath: "/api/update-team-member",
+    routePath: "/api/update-click-ip",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
     modules: [onRequestPost14]
+  },
+  {
+    routePath: "/api/update-team-member",
+    mountPath: "/api",
+    method: "POST",
+    middlewares: [],
+    modules: [onRequestPost15]
   },
   {
     routePath: "/api/delete-domain",
@@ -13957,7 +14011,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-KYQVhz/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-oyV5uQ/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13989,7 +14043,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-KYQVhz/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-oyV5uQ/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
