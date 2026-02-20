@@ -1,8 +1,44 @@
 .admin-container {
-    width: 1200px;
+    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     padding: 2rem;
     min-height: 100vh;
+}
+
+@media (max-width: 900px) {
+    .admin-container {
+        padding: 1rem;
+    }
+
+    .admin-layout {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 15px;
+        -webkit-overflow-scrolling: touch;
+        gap: 10px;
+    }
+
+    .sidebar-nav-item {
+        white-space: nowrap;
+        padding: 10px 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .mnx-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .table-wrapper {
+        margin: 0 -15px;
+        padding: 0 15px;
+    }
 }
 
 /* ... (rest of the file remains same) ... */
@@ -91,5 +127,3 @@
     font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
 }
-
-/* Removed responsive blocks to force desktop mode */

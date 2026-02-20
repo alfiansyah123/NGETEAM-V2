@@ -162,4 +162,12 @@
     margin: 0;
 }
 
-/* Removed responsive blocks for desktop mode */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 30px 24px;
+    }
+
+    .login-title {
+        font-size: 2rem;
+    }
+}

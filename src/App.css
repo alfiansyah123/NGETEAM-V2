@@ -51,7 +51,7 @@ body {
   background: var(--bg-deep);
   min-height: 100vh;
   color: var(--text-primary);
-  overflow-x: auto;
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -107,8 +107,8 @@ body::after {
 }
 
 .container {
-  width: 1100px;
-  /* Force fixed width */
+  max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
   padding: 30px 20px;
   position: relative;
@@ -629,3 +629,94 @@ input[type=number] {
 }
 
 /* Removed responsive grid to force desktop mode */
+
+/* --- MNX RESPONSIVE DESIGN --- */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px 12px;
+  }
+
+  .mnx-top-bar {
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .mnx-logo-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mnx-logo-text h1 {
+    font-size: 1.2rem;
+  }
+
+  .mnx-status-controls {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mnx-pill-select {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+  }
+
+  .cyber-tabs {
+    flex-direction: row;
+    padding: 4px;
+    border-radius: 12px;
+  }
+
+  .cyber-tab {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+
+  .mnx-card {
+    padding: 20px 15px;
+    border-radius: 20px;
+  }
+
+  .mnx-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .mnx-input-prepend {
+    min-width: 90px;
+    padding: 12px 12px;
+    font-size: 0.75rem;
+  }
+
+  .mnx-input {
+    padding: 12px 15px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mnx-logo-text h1 {
+    font-size: 1.1rem;
+  }
+
+  .mnx-status-controls {
+    gap: 6px;
+  }
+
+  .mnx-pill-select {
+    font-size: 0.7rem;
+    min-width: 100px;
+  }
+
+  .btn-mnx-main {
+    padding: 16px;
+    font-size: 0.95rem;
+  }
+}

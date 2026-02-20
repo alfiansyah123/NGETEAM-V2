@@ -9,7 +9,11 @@
     gap: 24px;
 }
 
-/* Removed responsive blocks for desktop mode */
+@media (max-width: 768px) {
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
 .team-members-list {
     display: flex;
