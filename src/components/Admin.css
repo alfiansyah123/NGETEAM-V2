@@ -1,10 +1,11 @@
-/* Admin specific overrides */
 .admin-container {
-    max-width: 1200px;
+    width: 1200px;
     margin: 0 auto;
     padding: 2rem;
     min-height: 100vh;
 }
+
+/* ... (rest of the file remains same) ... */
 
 /* Sidebar Layout */
 .admin-layout {
@@ -91,29 +92,4 @@
     font-weight: 500;
 }
 
-@media (max-width: 900px) {
-    .admin-layout {
-        flex-direction: column;
-    }
-
-    .admin-sidebar {
-        width: 100%;
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 10px;
-    }
-
-    .sidebar-nav-item {
-        white-space: nowrap;
-    }
-}
-
-@media (max-width: 600px) {
-    .admin-container {
-        padding: 1rem;
-    }
-
-    .add-domain-form {
-        flex-direction: column;
-    }
-}
+/* Removed responsive blocks to force desktop mode */

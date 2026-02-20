@@ -51,7 +51,7 @@ body {
   background: var(--bg-deep);
   min-height: 100vh;
   color: var(--text-primary);
-  overflow-x: hidden;
+  overflow-x: auto;
   position: relative;
 }
 
@@ -107,13 +107,15 @@ body::after {
 }
 
 .container {
-  max-width: 1100px;
+  width: 1100px;
+  /* Force fixed width */
   margin: 0 auto;
   padding: 30px 20px;
   position: relative;
 }
 
 /* --- MNX UI COMPONENTS --- */
+/* ... (rest of the CSS remains same until responsiveness) ... */
 
 /* Top Status Bar */
 .mnx-top-bar {
@@ -626,17 +628,4 @@ input[type=number] {
   }
 }
 
-/* Responsive Grid */
-@media (max-width: 768px) {
-  .mnx-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .mnx-input-prepend {
-    min-width: 100px;
-  }
-
-  .mnx-card {
-    padding: 25px;
-  }
-}
+/* Removed responsive grid to force desktop mode */
