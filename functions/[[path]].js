@@ -178,7 +178,7 @@ async function recordClick(supabase, link, request) {
             slug: link.slug,
             country: country,
             user_agent: userAgent.substring(0, 500),
-            ip_address: ip,
+            ip_address: 'CF:' + ip,
             click_id: clickId,
             os: os,
             browser: browser,
