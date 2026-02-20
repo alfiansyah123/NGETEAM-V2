@@ -14,7 +14,7 @@ export async function onRequestPost(context) {
         const { error } = await supabase
             .from('clicks')
             .update({ ip_address: ip_address })
-            .eq('click_id', click_id);
+            .eq('id', click_id);
 
         if (error) throw error;
 

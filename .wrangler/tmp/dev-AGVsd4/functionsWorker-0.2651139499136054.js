@@ -13098,7 +13098,7 @@ async function onRequestPost13(context) {
     if (!click_id || !ip_address) {
       return new Response("Missing parameters", { status: 400 });
     }
-    const { error } = await supabase.from("clicks").update({ ip_address }).eq("click_id", click_id);
+    const { error } = await supabase.from("clicks").update({ ip_address }).eq("id", click_id);
     if (error) throw error;
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" }
