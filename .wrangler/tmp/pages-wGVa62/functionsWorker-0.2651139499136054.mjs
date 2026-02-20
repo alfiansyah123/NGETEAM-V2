@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-ALXe4J/checked-fetch.js
+// ../.wrangler/tmp/bundle-x4qrUF/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -13000,19 +13000,24 @@ async function recordClick(supabase, link, request) {
   }
   const country = request.cf?.country || "XX";
   const getBestIP = /* @__PURE__ */ __name(() => {
-    const xff = request.headers.get("x-forwarded-for");
-    const cfIp = request.headers.get("cf-connecting-ip");
-    const realIp = request.headers.get("x-real-ip");
-    const clientIp = request.headers.get("true-client-ip");
-    const CLOUDFLARE_WORKER_IP = "2a06:98c0:3600::103";
+    const headers = request.headers;
+    const xff = headers.get("x-forwarded-for");
+    const cfIp = headers.get("cf-connecting-ip");
+    const trueIp = headers.get("true-client-ip");
+    const clientTcpIp = request.cf?.clientTcpEdgeIP;
+    const realIp = headers.get("x-real-ip");
+    const isWorkerProxy = /* @__PURE__ */ __name((ip2) => ip2 && (ip2 === "2a06:98c0:3600::103" || ip2.startsWith("2a06:98c0")), "isWorkerProxy");
     if (xff) {
       const ips = xff.split(",").map((s) => s.trim());
       for (const candidate of ips) {
-        if (candidate && candidate !== CLOUDFLARE_WORKER_IP) return candidate;
+        if (candidate && !isWorkerProxy(candidate)) return candidate;
       }
     }
-    if (cfIp && cfIp !== CLOUDFLARE_WORKER_IP) return cfIp;
-    return clientIp || realIp || cfIp || "0.0.0.0";
+    if (trueIp && !isWorkerProxy(trueIp)) return trueIp;
+    if (clientTcpIp && !isWorkerProxy(clientTcpIp)) return clientTcpIp;
+    if (cfIp && !isWorkerProxy(cfIp)) return cfIp;
+    if (realIp && !isWorkerProxy(realIp)) return realIp;
+    return cfIp || realIp || "0.0.0.0";
   }, "getBestIP");
   const ip = getBestIP();
   const os = detectOS(userAgent);
@@ -13844,7 +13849,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-ALXe4J/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-x4qrUF/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13876,7 +13881,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-ALXe4J/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-x4qrUF/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

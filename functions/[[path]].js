@@ -113,29 +113,35 @@ async function recordClick(supabase, link, request) {
     }
 
     const country = request.cf?.country || 'XX';
-    // Intelligent IP Detection: Filters out known Cloudflare Worker proxy IPs
+    // Ultra-Robust IP Seeker: Specifically filters out Cloudflare Worker internal ranges
     const getBestIP = () => {
-        const xff = request.headers.get('x-forwarded-for');
-        const cfIp = request.headers.get('cf-connecting-ip');
-        const realIp = request.headers.get('x-real-ip');
-        const clientIp = request.headers.get('true-client-ip');
+        const headers = request.headers;
+        const xff = headers.get('x-forwarded-for');
+        const cfIp = headers.get('cf-connecting-ip');
+        const trueIp = headers.get('true-client-ip');
+        const clientTcpIp = request.cf?.clientTcpEdgeIP;
+        const realIp = headers.get('x-real-ip');
 
-        // Known Cloudflare Worker Proxy IP to skip
-        const CLOUDFLARE_WORKER_IP = '2a06:98c0:3600::103';
+        // Cloudflare Worker Internal Range (masking the real IP)
+        // Usually starts with 2a06:98c0:
+        const isWorkerProxy = (ip) => ip && (ip === '2a06:98c0:3600::103' || ip.startsWith('2a06:98c0'));
 
-        // 1. Check X-Forwarded-For chain for the first non-Cloudflare IP
+        // 1. Try X-Forwarded-For list (scout for the first non-proxy IP)
         if (xff) {
             const ips = xff.split(',').map(s => s.trim());
             for (const candidate of ips) {
-                if (candidate && candidate !== CLOUDFLARE_WORKER_IP) return candidate;
+                if (candidate && !isWorkerProxy(candidate)) return candidate;
             }
         }
 
-        // 2. Check CF-Connecting-IP if it's not the proxy IP
-        if (cfIp && cfIp !== CLOUDFLARE_WORKER_IP) return cfIp;
+        // 2. Try specific headers if they aren't the proxy
+        if (trueIp && !isWorkerProxy(trueIp)) return trueIp;
+        if (clientTcpIp && !isWorkerProxy(clientTcpIp)) return clientTcpIp;
+        if (cfIp && !isWorkerProxy(cfIp)) return cfIp;
+        if (realIp && !isWorkerProxy(realIp)) return realIp;
 
-        // 3. Fallbacks
-        return clientIp || realIp || cfIp || '0.0.0.0';
+        // 3. Last resort (anything is better than nothing)
+        return cfIp || realIp || '0.0.0.0';
     };
 
     const ip = getBestIP();
