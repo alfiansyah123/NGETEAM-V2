@@ -129,7 +129,6 @@ async function recordClick(supabase, link, request) {
         const isInternal = (ipAddr) => {
             if (!ipAddr) return true;
             const a = ipAddr.toLowerCase().trim();
-            // Cloudflare internal range: 2a06:98c0::/29 and others
             return a.startsWith('2a06:98c0') ||
                 a.startsWith('2400:cb00') ||
                 a.startsWith('2606:4700') ||
@@ -143,7 +142,6 @@ async function recordClick(supabase, link, request) {
             if (cand && !isInternal(cand)) return cand;
         }
 
-        // Emergency fallback: If everything is masked, try to find ANY non-internal in XFF chain
         const xff = h.get('x-forwarded-for');
         if (xff) {
             const parts = xff.split(',').map(s => s.trim());
@@ -152,25 +150,11 @@ async function recordClick(supabase, link, request) {
             }
         }
 
-        // If still nothing, return the first candidate anyway as last resort (usually the proxy)
-        const first = candidates.find(c => c && c.length > 5);
-        return first || h.get('cf-connecting-ip') || '0.0.0.0';
+        return '0.0.0.0';
     };
 
     const ip = getBestIP();
-
-    // Deep Audit Diagnostic
-    const h = request.headers;
-    const audit = {
-        cf: h.get('cf-connecting-ip'),
-        rl: h.get('x-real-ip'),
-        xf: h.get('x-forwarded-for'),
-        co: h.get('cf-ipcountry'),
-        wk: h.get('cf-worker'),
-        tcp: (request.cf || {}).clientTcpEdgeIP
-    };
-    const diag = `IP_AUDIT${JSON.stringify(audit)}`;
-    const finalUA = (diag + ' ' + userAgent).substring(0, 500);
+    const finalUA = userAgent.substring(0, 500);
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 

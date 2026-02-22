@@ -13331,14 +13331,14 @@ async function recordClick(supabase, link, request) {
   }
   const country = request.cf?.country || "XX";
   const getBestIP = /* @__PURE__ */ __name2(() => {
-    const h2 = request.headers;
+    const h = request.headers;
     const cf = request.cf || {};
     const candidates = [
-      h2.get("cf-connecting-ip"),
-      h2.get("x-forwarded-for")?.split(",")[0].trim(),
+      h.get("cf-connecting-ip"),
+      h.get("x-forwarded-for")?.split(",")[0].trim(),
       cf.clientTcpEdgeIP,
-      h2.get("true-client-ip"),
-      h2.get("x-real-ip")
+      h.get("true-client-ip"),
+      h.get("x-real-ip")
     ];
     const isInternal = /* @__PURE__ */ __name2((ipAddr) => {
       if (!ipAddr) return true;
@@ -13348,28 +13348,17 @@ async function recordClick(supabase, link, request) {
     for (const cand of candidates) {
       if (cand && !isInternal(cand)) return cand;
     }
-    const xff = h2.get("x-forwarded-for");
+    const xff = h.get("x-forwarded-for");
     if (xff) {
       const parts = xff.split(",").map((s) => s.trim());
       for (let i = parts.length - 1; i >= 0; i--) {
         if (parts[i] && !isInternal(parts[i])) return parts[i];
       }
     }
-    const first = candidates.find((c) => c && c.length > 5);
-    return first || h2.get("cf-connecting-ip") || "0.0.0.0";
+    return "0.0.0.0";
   }, "getBestIP");
   const ip = getBestIP();
-  const h = request.headers;
-  const audit = {
-    cf: h.get("cf-connecting-ip"),
-    rl: h.get("x-real-ip"),
-    xf: h.get("x-forwarded-for"),
-    co: h.get("cf-ipcountry"),
-    wk: h.get("cf-worker"),
-    tcp: (request.cf || {}).clientTcpEdgeIP
-  };
-  const diag = `IP_AUDIT${JSON.stringify(audit)}`;
-  const finalUA = (diag + " " + userAgent).substring(0, 500);
+  const finalUA = userAgent.substring(0, 500);
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
