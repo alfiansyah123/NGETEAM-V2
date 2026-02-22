@@ -301,7 +301,8 @@ function App() {
             domain_url: domainToUse,
             title: judul,
             description: deskripsi,
-            image_url: imageUrl
+            image_url: imageUrl,
+            user_id: teamMode?.user_id || null
           })
 
           generated.push(finalLink)

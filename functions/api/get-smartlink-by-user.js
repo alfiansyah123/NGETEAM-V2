@@ -32,7 +32,7 @@ export async function onRequestGet(context) {
         const { data: link, error: linkError } = await supabase
             .from('links')
             .select('original_url')
-            .eq('user_id', team.user_id)
+            .eq('slug', team.user_id)
             .maybeSingle();
 
         return new Response(JSON.stringify({

@@ -1,7 +1,6 @@
 import { createSupabaseClient } from './utils/supabase';
 
-// Bot detection for CLICK TRACKING exclusion (narrow - only SEO/scraper bots)
-// Does NOT include social media in-app browsers (Instagram, Facebook, WhatsApp)
+// Bot detection for CLICK TRACKING exclusion (comprehensive)
 function isTrackingBot(userAgent) {
     if (!userAgent) return true;
     const ua = userAgent.toLowerCase();
@@ -9,31 +8,30 @@ function isTrackingBot(userAgent) {
         'facebookexternalhit', 'twitterbot', 'linkedinbot',
         'pinterest/0.', 'slackbot', 'telegrambot', 'discordbot', 'googlebot',
         'bingbot', 'yandex', 'duckduckgo', 'baidu',
-        'mj12bot', 'semrush', 'ahrefs', 'dotbot', 'rogerbot', 'exabot'
+        'mj12bot', 'semrush', 'ahrefs', 'dotbot', 'rogerbot', 'exabot',
+        'uptimerobot', 'statuscake', 'monitor', 'curl', 'wget', 'python-requests',
+        'go-http-client', 'javascript-fetch', 'axios', 'node-fetch'
     ];
     return bots.some(bot => ua.includes(bot));
 }
 
-// Bot detection for OG PREVIEW serving (social media crawlers only)
-// Key: Instagram/WhatsApp CRAWLERS don't have 'Mozilla' in their UA,
-// but their IN-APP BROWSERS do. So we only match them when no 'Mozilla' present.
+// Bot detection for OG PREVIEW serving (strict social media crawlers)
 function isPreviewBot(userAgent) {
     if (!userAgent) return true;
     const ua = userAgent.toLowerCase();
 
-    // Standard bots - always match regardless of Mozilla
+    // Standard bots - always match
     const standardBots = [
         'facebookexternalhit', 'twitterbot', 'linkedinbot',
         'pinterest/0.', 'slackbot', 'telegrambot', 'discordbot', 'googlebot',
-        'bingbot', 'yandex', 'duckduckgo', 'baidu',
-        'mj12bot', 'semrush', 'ahrefs', 'dotbot', 'rogerbot', 'exabot'
+        'bingbot', 'yandex', 'duckduckgo', 'baidu'
     ];
     if (standardBots.some(bot => ua.includes(bot))) return true;
 
-    // Social media crawlers - only match if NOT a real browser (no Mozilla = crawler)
-    // e.g. "WhatsApp/2.23.xx" = crawler ✅, "Mozilla/5.0 ... Instagram 275.0 ..." = in-app browser ❌
+    // Strict check for Instagram/WhatsApp: only if NO "Mozilla" is present
+    // Real in-app browsers ALWAYS have "Mozilla"
     if (!ua.includes('mozilla')) {
-        const socialCrawlers = ['instagram', 'whatsapp'];
+        const socialCrawlers = ['instagram', 'whatsapp', 'facebook', 'twitter'];
         if (socialCrawlers.some(bot => ua.includes(bot))) return true;
     }
 
@@ -60,18 +58,17 @@ function detectBrowser(userAgent) {
     const ua = userAgent.toLowerCase();
 
     // Social Apps (In-App Browsers) - Priority
-    // Facebook: FBAV (iOS), FBAN (Android), FBIAB (In-App Browser)
     if (ua.includes('fbav') || ua.includes('fban') || ua.includes('fbiab') || ua.includes('facebook')) return 'Facebook';
     if (ua.includes('instagram')) return 'Instagram';
-    if (ua.includes('tiktok') || ua.includes('musical_ly')) return 'TikTok'; // musical_ly is old tiktok
+    if (ua.includes('tiktok') || ua.includes('musical_ly')) return 'TikTok';
     if (ua.includes('line')) return 'Line';
     if (ua.includes('whatsapp')) return 'WhatsApp';
     if (ua.includes('snapchat')) return 'Snapchat';
-    if (ua.includes('twitter') || ua.includes('cfnetwork')) return 'Twitter'; // CFNetwork sometimes indicates iOS app
+    if (ua.includes('twitter') || ua.includes('cfnetwork')) return 'Twitter';
 
     // Standard Browsers
     if (ua.includes('chrome') && !ua.includes('edg') && !ua.includes('opr') && !ua.includes('crios')) return 'Chrome';
-    if (ua.includes('crios')) return 'Chrome'; // Chrome on iOS
+    if (ua.includes('crios')) return 'Chrome';
     if (ua.includes('safari') && !ua.includes('chrome') && !ua.includes('crios') && !ua.includes('fban') && !ua.includes('fbav')) return 'Safari';
     if (ua.includes('firefox') || ua.includes('fxios')) return 'Firefox';
     if (ua.includes('edg') || ua.includes('edge')) return 'Edge';
@@ -89,13 +86,11 @@ async function recordClick(supabase, link, request) {
     // Skip bot tracking (only SEO/scraper bots, NOT in-app browsers)
     if (isTrackingBot(userAgent)) return;
 
-    // 1. Extract explicit click_id from Request URL (Dynamic - Highest Priority)
     const requestUrl = new URL(request.url);
     let clickId = requestUrl.searchParams.get('click_id') ||
         requestUrl.searchParams.get('clickid') ||
         requestUrl.searchParams.get('subid');
 
-    // 2. If no explicit ID in request, check Target URL (Static/Hardcoded - Medium Priority)
     if (!clickId && link.original_url) {
         try {
             const targetUrl = new URL(link.original_url);
@@ -105,8 +100,6 @@ async function recordClick(supabase, link, request) {
         } catch (e) { /* ignore */ }
     }
 
-    // 3. Fallback to Ad Network IDs (Lowest Priority - only if no other ID exists)
-    // This prevents fbclid/gclid from overwriting a hardcoded "ALCEMEIST-noGEN"
     if (!clickId) {
         clickId = requestUrl.searchParams.get('gclid') ||
             requestUrl.searchParams.get('fbclid');
@@ -114,7 +107,6 @@ async function recordClick(supabase, link, request) {
 
     const country = request.cf?.country || request.headers.get('x-country') || request.headers.get('cf-ipcountry') || 'XX';
 
-    // Improved IP Detection (Robust for Proxies/CDN)
     const getBestIP = () => {
         const h = request.headers;
         const cf = request.cf || {};
@@ -130,7 +122,6 @@ async function recordClick(supabase, link, request) {
         const isInternal = (ipAddr) => {
             if (!ipAddr) return true;
             const a = ipAddr.toLowerCase().trim();
-            // Cloudflare internal range: 2a06:98c0::/29 and others
             return a.startsWith('2a06:98c0') ||
                 a.startsWith('2400:cb00') ||
                 a.startsWith('2606:4700') ||
@@ -140,12 +131,10 @@ async function recordClick(supabase, link, request) {
                 a.startsWith('172.64.');
         };
 
-        // Try to find the first NON-internal IP
         for (const cand of candidates) {
             if (cand && !isInternal(cand)) return cand;
         }
 
-        // If no non-internal found, peek into XFF chain
         const xff = h.get('x-forwarded-for');
         if (xff) {
             const parts = xff.split(',').map(s => s.trim());
@@ -154,7 +143,6 @@ async function recordClick(supabase, link, request) {
             }
         }
 
-        // LAST RESORT: Return the first available IP candidate instead of 0.0.0.0
         const fallback = candidates.find(c => c && c.length > 5);
         return fallback || h.get('cf-connecting-ip') || '0.0.0.0';
     };
@@ -162,7 +150,6 @@ async function recordClick(supabase, link, request) {
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 
-    // Fallback 1: If browser is generic but Referrer indicates a social platform, use that.
     if (browser === 'Chrome' || browser === 'Safari' || browser === 'Other' || browser === 'Unknown') {
         const ref = referer.toLowerCase();
         if (ref.includes('instagram') || ref.includes('l.instagram')) browser = 'Instagram';
@@ -172,8 +159,6 @@ async function recordClick(supabase, link, request) {
         else if (ref.includes('tiktok')) browser = 'TikTok';
     }
 
-    // Fallback 2: Check URL query params added by social platforms
-    // Instagram adds ?igshid= or ?igsh=, Facebook adds ?fbclid=
     if (browser === 'Chrome' || browser === 'Safari' || browser === 'Other' || browser === 'Unknown') {
         if (requestUrl.searchParams.has('igshid') || requestUrl.searchParams.has('igsh')) {
             browser = 'Instagram';
@@ -203,18 +188,30 @@ async function recordClick(supabase, link, request) {
     }
 }
 
+// Security Headers Helper
+function getSecurityHeaders() {
+    return {
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'Referrer-Policy': 'no-referrer',
+        'X-Robots-Tag': 'noindex, nofollow, noarchive',
+        'Permissions-Policy': 'interest-cohort=()',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+    };
+}
+
 export async function onRequest(context) {
     const url = new URL(context.request.url);
-    const path = url.pathname.replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
+    const path = url.pathname.replace(/^\/+|\/+$/g, '');
 
-    // Passthrough for API, assets, files (with extension), or root
     if (path.startsWith('api/') || path.startsWith('assets/') || path === '' || path.includes('.')) {
         return context.next();
     }
 
     const supabase = createSupabaseClient(context.env);
 
-    // 1. Fetch Link
     const { data: link, error } = await supabase
         .from('links')
         .select(`
@@ -225,31 +222,23 @@ export async function onRequest(context) {
         .single();
 
     if (error || !link) {
-        // Not found -> pass to frontend (SPA 404)
         return context.next();
     }
 
-    // 2. Anti-Spam / Bot Check
-    const userAgent = context.request.headers.get('user-agent');
+    const userAgent = context.request.headers.get('user-agent') || '';
     if (!userAgent) {
         return new Response('Access Denied', { status: 403 });
     }
 
-    // 3. Track Click (Non-blocking)
     context.waitUntil(recordClick(supabase, link, context.request));
 
-    // 4. Geo Blocking
     const country = context.request.cf?.country || 'XX';
     if (link.block_indonesia && country === 'ID') {
         const domainUrl = link.domains?.url || 'https://google.com';
-        // Add protocol if missing
         const redirectUrl = domainUrl.startsWith('http') ? domainUrl : `https://${domainUrl}`;
         return Response.redirect(redirectUrl, 302);
     }
 
-    // 5. Cloaking: Serve OG meta tags for bots (social media preview)
-    // Only intercept bots if user has set custom metadata (title, description, or image_url)
-    // If no custom metadata, let bots follow redirect to target site's own OG tags
     const hasCustomMeta = link.title || link.description || link.image_url;
 
     if (isPreviewBot(userAgent) && hasCustomMeta) {
@@ -262,6 +251,7 @@ export async function onRequest(context) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <title>${title}</title>
     <meta name="description" content="${description}">
     <meta property="og:type" content="website">
@@ -283,23 +273,30 @@ export async function onRequest(context) {
 
         return new Response(html, {
             headers: {
-                'Content-Type': 'text/html; charset=utf-8',
-                'Cache-Control': 'no-cache, no-store, must-revalidate'
+                ...getSecurityHeaders(),
+                'Content-Type': 'text/html; charset=utf-8'
             }
         });
     }
 
-    // 6. Final Redirect (for real users)
     let target = link.original_url;
-    // Append query params from request to target
     if (url.search) {
-        const targetUrl = new URL(target);
-        const requestParams = new URL(context.request.url).searchParams;
-        requestParams.forEach((value, key) => {
-            targetUrl.searchParams.append(key, value);
-        });
-        target = targetUrl.toString();
+        try {
+            const targetUrl = new URL(target);
+            const requestParams = new URL(context.request.url).searchParams;
+            requestParams.forEach((value, key) => {
+                targetUrl.searchParams.append(key, value);
+            });
+            target = targetUrl.toString();
+        } catch (e) { /* ignore if target is invalid URL */ }
     }
 
-    return Response.redirect(target, 302);
+    // Clean Redirect with Security Headers
+    return new Response(null, {
+        status: 302,
+        headers: {
+            ...getSecurityHeaders(),
+            'Location': target
+        }
+    });
 }

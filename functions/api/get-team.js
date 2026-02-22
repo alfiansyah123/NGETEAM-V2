@@ -62,7 +62,8 @@ export async function onRequestGet(context) {
 
         // Merge data
         const mergedTeam = team.map(member => {
-            const linkData = links.find(l => l.user_id === member.user_id);
+            // Find the link where the slug matches the user_id (the primary smartlink)
+            const linkData = links.find(l => l.user_id === member.user_id && l.slug === member.user_id);
             return {
                 ...member,
                 links: linkData ? { original_url: linkData.original_url } : null

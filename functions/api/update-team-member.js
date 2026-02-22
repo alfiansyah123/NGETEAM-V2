@@ -24,20 +24,32 @@ export async function onRequestPost(context) {
         if (teamError) throw teamError;
 
         // Step 2: Update Links Table
-        // We use the old_user_id to find the correct link to update
         if (old_user_id) {
-            const { error: linkError } = await supabase
+            // 2a. Update ONLY the primary link (Slug change)
+            // The primary link is the one where the slug matches the old_user_id
+            const { error: primaryError } = await supabase
                 .from('links')
                 .update({
                     slug: user_id,
                     user_id: user_id,
                     original_url: target_url
                 })
+                .eq('slug', old_user_id);
+
+            if (primaryError) console.warn('Primary link update failed:', primaryError);
+
+            // 2b. Update ALL other links associated with this member
+            // This ensures old generated links now redirect to the new target_url
+            const { error: linksError } = await supabase
+                .from('links')
+                .update({
+                    original_url: target_url,
+                    user_id: user_id // Keep user_id in sync if it changed
+                })
                 .eq('user_id', old_user_id);
 
-            if (linkError) {
-                console.warn('Link update failed or no link found:', linkError);
-                // We don't throw here to allow the team update to persist even if link fails
+            if (linksError) {
+                console.warn('Mass link update failed:', linksError);
             }
         }
 
