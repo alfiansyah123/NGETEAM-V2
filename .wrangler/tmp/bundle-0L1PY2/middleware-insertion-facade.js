@@ -1,8 +1,8 @@
-				import worker, * as OTHER_EXPORTS from "C:\\project\\Link Generator - Copy\\.wrangler\\tmp\\pages-wGVa62\\functionsWorker-0.2651139499136054.mjs";
+				import worker, * as OTHER_EXPORTS from "C:\\project\\Link Generator - Copy\\.wrangler\\tmp\\pages-ajrZzo\\functionsWorker-0.36351197246344114.mjs";
 				import * as __MIDDLEWARE_0__ from "C:\\project\\Link Generator - Copy\\node_modules\\wrangler\\templates\\middleware\\middleware-ensure-req-body-drained.ts";
 import * as __MIDDLEWARE_1__ from "C:\\project\\Link Generator - Copy\\node_modules\\wrangler\\templates\\middleware\\middleware-miniflare3-json-error.ts";
 
-				export * from "C:\\project\\Link Generator - Copy\\.wrangler\\tmp\\pages-wGVa62\\functionsWorker-0.2651139499136054.mjs";
+				export * from "C:\\project\\Link Generator - Copy\\.wrangler\\tmp\\pages-ajrZzo\\functionsWorker-0.36351197246344114.mjs";
 				const MIDDLEWARE_TEST_INJECT = "__INJECT_FOR_TESTING_WRANGLER_MIDDLEWARE__";
 				export const __INTERNAL_WRANGLER_MIDDLEWARE__ = [
 					

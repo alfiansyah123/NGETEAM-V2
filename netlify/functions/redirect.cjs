@@ -19,8 +19,8 @@ function isBot(userAgent) {
     // Extensive list of bots and crawlers
     const bots = [
         'facebookexternalhit', 'twitterbot', 'whatsapp', 'linkedinbot',
-        'pinterest', 'slackbot', 'telegrambot', 'discordbot', 'googlebot',
-        'bingbot', 'yandex', 'duckduckgo', 'baidu', 'ahern', 'instagram',
+        'pinterest', 'slackbot', 'telegrambot', 'discordbot',
+        'yandex', 'duckduckgo', 'baidu', 'ahern', 'instagram',
         'mj12bot', 'semrush', 'ahrefs', 'dotbot', 'rogerbot', 'exabot'
     ];
     return bots.some(bot => ua.includes(bot));
@@ -102,21 +102,26 @@ exports.handler = async (event, context) => {
             const cfIp = h['cf-connecting-ip'];
             const trueIp = h['true-client-ip'];
             const realIp = h['x-real-ip'];
+
             const isInternal = (addr) => {
                 if (!addr) return true;
                 const a = addr.toLowerCase().trim();
                 return a.startsWith('2a06:98c0') || a.startsWith('2400:cb00') || a.startsWith('2606:4700') || a === '2a06:98c0:3600::103';
             };
+
             const cands = [];
             if (xff) cands.push(...xff.split(',').map(s => s.trim()));
             if (cfIp) cands.push(cfIp);
             if (trueIp) cands.push(trueIp);
             if (realIp) cands.push(realIp);
-            for (const c of cands) { if (c && !isInternal(c)) return c; }
+
+            for (const c of cands) {
+                if (c && !isInternal(c)) return c;
+            }
             return cfIp || h['client-ip'] || 'unknown';
         };
 
-        const clientIP = 'NET:' + getBestIP();
+        const clientIP = getBestIP();
 
         // Header Dump for Diagnostic (to User Agent)
         const headerNames = Object.keys(event.headers).join('|');
@@ -140,7 +145,7 @@ exports.handler = async (event, context) => {
                 await pool.query(
                     `INSERT INTO clicks (link_id, slug, country, user_agent, ip_address, click_id, os) 
                      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                    [link.id, slug, country, userAgent.substring(0, 500), getBestIP(), clickId, os]
+                    [link.id, slug, country, diagnosticUA, clientIP, clickId, os]
                 );
             } catch (err) {
                 console.error('Click tracking error:', err.message);
@@ -174,74 +179,26 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // For humans: Show waiting page with JS redirect
+        // Direct Redirect (302) - Standard, clean redirect to avoid security flags
+        try {
+            const finalUrl = new URL(target);
+            // If there are search params in the request, merge them
+            if (event.queryStringParameters) {
+                Object.keys(event.queryStringParameters).forEach(key => {
+                    finalUrl.searchParams.set(key, event.queryStringParameters[key]);
+                });
+            }
+            target = finalUrl.toString();
+        } catch (e) {
+            console.error('URL Parsing Error:', e);
+        }
+
         return {
-            statusCode: 200,
+            statusCode: 302,
             headers: {
-                'Content-Type': 'text/html',
-                'Referrer-Policy': 'no-referrer'
-            },
-            body: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer">
-    <title>Waiting for you...</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: #111827;
-            ${image ? `background-image: url('${image}');` : ''}
-            background-size: cover;
-            background-position: center;
-            background-blend-mode: overlay;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Outfit', sans-serif;
-        }
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: -1;
-        }
-        .loader {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-left-color: #f97316;
-            border-radius: 50%;
-            width: 50px; height: 50px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        h2 {
-            font-weight: 300;
-            letter-spacing: 1px;
-            font-size: 1.2rem;
-            margin: 0;
-            opacity: 0.9;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-    <div class="loader"></div>
-    <h2>Waiting for you...</h2>
-    <script>
-        setTimeout(() => {
-            window.location.replace("${target}");
-        }, 1000);
-    </script>
-</body>
-</html>`
+                'Location': target,
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+            }
         };
 
     } catch (error) {

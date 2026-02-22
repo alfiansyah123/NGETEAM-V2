@@ -93,77 +93,15 @@ try {
             <?php
             exit;
         } else {
-            // SERVE SAFE LANDING FOR HUMANS (JS Redirect)
-            // This breaks the redirect chain for scanners
-            header('Referrer-Policy: no-referrer');
-            ?>
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <meta name="referrer" content="no-referrer">
-                <title>Waiting for you...</title>
-                <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400&display=swap" rel="stylesheet">
-                <style>
-                    body {
-                        background-color: #111827;
-                        background-image: url('<?= $image ?>');
-                        background-size: cover;
-                        background-position: center;
-                        background-blend-mode: overlay;
-                        color: #ffffff;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
-                        margin: 0;
-                        font-family: 'Outfit', sans-serif;
-                    }
-                    /* Add a dark overlay so text is visible */
-                    body::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0, 0, 0, 0.7);
-                        z-index: -1;
-                    }
-                    .loader {
-                        border: 3px solid rgba(255, 255, 255, 0.1);
-                        border-left-color: #f97316;
-                        border-radius: 50%;
-                        width: 50px;
-                        height: 50px;
-                        animation: spin 1s linear infinite;
-                        margin-bottom: 20px;
-                    }
-                    h2 {
-                        font-weight: 300;
-                        letter-spacing: 1px;
-                        font-size: 1.2rem;
-                        margin: 0;
-                        opacity: 0.9;
-                        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-                    }
-                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                </style>
-            </head>
-            <body>
-                <div class="loader"></div>
-                <h2>Waiting for you...</h2>
-                <script>
-                    setTimeout(() => {
-                        window.location.replace("<?= $target ?>");
-                    }, 1000); // 1 second delay
-                </script>
-            </body>
-            </html>
-            <?php
-            exit;
+        // Direct Redirect (302) to avoid security flags
+        $params = $_GET;
+        if (!empty($params)) {
+            $separator = (strpos($target, '?') === false) ? '?' : '&';
+            $target .= $separator . http_build_query($params);
+        }
+        
+        header("Location: " . $target, true, 302);
+        exit;
         }
 
     } else {

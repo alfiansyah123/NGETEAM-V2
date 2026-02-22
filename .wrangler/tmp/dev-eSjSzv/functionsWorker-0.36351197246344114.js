@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-BFV7bz/checked-fetch.js
+// .wrangler/tmp/bundle-0L1PY2/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -27,7 +27,34 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
   }
 });
 
-// api/cloudflare/add-pages-domain.js
+// .wrangler/tmp/pages-ajrZzo/functionsWorker-0.36351197246344114.mjs
+var __defProp2 = Object.defineProperty;
+var __name2 = /* @__PURE__ */ __name((target, value) => __defProp2(target, "name", { value, configurable: true }), "__name");
+var urls2 = /* @__PURE__ */ new Set();
+function checkURL2(request, init) {
+  const url = request instanceof URL ? request : new URL(
+    (typeof request === "string" ? new Request(request, init) : request).url
+  );
+  if (url.port && url.port !== "443" && url.protocol === "https:") {
+    if (!urls2.has(url.toString())) {
+      urls2.add(url.toString());
+      console.warn(
+        `WARNING: known issue with \`fetch()\` requests to custom HTTPS ports in published Workers:
+ - ${url.toString()} - the custom port will be ignored when the Worker is published using the \`wrangler deploy\` command.
+`
+      );
+    }
+  }
+}
+__name(checkURL2, "checkURL");
+__name2(checkURL2, "checkURL");
+globalThis.fetch = new Proxy(globalThis.fetch, {
+  apply(target, thisArg, argArray) {
+    const [request, init] = argArray;
+    checkURL2(request, init);
+    return Reflect.apply(target, thisArg, argArray);
+  }
+});
 async function onRequestPost(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -89,6 +116,7 @@ async function onRequestPost(context) {
   }
 }
 __name(onRequestPost, "onRequestPost");
+__name2(onRequestPost, "onRequestPost");
 async function onRequestOptions() {
   return new Response(null, {
     headers: {
@@ -99,8 +127,7 @@ async function onRequestOptions() {
   });
 }
 __name(onRequestOptions, "onRequestOptions");
-
-// api/cloudflare/add-zone.js
+__name2(onRequestOptions, "onRequestOptions");
 async function onRequestPost2(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -172,7 +199,8 @@ async function onRequestPost2(context) {
     }), { status: 500, headers });
   }
 }
-__name(onRequestPost2, "onRequestPost");
+__name(onRequestPost2, "onRequestPost2");
+__name2(onRequestPost2, "onRequestPost");
 async function onRequestOptions2() {
   return new Response(null, {
     headers: {
@@ -182,9 +210,8 @@ async function onRequestOptions2() {
     }
   });
 }
-__name(onRequestOptions2, "onRequestOptions");
-
-// api/cloudflare/delete-zone.js
+__name(onRequestOptions2, "onRequestOptions2");
+__name2(onRequestOptions2, "onRequestOptions");
 async function onRequestPost3(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -242,7 +269,8 @@ async function onRequestPost3(context) {
     }), { status: 500, headers });
   }
 }
-__name(onRequestPost3, "onRequestPost");
+__name(onRequestPost3, "onRequestPost3");
+__name2(onRequestPost3, "onRequestPost");
 async function onRequestOptions3() {
   return new Response(null, {
     headers: {
@@ -252,9 +280,8 @@ async function onRequestOptions3() {
     }
   });
 }
-__name(onRequestOptions3, "onRequestOptions");
-
-// api/cloudflare/setup-dns.js
+__name(onRequestOptions3, "onRequestOptions3");
+__name2(onRequestOptions3, "onRequestOptions");
 async function onRequestPost4(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -346,7 +373,8 @@ async function onRequestPost4(context) {
     }), { status: 500, headers });
   }
 }
-__name(onRequestPost4, "onRequestPost");
+__name(onRequestPost4, "onRequestPost4");
+__name2(onRequestPost4, "onRequestPost");
 async function onRequestOptions4() {
   return new Response(null, {
     headers: {
@@ -356,9 +384,8 @@ async function onRequestOptions4() {
     }
   });
 }
-__name(onRequestOptions4, "onRequestOptions");
-
-// api/cloudflare/setup-worker-proxy.js
+__name(onRequestOptions4, "onRequestOptions4");
+__name2(onRequestOptions4, "onRequestOptions");
 async function onRequestPost5(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -461,7 +488,8 @@ async function handleRequest(request) {
     }), { status: 500, headers });
   }
 }
-__name(onRequestPost5, "onRequestPost");
+__name(onRequestPost5, "onRequestPost5");
+__name2(onRequestPost5, "onRequestPost");
 async function onRequestOptions5() {
   return new Response(null, {
     headers: {
@@ -471,9 +499,8 @@ async function onRequestOptions5() {
     }
   });
 }
-__name(onRequestOptions5, "onRequestOptions");
-
-// ../node_modules/tslib/tslib.es6.mjs
+__name(onRequestOptions5, "onRequestOptions5");
+__name2(onRequestOptions5, "onRequestOptions");
 function __rest(s, e) {
   var t = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -486,6 +513,7 @@ function __rest(s, e) {
   return t;
 }
 __name(__rest, "__rest");
+__name2(__rest, "__rest");
 function __awaiter(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve) {
@@ -493,6 +521,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
     });
   }
   __name(adopt, "adopt");
+  __name2(adopt, "adopt");
   return new (P || (P = Promise))(function(resolve, reject) {
     function fulfilled(value) {
       try {
@@ -502,6 +531,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
       }
     }
     __name(fulfilled, "fulfilled");
+    __name2(fulfilled, "fulfilled");
     function rejected(value) {
       try {
         step(generator["throw"](value));
@@ -510,27 +540,29 @@ function __awaiter(thisArg, _arguments, P, generator) {
       }
     }
     __name(rejected, "rejected");
+    __name2(rejected, "rejected");
     function step(result) {
       result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     __name(step, "step");
+    __name2(step, "step");
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 }
 __name(__awaiter, "__awaiter");
-
-// ../node_modules/@supabase/functions-js/dist/module/helper.js
-var resolveFetch = /* @__PURE__ */ __name((customFetch) => {
+__name2(__awaiter, "__awaiter");
+var resolveFetch = /* @__PURE__ */ __name2((customFetch) => {
   if (customFetch) {
     return (...args) => customFetch(...args);
   }
   return (...args) => fetch(...args);
 }, "resolveFetch");
-
-// ../node_modules/@supabase/functions-js/dist/module/types.js
 var FunctionsError = class extends Error {
   static {
     __name(this, "FunctionsError");
+  }
+  static {
+    __name2(this, "FunctionsError");
   }
   constructor(message, name = "FunctionsError", context) {
     super(message);
@@ -542,6 +574,9 @@ var FunctionsFetchError = class extends FunctionsError {
   static {
     __name(this, "FunctionsFetchError");
   }
+  static {
+    __name2(this, "FunctionsFetchError");
+  }
   constructor(context) {
     super("Failed to send a request to the Edge Function", "FunctionsFetchError", context);
   }
@@ -550,6 +585,9 @@ var FunctionsRelayError = class extends FunctionsError {
   static {
     __name(this, "FunctionsRelayError");
   }
+  static {
+    __name2(this, "FunctionsRelayError");
+  }
   constructor(context) {
     super("Relay Error invoking the Edge Function", "FunctionsRelayError", context);
   }
@@ -557,6 +595,9 @@ var FunctionsRelayError = class extends FunctionsError {
 var FunctionsHttpError = class extends FunctionsError {
   static {
     __name(this, "FunctionsHttpError");
+  }
+  static {
+    __name2(this, "FunctionsHttpError");
   }
   constructor(context) {
     super("Edge Function returned a non-2xx status code", "FunctionsHttpError", context);
@@ -580,11 +621,12 @@ var FunctionRegion;
   FunctionRegion2["UsWest1"] = "us-west-1";
   FunctionRegion2["UsWest2"] = "us-west-2";
 })(FunctionRegion || (FunctionRegion = {}));
-
-// ../node_modules/@supabase/functions-js/dist/module/FunctionsClient.js
 var FunctionsClient = class {
   static {
     __name(this, "FunctionsClient");
+  }
+  static {
+    __name2(this, "FunctionsClient");
   }
   /**
    * Creates a new Functions client bound to an Edge Functions URL.
@@ -723,11 +765,12 @@ var FunctionsClient = class {
     });
   }
 };
-
-// ../node_modules/@supabase/postgrest-js/dist/index.mjs
 var PostgrestError = class extends Error {
   static {
     __name(this, "PostgrestError");
+  }
+  static {
+    __name2(this, "PostgrestError");
   }
   /**
   * @example
@@ -753,6 +796,9 @@ var PostgrestError = class extends Error {
 var PostgrestBuilder = class {
   static {
     __name(this, "PostgrestBuilder");
+  }
+  static {
+    __name2(this, "PostgrestBuilder");
   }
   /**
   * Creates a builder configured for a specific PostgREST request.
@@ -961,6 +1007,9 @@ var PostgrestTransformBuilder = class extends PostgrestBuilder {
   static {
     __name(this, "PostgrestTransformBuilder");
   }
+  static {
+    __name2(this, "PostgrestTransformBuilder");
+  }
   /**
   * Perform a SELECT on the query result.
   *
@@ -1160,6 +1209,9 @@ var PostgrestReservedCharsRegexp = /* @__PURE__ */ new RegExp("[,()]");
 var PostgrestFilterBuilder = class extends PostgrestTransformBuilder {
   static {
     __name(this, "PostgrestFilterBuilder");
+  }
+  static {
+    __name2(this, "PostgrestFilterBuilder");
   }
   /**
   * Match only rows where `column` is equal to `value`.
@@ -1550,6 +1602,9 @@ var PostgrestQueryBuilder = class {
   static {
     __name(this, "PostgrestQueryBuilder");
   }
+  static {
+    __name2(this, "PostgrestQueryBuilder");
+  }
   /**
   * Creates a query builder scoped to a Postgres table or view.
   *
@@ -1863,6 +1918,7 @@ function _typeof(o) {
   }, _typeof(o);
 }
 __name(_typeof, "_typeof");
+__name2(_typeof, "_typeof");
 function toPrimitive(t, r) {
   if ("object" != _typeof(t) || !t) return t;
   var e = t[Symbol.toPrimitive];
@@ -1874,11 +1930,13 @@ function toPrimitive(t, r) {
   return ("string" === r ? String : Number)(t);
 }
 __name(toPrimitive, "toPrimitive");
+__name2(toPrimitive, "toPrimitive");
 function toPropertyKey(t) {
   var i = toPrimitive(t, "string");
   return "symbol" == _typeof(i) ? i : i + "";
 }
 __name(toPropertyKey, "toPropertyKey");
+__name2(toPropertyKey, "toPropertyKey");
 function _defineProperty(e, r, t) {
   return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
     value: t,
@@ -1888,6 +1946,7 @@ function _defineProperty(e, r, t) {
   }) : e[r] = t, e;
 }
 __name(_defineProperty, "_defineProperty");
+__name2(_defineProperty, "_defineProperty");
 function ownKeys(e, r) {
   var t = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
@@ -1899,6 +1958,7 @@ function ownKeys(e, r) {
   return t;
 }
 __name(ownKeys, "ownKeys");
+__name2(ownKeys, "ownKeys");
 function _objectSpread2(e) {
   for (var r = 1; r < arguments.length; r++) {
     var t = null != arguments[r] ? arguments[r] : {};
@@ -1911,9 +1971,13 @@ function _objectSpread2(e) {
   return e;
 }
 __name(_objectSpread2, "_objectSpread2");
+__name2(_objectSpread2, "_objectSpread2");
 var PostgrestClient = class PostgrestClient2 {
   static {
-    __name(this, "PostgrestClient");
+    __name(this, "PostgrestClient2");
+  }
+  static {
+    __name2(this, "PostgrestClient");
   }
   /**
   * Creates a PostgREST client.
@@ -1951,7 +2015,7 @@ var PostgrestClient = class PostgrestClient2 {
           clearTimeout(timeoutId);
           return originalFetch(input, init);
         }
-        const abortHandler = /* @__PURE__ */ __name(() => {
+        const abortHandler = /* @__PURE__ */ __name2(() => {
           clearTimeout(timeoutId);
           controller.abort();
         }, "abortHandler");
@@ -2031,7 +2095,7 @@ var PostgrestClient = class PostgrestClient2 {
     let method;
     const url = new URL(`${this.url}/rpc/${fn}`);
     let body;
-    const _isObject = /* @__PURE__ */ __name((v) => v !== null && typeof v === "object" && (!Array.isArray(v) || v.some(_isObject)), "_isObject");
+    const _isObject = /* @__PURE__ */ __name2((v) => v !== null && typeof v === "object" && (!Array.isArray(v) || v.some(_isObject)), "_isObject");
     const _hasObjectArg = head2 && Object.values(args).some(_isObject);
     if (_hasObjectArg) {
       method = "POST";
@@ -2059,11 +2123,12 @@ var PostgrestClient = class PostgrestClient2 {
     });
   }
 };
-
-// ../node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
 var WebSocketFactory = class {
   static {
     __name(this, "WebSocketFactory");
+  }
+  static {
+    __name2(this, "WebSocketFactory");
   }
   /**
    * Static-only utility – prevent instantiation.
@@ -2178,11 +2243,7 @@ Suggested solution: ${env.workaround}`;
   }
 };
 var websocket_factory_default = WebSocketFactory;
-
-// ../node_modules/@supabase/realtime-js/dist/module/lib/version.js
 var version = "2.97.0";
-
-// ../node_modules/@supabase/realtime-js/dist/module/lib/constants.js
 var DEFAULT_VERSION = `realtime-js/${version}`;
 var VSN_1_0_0 = "1.0.0";
 var VSN_2_0_0 = "2.0.0";
@@ -2225,11 +2286,12 @@ var CONNECTION_STATE;
   CONNECTION_STATE2["Closing"] = "closing";
   CONNECTION_STATE2["Closed"] = "closed";
 })(CONNECTION_STATE || (CONNECTION_STATE = {}));
-
-// ../node_modules/@supabase/realtime-js/dist/module/lib/serializer.js
 var Serializer = class {
   static {
     __name(this, "Serializer");
+  }
+  static {
+    __name2(this, "Serializer");
   }
   constructor(allowedMetadataKeys) {
     this.HEADER_LENGTH = 1;
@@ -2368,11 +2430,12 @@ var Serializer = class {
     return Object.fromEntries(Object.entries(obj).filter(([key]) => keys.includes(key)));
   }
 };
-
-// ../node_modules/@supabase/realtime-js/dist/module/lib/timer.js
 var Timer = class {
   static {
     __name(this, "Timer");
+  }
+  static {
+    __name2(this, "Timer");
   }
   constructor(callback, timerCalc) {
     this.callback = callback;
@@ -2396,8 +2459,6 @@ var Timer = class {
     }, this.timerCalc(this.tries + 1));
   }
 };
-
-// ../node_modules/@supabase/realtime-js/dist/module/lib/transformers.js
 var PostgresTypes;
 (function(PostgresTypes2) {
   PostgresTypes2["abstime"] = "abstime";
@@ -2425,7 +2486,7 @@ var PostgresTypes;
   PostgresTypes2["tsrange"] = "tsrange";
   PostgresTypes2["tstzrange"] = "tstzrange";
 })(PostgresTypes || (PostgresTypes = {}));
-var convertChangeData = /* @__PURE__ */ __name((columns, record, options = {}) => {
+var convertChangeData = /* @__PURE__ */ __name2((columns, record, options = {}) => {
   var _a;
   const skipTypes = (_a = options.skipTypes) !== null && _a !== void 0 ? _a : [];
   if (!record) {
@@ -2436,7 +2497,7 @@ var convertChangeData = /* @__PURE__ */ __name((columns, record, options = {}) =
     return acc;
   }, {});
 }, "convertChangeData");
-var convertColumn = /* @__PURE__ */ __name((columnName, columns, record, skipTypes) => {
+var convertColumn = /* @__PURE__ */ __name2((columnName, columns, record, skipTypes) => {
   const column = columns.find((x) => x.name === columnName);
   const colType = column === null || column === void 0 ? void 0 : column.type;
   const value = record[columnName];
@@ -2445,7 +2506,7 @@ var convertColumn = /* @__PURE__ */ __name((columnName, columns, record, skipTyp
   }
   return noop(value);
 }, "convertColumn");
-var convertCell = /* @__PURE__ */ __name((type, value) => {
+var convertCell = /* @__PURE__ */ __name2((type, value) => {
   if (type.charAt(0) === "_") {
     const dataType = type.slice(1, type.length);
     return toArray(value, dataType);
@@ -2491,10 +2552,10 @@ var convertCell = /* @__PURE__ */ __name((type, value) => {
       return noop(value);
   }
 }, "convertCell");
-var noop = /* @__PURE__ */ __name((value) => {
+var noop = /* @__PURE__ */ __name2((value) => {
   return value;
 }, "noop");
-var toBoolean = /* @__PURE__ */ __name((value) => {
+var toBoolean = /* @__PURE__ */ __name2((value) => {
   switch (value) {
     case "t":
       return true;
@@ -2504,7 +2565,7 @@ var toBoolean = /* @__PURE__ */ __name((value) => {
       return value;
   }
 }, "toBoolean");
-var toNumber = /* @__PURE__ */ __name((value) => {
+var toNumber = /* @__PURE__ */ __name2((value) => {
   if (typeof value === "string") {
     const parsedValue = parseFloat(value);
     if (!Number.isNaN(parsedValue)) {
@@ -2513,7 +2574,7 @@ var toNumber = /* @__PURE__ */ __name((value) => {
   }
   return value;
 }, "toNumber");
-var toJson = /* @__PURE__ */ __name((value) => {
+var toJson = /* @__PURE__ */ __name2((value) => {
   if (typeof value === "string") {
     try {
       return JSON.parse(value);
@@ -2523,7 +2584,7 @@ var toJson = /* @__PURE__ */ __name((value) => {
   }
   return value;
 }, "toJson");
-var toArray = /* @__PURE__ */ __name((value, type) => {
+var toArray = /* @__PURE__ */ __name2((value, type) => {
   if (typeof value !== "string") {
     return value;
   }
@@ -2542,13 +2603,13 @@ var toArray = /* @__PURE__ */ __name((value, type) => {
   }
   return value;
 }, "toArray");
-var toTimestampString = /* @__PURE__ */ __name((value) => {
+var toTimestampString = /* @__PURE__ */ __name2((value) => {
   if (typeof value === "string") {
     return value.replace(" ", "T");
   }
   return value;
 }, "toTimestampString");
-var httpEndpointURL = /* @__PURE__ */ __name((socketUrl) => {
+var httpEndpointURL = /* @__PURE__ */ __name2((socketUrl) => {
   const wsUrl = new URL(socketUrl);
   wsUrl.protocol = wsUrl.protocol.replace(/^ws/i, "http");
   wsUrl.pathname = wsUrl.pathname.replace(/\/+$/, "").replace(/\/socket\/websocket$/i, "").replace(/\/socket$/i, "").replace(/\/websocket$/i, "");
@@ -2559,11 +2620,12 @@ var httpEndpointURL = /* @__PURE__ */ __name((socketUrl) => {
   }
   return wsUrl.href;
 }, "httpEndpointURL");
-
-// ../node_modules/@supabase/realtime-js/dist/module/lib/push.js
 var Push = class {
   static {
     __name(this, "Push");
+  }
+  static {
+    __name2(this, "Push");
   }
   /**
    * Initializes the Push
@@ -2625,7 +2687,7 @@ var Push = class {
     }
     this.ref = this.channel.socket._makeRef();
     this.refEvent = this.channel._replyEventName(this.ref);
-    const callback = /* @__PURE__ */ __name((payload) => {
+    const callback = /* @__PURE__ */ __name2((payload) => {
       this._cancelRefEvent();
       this._cancelTimeout();
       this.receivedResp = payload;
@@ -2661,8 +2723,6 @@ var Push = class {
     return this.receivedResp && this.receivedResp.status === status;
   }
 };
-
-// ../node_modules/@supabase/realtime-js/dist/module/RealtimePresence.js
 var REALTIME_PRESENCE_LISTEN_EVENTS;
 (function(REALTIME_PRESENCE_LISTEN_EVENTS2) {
   REALTIME_PRESENCE_LISTEN_EVENTS2["SYNC"] = "sync";
@@ -2671,7 +2731,10 @@ var REALTIME_PRESENCE_LISTEN_EVENTS;
 })(REALTIME_PRESENCE_LISTEN_EVENTS || (REALTIME_PRESENCE_LISTEN_EVENTS = {}));
 var RealtimePresence = class _RealtimePresence {
   static {
-    __name(this, "RealtimePresence");
+    __name(this, "_RealtimePresence");
+  }
+  static {
+    __name2(this, "RealtimePresence");
   }
   /**
    * Creates a Presence helper that keeps the local presence state in sync with the server.
@@ -2695,11 +2758,11 @@ var RealtimePresence = class _RealtimePresence {
     this.joinRef = null;
     this.enabled = false;
     this.caller = {
-      onJoin: /* @__PURE__ */ __name(() => {
+      onJoin: /* @__PURE__ */ __name2(() => {
       }, "onJoin"),
-      onLeave: /* @__PURE__ */ __name(() => {
+      onLeave: /* @__PURE__ */ __name2(() => {
       }, "onLeave"),
-      onSync: /* @__PURE__ */ __name(() => {
+      onSync: /* @__PURE__ */ __name2(() => {
       }, "onSync")
     };
     const events = (opts === null || opts === void 0 ? void 0 : opts.events) || {
@@ -2800,11 +2863,11 @@ var RealtimePresence = class _RealtimePresence {
       leaves: this.transformState(diff.leaves)
     };
     if (!onJoin) {
-      onJoin = /* @__PURE__ */ __name(() => {
+      onJoin = /* @__PURE__ */ __name2(() => {
       }, "onJoin");
     }
     if (!onLeave) {
-      onLeave = /* @__PURE__ */ __name(() => {
+      onLeave = /* @__PURE__ */ __name2(() => {
       }, "onLeave");
     }
     this.map(joins, (key, newPresences) => {
@@ -2896,8 +2959,6 @@ var RealtimePresence = class _RealtimePresence {
     return !this.joinRef || this.joinRef !== this.channel._joinRef();
   }
 };
-
-// ../node_modules/@supabase/realtime-js/dist/module/RealtimeChannel.js
 var REALTIME_POSTGRES_CHANGES_LISTEN_EVENT;
 (function(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT2) {
   REALTIME_POSTGRES_CHANGES_LISTEN_EVENT2["ALL"] = "*";
@@ -2921,7 +2982,10 @@ var REALTIME_SUBSCRIBE_STATES;
 })(REALTIME_SUBSCRIBE_STATES || (REALTIME_SUBSCRIBE_STATES = {}));
 var RealtimeChannel = class _RealtimeChannel {
   static {
-    __name(this, "RealtimeChannel");
+    __name(this, "_RealtimeChannel");
+  }
+  static {
+    __name2(this, "RealtimeChannel");
   }
   /**
    * Creates a channel that can broadcast messages, sync presence, and listen to Postgres changes.
@@ -3230,7 +3294,7 @@ var RealtimeChannel = class _RealtimeChannel {
    */
   unsubscribe(timeout = this.timeout) {
     this.state = CHANNEL_STATES.leaving;
-    const onClose = /* @__PURE__ */ __name(() => {
+    const onClose = /* @__PURE__ */ __name2(() => {
       this.socket.log("channel", `leave ${this.topic}`);
       this._trigger(CHANNEL_EVENTS.close, "leave", this._joinRef());
     }, "onClose");
@@ -3495,9 +3559,7 @@ var RealtimeChannel = class _RealtimeChannel {
     return records;
   }
 };
-
-// ../node_modules/@supabase/realtime-js/dist/module/RealtimeClient.js
-var noop2 = /* @__PURE__ */ __name(() => {
+var noop2 = /* @__PURE__ */ __name2(() => {
 }, "noop");
 var CONNECTION_TIMEOUTS = {
   HEARTBEAT_INTERVAL: 25e3,
@@ -3515,6 +3577,9 @@ var WORKER_SCRIPT = `
 var RealtimeClient = class {
   static {
     __name(this, "RealtimeClient");
+  }
+  static {
+    __name2(this, "RealtimeClient");
   }
   /**
    * Initializes the Socket.
@@ -3765,7 +3830,7 @@ Option 2: Install and provide the "ws" package:
    */
   push(data) {
     const { topic, event, payload, ref } = data;
-    const callback = /* @__PURE__ */ __name(() => {
+    const callback = /* @__PURE__ */ __name2(() => {
       this.encode(data, (result) => {
         var _a;
         (_a = this.conn) === null || _a === void 0 ? void 0 : _a.send(result);
@@ -4256,11 +4321,12 @@ Option 2: Install and provide the "ws" package:
     }
   }
 };
-
-// ../node_modules/iceberg-js/dist/index.mjs
 var IcebergError = class extends Error {
   static {
     __name(this, "IcebergError");
+  }
+  static {
+    __name2(this, "IcebergError");
   }
   constructor(message, opts) {
     super(message);
@@ -4302,6 +4368,7 @@ function buildUrl(baseUrl, path, query) {
   return url.toString();
 }
 __name(buildUrl, "buildUrl");
+__name2(buildUrl, "buildUrl");
 async function buildAuthHeaders(auth) {
   if (!auth || auth.type === "none") {
     return {};
@@ -4318,6 +4385,7 @@ async function buildAuthHeaders(auth) {
   return {};
 }
 __name(buildAuthHeaders, "buildAuthHeaders");
+__name2(buildAuthHeaders, "buildAuthHeaders");
 function createFetchClient(options) {
   const fetchFn = options.fetchImpl ?? globalThis.fetch;
   return {
@@ -4360,13 +4428,18 @@ function createFetchClient(options) {
   };
 }
 __name(createFetchClient, "createFetchClient");
+__name2(createFetchClient, "createFetchClient");
 function namespaceToPath(namespace) {
   return namespace.join("");
 }
 __name(namespaceToPath, "namespaceToPath");
+__name2(namespaceToPath, "namespaceToPath");
 var NamespaceOperations = class {
   static {
     __name(this, "NamespaceOperations");
+  }
+  static {
+    __name2(this, "NamespaceOperations");
   }
   constructor(client, prefix = "") {
     this.client = client;
@@ -4437,9 +4510,13 @@ function namespaceToPath2(namespace) {
   return namespace.join("");
 }
 __name(namespaceToPath2, "namespaceToPath2");
+__name2(namespaceToPath2, "namespaceToPath2");
 var TableOperations = class {
   static {
     __name(this, "TableOperations");
+  }
+  static {
+    __name2(this, "TableOperations");
   }
   constructor(client, prefix = "", accessDelegation) {
     this.client = client;
@@ -4529,6 +4606,9 @@ var TableOperations = class {
 var IcebergRestCatalog = class {
   static {
     __name(this, "IcebergRestCatalog");
+  }
+  static {
+    __name2(this, "IcebergRestCatalog");
   }
   /**
    * Creates a new Iceberg REST Catalog client.
@@ -4806,11 +4886,12 @@ var IcebergRestCatalog = class {
     return this.tableOps.createTableIfNotExists(namespace, request);
   }
 };
-
-// ../node_modules/@supabase/storage-js/dist/index.mjs
 var StorageError = class extends Error {
   static {
     __name(this, "StorageError");
+  }
+  static {
+    __name2(this, "StorageError");
   }
   constructor(message, namespace = "storage", status, statusCode) {
     super(message);
@@ -4825,9 +4906,13 @@ function isStorageError(error) {
   return typeof error === "object" && error !== null && "__isStorageError" in error;
 }
 __name(isStorageError, "isStorageError");
+__name2(isStorageError, "isStorageError");
 var StorageApiError = class extends StorageError {
   static {
     __name(this, "StorageApiError");
+  }
+  static {
+    __name2(this, "StorageApiError");
   }
   constructor(message, status, statusCode, namespace = "storage") {
     super(message, namespace, status, statusCode);
@@ -4848,22 +4933,25 @@ var StorageUnknownError = class extends StorageError {
   static {
     __name(this, "StorageUnknownError");
   }
+  static {
+    __name2(this, "StorageUnknownError");
+  }
   constructor(message, originalError, namespace = "storage") {
     super(message, namespace);
     this.name = namespace === "vectors" ? "StorageVectorsUnknownError" : "StorageUnknownError";
     this.originalError = originalError;
   }
 };
-var resolveFetch2 = /* @__PURE__ */ __name((customFetch) => {
+var resolveFetch2 = /* @__PURE__ */ __name2((customFetch) => {
   if (customFetch) return (...args) => customFetch(...args);
   return (...args) => fetch(...args);
 }, "resolveFetch");
-var isPlainObject = /* @__PURE__ */ __name((value) => {
+var isPlainObject = /* @__PURE__ */ __name2((value) => {
   if (typeof value !== "object" || value === null) return false;
   const prototype = Object.getPrototypeOf(value);
   return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in value) && !(Symbol.iterator in value);
 }, "isPlainObject");
-var recursiveToCamel = /* @__PURE__ */ __name((item) => {
+var recursiveToCamel = /* @__PURE__ */ __name2((item) => {
   if (Array.isArray(item)) return item.map((el) => recursiveToCamel(el));
   else if (typeof item === "function" || item !== Object(item)) return item;
   const result = {};
@@ -4873,7 +4961,7 @@ var recursiveToCamel = /* @__PURE__ */ __name((item) => {
   });
   return result;
 }, "recursiveToCamel");
-var isValidBucketName = /* @__PURE__ */ __name((bucketName) => {
+var isValidBucketName = /* @__PURE__ */ __name2((bucketName) => {
   if (!bucketName || typeof bucketName !== "string") return false;
   if (bucketName.length === 0 || bucketName.length > 100) return false;
   if (bucketName.trim() !== bucketName) return false;
@@ -4888,7 +4976,8 @@ function _typeof2(o) {
     return o$1 && "function" == typeof Symbol && o$1.constructor === Symbol && o$1 !== Symbol.prototype ? "symbol" : typeof o$1;
   }, _typeof2(o);
 }
-__name(_typeof2, "_typeof");
+__name(_typeof2, "_typeof2");
+__name2(_typeof2, "_typeof");
 function toPrimitive2(t, r) {
   if ("object" != _typeof2(t) || !t) return t;
   var e = t[Symbol.toPrimitive];
@@ -4899,12 +4988,14 @@ function toPrimitive2(t, r) {
   }
   return ("string" === r ? String : Number)(t);
 }
-__name(toPrimitive2, "toPrimitive");
+__name(toPrimitive2, "toPrimitive2");
+__name2(toPrimitive2, "toPrimitive");
 function toPropertyKey2(t) {
   var i = toPrimitive2(t, "string");
   return "symbol" == _typeof2(i) ? i : i + "";
 }
-__name(toPropertyKey2, "toPropertyKey");
+__name(toPropertyKey2, "toPropertyKey2");
+__name2(toPropertyKey2, "toPropertyKey");
 function _defineProperty2(e, r, t) {
   return (r = toPropertyKey2(r)) in e ? Object.defineProperty(e, r, {
     value: t,
@@ -4913,7 +5004,8 @@ function _defineProperty2(e, r, t) {
     writable: true
   }) : e[r] = t, e;
 }
-__name(_defineProperty2, "_defineProperty");
+__name(_defineProperty2, "_defineProperty2");
+__name2(_defineProperty2, "_defineProperty");
 function ownKeys2(e, r) {
   var t = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
@@ -4924,7 +5016,8 @@ function ownKeys2(e, r) {
   }
   return t;
 }
-__name(ownKeys2, "ownKeys");
+__name(ownKeys2, "ownKeys2");
+__name2(ownKeys2, "ownKeys");
 function _objectSpread22(e) {
   for (var r = 1; r < arguments.length; r++) {
     var t = null != arguments[r] ? arguments[r] : {};
@@ -4936,12 +5029,13 @@ function _objectSpread22(e) {
   }
   return e;
 }
-__name(_objectSpread22, "_objectSpread2");
-var _getErrorMessage = /* @__PURE__ */ __name((err) => {
+__name(_objectSpread22, "_objectSpread22");
+__name2(_objectSpread22, "_objectSpread2");
+var _getErrorMessage = /* @__PURE__ */ __name2((err) => {
   var _err$error;
   return err.msg || err.message || err.error_description || (typeof err.error === "string" ? err.error : (_err$error = err.error) === null || _err$error === void 0 ? void 0 : _err$error.message) || JSON.stringify(err);
 }, "_getErrorMessage");
-var handleError = /* @__PURE__ */ __name(async (error, reject, options, namespace) => {
+var handleError = /* @__PURE__ */ __name2(async (error, reject, options, namespace) => {
   if (error && typeof error === "object" && "status" in error && "ok" in error && typeof error.status === "number" && !(options === null || options === void 0 ? void 0 : options.noResolveJson)) {
     const responseError = error;
     const status = responseError.status || 500;
@@ -4963,7 +5057,7 @@ var handleError = /* @__PURE__ */ __name(async (error, reject, options, namespac
     }
   } else reject(new StorageUnknownError(_getErrorMessage(error), error, namespace));
 }, "handleError");
-var _getRequestParams = /* @__PURE__ */ __name((method, options, parameters, body) => {
+var _getRequestParams = /* @__PURE__ */ __name2((method, options, parameters, body) => {
   const params = {
     method,
     headers: (options === null || options === void 0 ? void 0 : options.headers) || {}
@@ -4991,32 +5085,37 @@ async function _handleRequest(fetcher, method, url, options, parameters, body, n
   });
 }
 __name(_handleRequest, "_handleRequest");
+__name2(_handleRequest, "_handleRequest");
 function createFetchApi(namespace = "storage") {
   return {
-    get: /* @__PURE__ */ __name(async (fetcher, url, options, parameters) => {
+    get: /* @__PURE__ */ __name2(async (fetcher, url, options, parameters) => {
       return _handleRequest(fetcher, "GET", url, options, parameters, void 0, namespace);
     }, "get"),
-    post: /* @__PURE__ */ __name(async (fetcher, url, body, options, parameters) => {
+    post: /* @__PURE__ */ __name2(async (fetcher, url, body, options, parameters) => {
       return _handleRequest(fetcher, "POST", url, options, parameters, body, namespace);
     }, "post"),
-    put: /* @__PURE__ */ __name(async (fetcher, url, body, options, parameters) => {
+    put: /* @__PURE__ */ __name2(async (fetcher, url, body, options, parameters) => {
       return _handleRequest(fetcher, "PUT", url, options, parameters, body, namespace);
     }, "put"),
-    head: /* @__PURE__ */ __name(async (fetcher, url, options, parameters) => {
+    head: /* @__PURE__ */ __name2(async (fetcher, url, options, parameters) => {
       return _handleRequest(fetcher, "HEAD", url, _objectSpread22(_objectSpread22({}, options), {}, { noResolveJson: true }), parameters, void 0, namespace);
     }, "head"),
-    remove: /* @__PURE__ */ __name(async (fetcher, url, body, options, parameters) => {
+    remove: /* @__PURE__ */ __name2(async (fetcher, url, body, options, parameters) => {
       return _handleRequest(fetcher, "DELETE", url, options, parameters, body, namespace);
     }, "remove")
   };
 }
 __name(createFetchApi, "createFetchApi");
+__name2(createFetchApi, "createFetchApi");
 var defaultApi = createFetchApi("storage");
 var { get, post, put, head, remove } = defaultApi;
 var vectorsApi = createFetchApi("vectors");
 var BaseApiClient = class {
   static {
     __name(this, "BaseApiClient");
+  }
+  static {
+    __name2(this, "BaseApiClient");
   }
   /**
   * Creates a new BaseApiClient instance
@@ -5100,6 +5199,9 @@ var StreamDownloadBuilder = class {
   static {
     __name(this, "StreamDownloadBuilder");
   }
+  static {
+    __name2(this, "StreamDownloadBuilder");
+  }
   constructor(downloadFn, shouldThrowOnError) {
     this.downloadFn = downloadFn;
     this.shouldThrowOnError = shouldThrowOnError;
@@ -5129,6 +5231,9 @@ _Symbol$toStringTag = Symbol.toStringTag;
 var BlobDownloadBuilder = class {
   static {
     __name(this, "BlobDownloadBuilder");
+  }
+  static {
+    __name2(this, "BlobDownloadBuilder");
   }
   constructor(downloadFn, shouldThrowOnError) {
     this.downloadFn = downloadFn;
@@ -5185,6 +5290,9 @@ var DEFAULT_FILE_OPTIONS = {
 var StorageFileApi = class extends BaseApiClient {
   static {
     __name(this, "StorageFileApi");
+  }
+  static {
+    __name2(this, "StorageFileApi");
   }
   constructor(url, headers = {}, bucketId, fetch$1) {
     super(url, headers, fetch$1, "storage");
@@ -5679,7 +5787,7 @@ var StorageFileApi = class extends BaseApiClient {
     const transformationQuery = this.transformOptsToQueryString((options === null || options === void 0 ? void 0 : options.transform) || {});
     const queryString = transformationQuery ? `?${transformationQuery}` : "";
     const _path = this._getFinalPath(path);
-    const downloadFn = /* @__PURE__ */ __name(() => get(this.fetch, `${this.url}/${renderPath}/${_path}${queryString}`, {
+    const downloadFn = /* @__PURE__ */ __name2(() => get(this.fetch, `${this.url}/${renderPath}/${_path}${queryString}`, {
       headers: this.headers,
       noResolveJson: true
     }, parameters), "downloadFn");
@@ -5952,6 +6060,9 @@ var StorageBucketApi = class extends BaseApiClient {
   static {
     __name(this, "StorageBucketApi");
   }
+  static {
+    __name2(this, "StorageBucketApi");
+  }
   constructor(url, headers = {}, fetch$1, opts) {
     const baseUrl = new URL(url);
     if (opts === null || opts === void 0 ? void 0 : opts.useNewHostname) {
@@ -6212,6 +6323,9 @@ var StorageBucketApi = class extends BaseApiClient {
 var StorageAnalyticsClient = class extends BaseApiClient {
   static {
     __name(this, "StorageAnalyticsClient");
+  }
+  static {
+    __name2(this, "StorageAnalyticsClient");
   }
   /**
   * @alpha
@@ -6503,7 +6617,7 @@ var StorageAnalyticsClient = class extends BaseApiClient {
       catalogName: bucketName,
       auth: {
         type: "custom",
-        getHeaders: /* @__PURE__ */ __name(async () => _this4.headers, "getHeaders")
+        getHeaders: /* @__PURE__ */ __name2(async () => _this4.headers, "getHeaders")
       },
       fetch: this.fetch
     });
@@ -6531,6 +6645,9 @@ var StorageAnalyticsClient = class extends BaseApiClient {
 var VectorIndexApi = class extends BaseApiClient {
   static {
     __name(this, "VectorIndexApi");
+  }
+  static {
+    __name2(this, "VectorIndexApi");
   }
   /** Creates a new VectorIndexApi instance */
   constructor(url, headers = {}, fetch$1) {
@@ -6576,6 +6693,9 @@ var VectorIndexApi = class extends BaseApiClient {
 var VectorDataApi = class extends BaseApiClient {
   static {
     __name(this, "VectorDataApi");
+  }
+  static {
+    __name2(this, "VectorDataApi");
   }
   /** Creates a new VectorDataApi instance */
   constructor(url, headers = {}, fetch$1) {
@@ -6631,6 +6751,9 @@ var VectorBucketApi = class extends BaseApiClient {
   static {
     __name(this, "VectorBucketApi");
   }
+  static {
+    __name2(this, "VectorBucketApi");
+  }
   /** Creates a new VectorBucketApi instance */
   constructor(url, headers = {}, fetch$1) {
     const finalUrl = url.replace(/\/$/, "");
@@ -6669,6 +6792,9 @@ var VectorBucketApi = class extends BaseApiClient {
 var StorageVectorsClient = class extends VectorBucketApi {
   static {
     __name(this, "StorageVectorsClient");
+  }
+  static {
+    __name2(this, "StorageVectorsClient");
   }
   /**
   * @alpha
@@ -6733,7 +6859,7 @@ var StorageVectorsClient = class extends VectorBucketApi {
   * ```
   */
   async createBucket(vectorBucketName) {
-    var _superprop_getCreateBucket = /* @__PURE__ */ __name(() => super.createBucket, "_superprop_getCreateBucket"), _this = this;
+    var _superprop_getCreateBucket = /* @__PURE__ */ __name2(() => super.createBucket, "_superprop_getCreateBucket"), _this = this;
     return _superprop_getCreateBucket().call(_this, vectorBucketName);
   }
   /**
@@ -6759,7 +6885,7 @@ var StorageVectorsClient = class extends VectorBucketApi {
   * ```
   */
   async getBucket(vectorBucketName) {
-    var _superprop_getGetBucket = /* @__PURE__ */ __name(() => super.getBucket, "_superprop_getGetBucket"), _this2 = this;
+    var _superprop_getGetBucket = /* @__PURE__ */ __name2(() => super.getBucket, "_superprop_getGetBucket"), _this2 = this;
     return _superprop_getGetBucket().call(_this2, vectorBucketName);
   }
   /**
@@ -6787,7 +6913,7 @@ var StorageVectorsClient = class extends VectorBucketApi {
   * ```
   */
   async listBuckets(options = {}) {
-    var _superprop_getListBuckets = /* @__PURE__ */ __name(() => super.listBuckets, "_superprop_getListBuckets"), _this3 = this;
+    var _superprop_getListBuckets = /* @__PURE__ */ __name2(() => super.listBuckets, "_superprop_getListBuckets"), _this3 = this;
     return _superprop_getListBuckets().call(_this3, options);
   }
   /**
@@ -6812,13 +6938,16 @@ var StorageVectorsClient = class extends VectorBucketApi {
   * ```
   */
   async deleteBucket(vectorBucketName) {
-    var _superprop_getDeleteBucket = /* @__PURE__ */ __name(() => super.deleteBucket, "_superprop_getDeleteBucket"), _this4 = this;
+    var _superprop_getDeleteBucket = /* @__PURE__ */ __name2(() => super.deleteBucket, "_superprop_getDeleteBucket"), _this4 = this;
     return _superprop_getDeleteBucket().call(_this4, vectorBucketName);
   }
 };
 var VectorBucketScope = class extends VectorIndexApi {
   static {
     __name(this, "VectorBucketScope");
+  }
+  static {
+    __name2(this, "VectorBucketScope");
   }
   /**
   * @alpha
@@ -6865,7 +6994,7 @@ var VectorBucketScope = class extends VectorIndexApi {
   * ```
   */
   async createIndex(options) {
-    var _superprop_getCreateIndex = /* @__PURE__ */ __name(() => super.createIndex, "_superprop_getCreateIndex"), _this5 = this;
+    var _superprop_getCreateIndex = /* @__PURE__ */ __name2(() => super.createIndex, "_superprop_getCreateIndex"), _this5 = this;
     return _superprop_getCreateIndex().call(_this5, _objectSpread22(_objectSpread22({}, options), {}, { vectorBucketName: _this5.vectorBucketName }));
   }
   /**
@@ -6888,7 +7017,7 @@ var VectorBucketScope = class extends VectorIndexApi {
   * ```
   */
   async listIndexes(options = {}) {
-    var _superprop_getListIndexes = /* @__PURE__ */ __name(() => super.listIndexes, "_superprop_getListIndexes"), _this6 = this;
+    var _superprop_getListIndexes = /* @__PURE__ */ __name2(() => super.listIndexes, "_superprop_getListIndexes"), _this6 = this;
     return _superprop_getListIndexes().call(_this6, _objectSpread22(_objectSpread22({}, options), {}, { vectorBucketName: _this6.vectorBucketName }));
   }
   /**
@@ -6912,7 +7041,7 @@ var VectorBucketScope = class extends VectorIndexApi {
   * ```
   */
   async getIndex(indexName) {
-    var _superprop_getGetIndex = /* @__PURE__ */ __name(() => super.getIndex, "_superprop_getGetIndex"), _this7 = this;
+    var _superprop_getGetIndex = /* @__PURE__ */ __name2(() => super.getIndex, "_superprop_getGetIndex"), _this7 = this;
     return _superprop_getGetIndex().call(_this7, _this7.vectorBucketName, indexName);
   }
   /**
@@ -6935,7 +7064,7 @@ var VectorBucketScope = class extends VectorIndexApi {
   * ```
   */
   async deleteIndex(indexName) {
-    var _superprop_getDeleteIndex = /* @__PURE__ */ __name(() => super.deleteIndex, "_superprop_getDeleteIndex"), _this8 = this;
+    var _superprop_getDeleteIndex = /* @__PURE__ */ __name2(() => super.deleteIndex, "_superprop_getDeleteIndex"), _this8 = this;
     return _superprop_getDeleteIndex().call(_this8, _this8.vectorBucketName, indexName);
   }
   /**
@@ -6976,6 +7105,9 @@ var VectorBucketScope = class extends VectorIndexApi {
 var VectorIndexScope = class extends VectorDataApi {
   static {
     __name(this, "VectorIndexScope");
+  }
+  static {
+    __name2(this, "VectorIndexScope");
   }
   /**
   *
@@ -7024,7 +7156,7 @@ var VectorIndexScope = class extends VectorDataApi {
   * ```
   */
   async putVectors(options) {
-    var _superprop_getPutVectors = /* @__PURE__ */ __name(() => super.putVectors, "_superprop_getPutVectors"), _this9 = this;
+    var _superprop_getPutVectors = /* @__PURE__ */ __name2(() => super.putVectors, "_superprop_getPutVectors"), _this9 = this;
     return _superprop_getPutVectors().call(_this9, _objectSpread22(_objectSpread22({}, options), {}, {
       vectorBucketName: _this9.vectorBucketName,
       indexName: _this9.indexName
@@ -7053,7 +7185,7 @@ var VectorIndexScope = class extends VectorDataApi {
   * ```
   */
   async getVectors(options) {
-    var _superprop_getGetVectors = /* @__PURE__ */ __name(() => super.getVectors, "_superprop_getGetVectors"), _this10 = this;
+    var _superprop_getGetVectors = /* @__PURE__ */ __name2(() => super.getVectors, "_superprop_getGetVectors"), _this10 = this;
     return _superprop_getGetVectors().call(_this10, _objectSpread22(_objectSpread22({}, options), {}, {
       vectorBucketName: _this10.vectorBucketName,
       indexName: _this10.indexName
@@ -7082,7 +7214,7 @@ var VectorIndexScope = class extends VectorDataApi {
   * ```
   */
   async listVectors(options = {}) {
-    var _superprop_getListVectors = /* @__PURE__ */ __name(() => super.listVectors, "_superprop_getListVectors"), _this11 = this;
+    var _superprop_getListVectors = /* @__PURE__ */ __name2(() => super.listVectors, "_superprop_getListVectors"), _this11 = this;
     return _superprop_getListVectors().call(_this11, _objectSpread22(_objectSpread22({}, options), {}, {
       vectorBucketName: _this11.vectorBucketName,
       indexName: _this11.indexName
@@ -7114,7 +7246,7 @@ var VectorIndexScope = class extends VectorDataApi {
   * ```
   */
   async queryVectors(options) {
-    var _superprop_getQueryVectors = /* @__PURE__ */ __name(() => super.queryVectors, "_superprop_getQueryVectors"), _this12 = this;
+    var _superprop_getQueryVectors = /* @__PURE__ */ __name2(() => super.queryVectors, "_superprop_getQueryVectors"), _this12 = this;
     return _superprop_getQueryVectors().call(_this12, _objectSpread22(_objectSpread22({}, options), {}, {
       vectorBucketName: _this12.vectorBucketName,
       indexName: _this12.indexName
@@ -7142,7 +7274,7 @@ var VectorIndexScope = class extends VectorDataApi {
   * ```
   */
   async deleteVectors(options) {
-    var _superprop_getDeleteVectors = /* @__PURE__ */ __name(() => super.deleteVectors, "_superprop_getDeleteVectors"), _this13 = this;
+    var _superprop_getDeleteVectors = /* @__PURE__ */ __name2(() => super.deleteVectors, "_superprop_getDeleteVectors"), _this13 = this;
     return _superprop_getDeleteVectors().call(_this13, _objectSpread22(_objectSpread22({}, options), {}, {
       vectorBucketName: _this13.vectorBucketName,
       indexName: _this13.indexName
@@ -7152,6 +7284,9 @@ var VectorIndexScope = class extends VectorDataApi {
 var StorageClient = class extends StorageBucketApi {
   static {
     __name(this, "StorageClient");
+  }
+  static {
+    __name2(this, "StorageClient");
   }
   /**
   * Creates a client for Storage buckets, files, analytics, and vectors.
@@ -7216,11 +7351,7 @@ var StorageClient = class extends StorageBucketApi {
     return new StorageAnalyticsClient(this.url + "/iceberg", this.headers, this.fetch);
   }
 };
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/version.js
 var version3 = "2.97.0";
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/constants.js
 var AUTO_REFRESH_TICK_DURATION_MS = 30 * 1e3;
 var AUTO_REFRESH_TICK_THRESHOLD = 3;
 var EXPIRY_MARGIN_MS = AUTO_REFRESH_TICK_THRESHOLD * AUTO_REFRESH_TICK_DURATION_MS;
@@ -7236,11 +7367,12 @@ var API_VERSIONS = {
 };
 var BASE64URL_REGEX = /^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i;
 var JWKS_TTL = 10 * 60 * 1e3;
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/errors.js
 var AuthError = class extends Error {
   static {
     __name(this, "AuthError");
+  }
+  static {
+    __name2(this, "AuthError");
   }
   constructor(message, status, code) {
     super(message);
@@ -7254,9 +7386,13 @@ function isAuthError(error) {
   return typeof error === "object" && error !== null && "__isAuthError" in error;
 }
 __name(isAuthError, "isAuthError");
+__name2(isAuthError, "isAuthError");
 var AuthApiError = class extends AuthError {
   static {
     __name(this, "AuthApiError");
+  }
+  static {
+    __name2(this, "AuthApiError");
   }
   constructor(message, status, code) {
     super(message, status, code);
@@ -7269,9 +7405,13 @@ function isAuthApiError(error) {
   return isAuthError(error) && error.name === "AuthApiError";
 }
 __name(isAuthApiError, "isAuthApiError");
+__name2(isAuthApiError, "isAuthApiError");
 var AuthUnknownError = class extends AuthError {
   static {
     __name(this, "AuthUnknownError");
+  }
+  static {
+    __name2(this, "AuthUnknownError");
   }
   constructor(message, originalError) {
     super(message);
@@ -7283,6 +7423,9 @@ var CustomAuthError = class extends AuthError {
   static {
     __name(this, "CustomAuthError");
   }
+  static {
+    __name2(this, "CustomAuthError");
+  }
   constructor(message, name, status, code) {
     super(message, status, code);
     this.name = name;
@@ -7293,6 +7436,9 @@ var AuthSessionMissingError = class extends CustomAuthError {
   static {
     __name(this, "AuthSessionMissingError");
   }
+  static {
+    __name2(this, "AuthSessionMissingError");
+  }
   constructor() {
     super("Auth session missing!", "AuthSessionMissingError", 400, void 0);
   }
@@ -7301,9 +7447,13 @@ function isAuthSessionMissingError(error) {
   return isAuthError(error) && error.name === "AuthSessionMissingError";
 }
 __name(isAuthSessionMissingError, "isAuthSessionMissingError");
+__name2(isAuthSessionMissingError, "isAuthSessionMissingError");
 var AuthInvalidTokenResponseError = class extends CustomAuthError {
   static {
     __name(this, "AuthInvalidTokenResponseError");
+  }
+  static {
+    __name2(this, "AuthInvalidTokenResponseError");
   }
   constructor() {
     super("Auth session or user missing", "AuthInvalidTokenResponseError", 500, void 0);
@@ -7313,6 +7463,9 @@ var AuthInvalidCredentialsError = class extends CustomAuthError {
   static {
     __name(this, "AuthInvalidCredentialsError");
   }
+  static {
+    __name2(this, "AuthInvalidCredentialsError");
+  }
   constructor(message) {
     super(message, "AuthInvalidCredentialsError", 400, void 0);
   }
@@ -7320,6 +7473,9 @@ var AuthInvalidCredentialsError = class extends CustomAuthError {
 var AuthImplicitGrantRedirectError = class extends CustomAuthError {
   static {
     __name(this, "AuthImplicitGrantRedirectError");
+  }
+  static {
+    __name2(this, "AuthImplicitGrantRedirectError");
   }
   constructor(message, details = null) {
     super(message, "AuthImplicitGrantRedirectError", 500, void 0);
@@ -7339,9 +7495,13 @@ function isAuthImplicitGrantRedirectError(error) {
   return isAuthError(error) && error.name === "AuthImplicitGrantRedirectError";
 }
 __name(isAuthImplicitGrantRedirectError, "isAuthImplicitGrantRedirectError");
+__name2(isAuthImplicitGrantRedirectError, "isAuthImplicitGrantRedirectError");
 var AuthPKCEGrantCodeExchangeError = class extends CustomAuthError {
   static {
     __name(this, "AuthPKCEGrantCodeExchangeError");
+  }
+  static {
+    __name2(this, "AuthPKCEGrantCodeExchangeError");
   }
   constructor(message, details = null) {
     super(message, "AuthPKCEGrantCodeExchangeError", 500, void 0);
@@ -7361,6 +7521,9 @@ var AuthPKCECodeVerifierMissingError = class extends CustomAuthError {
   static {
     __name(this, "AuthPKCECodeVerifierMissingError");
   }
+  static {
+    __name2(this, "AuthPKCECodeVerifierMissingError");
+  }
   constructor() {
     super("PKCE code verifier not found in storage. This can happen if the auth flow was initiated in a different browser or device, or if the storage was cleared. For SSR frameworks (Next.js, SvelteKit, etc.), use @supabase/ssr on both the server and client to store the code verifier in cookies.", "AuthPKCECodeVerifierMissingError", 400, "pkce_code_verifier_not_found");
   }
@@ -7368,6 +7531,9 @@ var AuthPKCECodeVerifierMissingError = class extends CustomAuthError {
 var AuthRetryableFetchError = class extends CustomAuthError {
   static {
     __name(this, "AuthRetryableFetchError");
+  }
+  static {
+    __name2(this, "AuthRetryableFetchError");
   }
   constructor(message, status) {
     super(message, "AuthRetryableFetchError", status, void 0);
@@ -7377,9 +7543,13 @@ function isAuthRetryableFetchError(error) {
   return isAuthError(error) && error.name === "AuthRetryableFetchError";
 }
 __name(isAuthRetryableFetchError, "isAuthRetryableFetchError");
+__name2(isAuthRetryableFetchError, "isAuthRetryableFetchError");
 var AuthWeakPasswordError = class extends CustomAuthError {
   static {
     __name(this, "AuthWeakPasswordError");
+  }
+  static {
+    __name2(this, "AuthWeakPasswordError");
   }
   constructor(message, status, reasons) {
     super(message, "AuthWeakPasswordError", status, "weak_password");
@@ -7390,12 +7560,13 @@ var AuthInvalidJwtError = class extends CustomAuthError {
   static {
     __name(this, "AuthInvalidJwtError");
   }
+  static {
+    __name2(this, "AuthInvalidJwtError");
+  }
   constructor(message) {
     super(message, "AuthInvalidJwtError", 400, "invalid_jwt");
   }
 };
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/base64url.js
 var TO_BASE64URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".split("");
 var IGNORE_BASE64URL = " 	\n\r=".split("");
 var FROM_BASE64URL = (() => {
@@ -7431,6 +7602,7 @@ function byteToBase64URL(byte, state, emit) {
   }
 }
 __name(byteToBase64URL, "byteToBase64URL");
+__name2(byteToBase64URL, "byteToBase64URL");
 function byteFromBase64URL(charCode, state, emit) {
   const bits = FROM_BASE64URL[charCode];
   if (bits > -1) {
@@ -7447,9 +7619,10 @@ function byteFromBase64URL(charCode, state, emit) {
   }
 }
 __name(byteFromBase64URL, "byteFromBase64URL");
+__name2(byteFromBase64URL, "byteFromBase64URL");
 function stringFromBase64URL(str) {
   const conv = [];
-  const utf8Emit = /* @__PURE__ */ __name((codepoint) => {
+  const utf8Emit = /* @__PURE__ */ __name2((codepoint) => {
     conv.push(String.fromCodePoint(codepoint));
   }, "utf8Emit");
   const utf8State = {
@@ -7457,7 +7630,7 @@ function stringFromBase64URL(str) {
     codepoint: 0
   };
   const b64State = { queue: 0, queuedBits: 0 };
-  const byteEmit = /* @__PURE__ */ __name((byte) => {
+  const byteEmit = /* @__PURE__ */ __name2((byte) => {
     stringFromUTF8(byte, utf8State, utf8Emit);
   }, "byteEmit");
   for (let i = 0; i < str.length; i += 1) {
@@ -7466,6 +7639,7 @@ function stringFromBase64URL(str) {
   return conv.join("");
 }
 __name(stringFromBase64URL, "stringFromBase64URL");
+__name2(stringFromBase64URL, "stringFromBase64URL");
 function codepointToUTF8(codepoint, emit) {
   if (codepoint <= 127) {
     emit(codepoint);
@@ -7489,6 +7663,7 @@ function codepointToUTF8(codepoint, emit) {
   throw new Error(`Unrecognized Unicode codepoint: ${codepoint.toString(16)}`);
 }
 __name(codepointToUTF8, "codepointToUTF8");
+__name2(codepointToUTF8, "codepointToUTF8");
 function stringToUTF8(str, emit) {
   for (let i = 0; i < str.length; i += 1) {
     let codepoint = str.charCodeAt(i);
@@ -7502,6 +7677,7 @@ function stringToUTF8(str, emit) {
   }
 }
 __name(stringToUTF8, "stringToUTF8");
+__name2(stringToUTF8, "stringToUTF8");
 function stringFromUTF8(byte, state, emit) {
   if (state.utf8seq === 0) {
     if (byte <= 127) {
@@ -7536,10 +7712,11 @@ function stringFromUTF8(byte, state, emit) {
   }
 }
 __name(stringFromUTF8, "stringFromUTF8");
+__name2(stringFromUTF8, "stringFromUTF8");
 function base64UrlToUint8Array(str) {
   const result = [];
   const state = { queue: 0, queuedBits: 0 };
-  const onByte = /* @__PURE__ */ __name((byte) => {
+  const onByte = /* @__PURE__ */ __name2((byte) => {
     result.push(byte);
   }, "onByte");
   for (let i = 0; i < str.length; i += 1) {
@@ -7548,16 +7725,18 @@ function base64UrlToUint8Array(str) {
   return new Uint8Array(result);
 }
 __name(base64UrlToUint8Array, "base64UrlToUint8Array");
+__name2(base64UrlToUint8Array, "base64UrlToUint8Array");
 function stringToUint8Array(str) {
   const result = [];
   stringToUTF8(str, (byte) => result.push(byte));
   return new Uint8Array(result);
 }
 __name(stringToUint8Array, "stringToUint8Array");
+__name2(stringToUint8Array, "stringToUint8Array");
 function bytesToBase64URL(bytes) {
   const result = [];
   const state = { queue: 0, queuedBits: 0 };
-  const onChar = /* @__PURE__ */ __name((char) => {
+  const onChar = /* @__PURE__ */ __name2((char) => {
     result.push(char);
   }, "onChar");
   bytes.forEach((byte) => byteToBase64URL(byte, state, onChar));
@@ -7565,23 +7744,24 @@ function bytesToBase64URL(bytes) {
   return result.join("");
 }
 __name(bytesToBase64URL, "bytesToBase64URL");
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/helpers.js
+__name2(bytesToBase64URL, "bytesToBase64URL");
 function expiresAt(expiresIn) {
   const timeNow = Math.round(Date.now() / 1e3);
   return timeNow + expiresIn;
 }
 __name(expiresAt, "expiresAt");
+__name2(expiresAt, "expiresAt");
 function generateCallbackId() {
   return Symbol("auth-callback");
 }
 __name(generateCallbackId, "generateCallbackId");
-var isBrowser = /* @__PURE__ */ __name(() => typeof window !== "undefined" && typeof document !== "undefined", "isBrowser");
+__name2(generateCallbackId, "generateCallbackId");
+var isBrowser = /* @__PURE__ */ __name2(() => typeof window !== "undefined" && typeof document !== "undefined", "isBrowser");
 var localStorageWriteTests = {
   tested: false,
   writable: false
 };
-var supportsLocalStorage = /* @__PURE__ */ __name(() => {
+var supportsLocalStorage = /* @__PURE__ */ __name2(() => {
   if (!isBrowser()) {
     return false;
   }
@@ -7625,19 +7805,20 @@ function parseParametersFromURL(href) {
   return result;
 }
 __name(parseParametersFromURL, "parseParametersFromURL");
-var resolveFetch3 = /* @__PURE__ */ __name((customFetch) => {
+__name2(parseParametersFromURL, "parseParametersFromURL");
+var resolveFetch3 = /* @__PURE__ */ __name2((customFetch) => {
   if (customFetch) {
     return (...args) => customFetch(...args);
   }
   return (...args) => fetch(...args);
 }, "resolveFetch");
-var looksLikeFetchResponse = /* @__PURE__ */ __name((maybeResponse) => {
+var looksLikeFetchResponse = /* @__PURE__ */ __name2((maybeResponse) => {
   return typeof maybeResponse === "object" && maybeResponse !== null && "status" in maybeResponse && "ok" in maybeResponse && "json" in maybeResponse && typeof maybeResponse.json === "function";
 }, "looksLikeFetchResponse");
-var setItemAsync = /* @__PURE__ */ __name(async (storage, key, data) => {
+var setItemAsync = /* @__PURE__ */ __name2(async (storage, key, data) => {
   await storage.setItem(key, JSON.stringify(data));
 }, "setItemAsync");
-var getItemAsync = /* @__PURE__ */ __name(async (storage, key) => {
+var getItemAsync = /* @__PURE__ */ __name2(async (storage, key) => {
   const value = await storage.getItem(key);
   if (!value) {
     return null;
@@ -7648,12 +7829,15 @@ var getItemAsync = /* @__PURE__ */ __name(async (storage, key) => {
     return value;
   }
 }, "getItemAsync");
-var removeItemAsync = /* @__PURE__ */ __name(async (storage, key) => {
+var removeItemAsync = /* @__PURE__ */ __name2(async (storage, key) => {
   await storage.removeItem(key);
 }, "removeItemAsync");
 var Deferred = class _Deferred {
   static {
-    __name(this, "Deferred");
+    __name(this, "_Deferred");
+  }
+  static {
+    __name2(this, "Deferred");
   }
   constructor() {
     ;
@@ -7688,12 +7872,14 @@ function decodeJWT(token) {
   return data;
 }
 __name(decodeJWT, "decodeJWT");
+__name2(decodeJWT, "decodeJWT");
 async function sleep(time) {
   return await new Promise((accept) => {
     setTimeout(() => accept(null), time);
   });
 }
 __name(sleep, "sleep");
+__name2(sleep, "sleep");
 function retryable(fn, isRetryable) {
   const promise = new Promise((accept, reject) => {
     ;
@@ -7717,10 +7903,12 @@ function retryable(fn, isRetryable) {
   return promise;
 }
 __name(retryable, "retryable");
+__name2(retryable, "retryable");
 function dec2hex(dec) {
   return ("0" + dec.toString(16)).substr(-2);
 }
 __name(dec2hex, "dec2hex");
+__name2(dec2hex, "dec2hex");
 function generatePKCEVerifier() {
   const verifierLength = 56;
   const array = new Uint32Array(verifierLength);
@@ -7737,6 +7925,7 @@ function generatePKCEVerifier() {
   return Array.from(array, dec2hex).join("");
 }
 __name(generatePKCEVerifier, "generatePKCEVerifier");
+__name2(generatePKCEVerifier, "generatePKCEVerifier");
 async function sha256(randomString) {
   const encoder = new TextEncoder();
   const encodedData = encoder.encode(randomString);
@@ -7745,6 +7934,7 @@ async function sha256(randomString) {
   return Array.from(bytes).map((c) => String.fromCharCode(c)).join("");
 }
 __name(sha256, "sha256");
+__name2(sha256, "sha256");
 async function generatePKCEChallenge(verifier) {
   const hasCryptoSupport = typeof crypto !== "undefined" && typeof crypto.subtle !== "undefined" && typeof TextEncoder !== "undefined";
   if (!hasCryptoSupport) {
@@ -7755,6 +7945,7 @@ async function generatePKCEChallenge(verifier) {
   return btoa(hashed).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 __name(generatePKCEChallenge, "generatePKCEChallenge");
+__name2(generatePKCEChallenge, "generatePKCEChallenge");
 async function getCodeChallengeAndMethod(storage, storageKey, isPasswordRecovery = false) {
   const codeVerifier = generatePKCEVerifier();
   let storedCodeVerifier = codeVerifier;
@@ -7767,6 +7958,7 @@ async function getCodeChallengeAndMethod(storage, storageKey, isPasswordRecovery
   return [codeChallenge, codeChallengeMethod];
 }
 __name(getCodeChallengeAndMethod, "getCodeChallengeAndMethod");
+__name2(getCodeChallengeAndMethod, "getCodeChallengeAndMethod");
 var API_VERSION_REGEX = /^2[0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$/i;
 function parseResponseAPIVersion(response) {
   const apiVersion = response.headers.get(API_VERSION_HEADER_NAME);
@@ -7784,6 +7976,7 @@ function parseResponseAPIVersion(response) {
   }
 }
 __name(parseResponseAPIVersion, "parseResponseAPIVersion");
+__name2(parseResponseAPIVersion, "parseResponseAPIVersion");
 function validateExp(exp) {
   if (!exp) {
     throw new Error("Missing exp claim");
@@ -7794,6 +7987,7 @@ function validateExp(exp) {
   }
 }
 __name(validateExp, "validateExp");
+__name2(validateExp, "validateExp");
 function getAlgorithm(alg) {
   switch (alg) {
     case "RS256":
@@ -7812,6 +8006,7 @@ function getAlgorithm(alg) {
   }
 }
 __name(getAlgorithm, "getAlgorithm");
+__name2(getAlgorithm, "getAlgorithm");
 var UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 function validateUUID(str) {
   if (!UUID_REGEX.test(str)) {
@@ -7819,10 +8014,11 @@ function validateUUID(str) {
   }
 }
 __name(validateUUID, "validateUUID");
+__name2(validateUUID, "validateUUID");
 function userNotAvailableProxy() {
   const proxyTarget = {};
   return new Proxy(proxyTarget, {
-    get: /* @__PURE__ */ __name((target, prop) => {
+    get: /* @__PURE__ */ __name2((target, prop) => {
       if (prop === "__isUserNotAvailableProxy") {
         return true;
       }
@@ -7834,18 +8030,19 @@ function userNotAvailableProxy() {
       }
       throw new Error(`@supabase/auth-js: client was created with userStorage option and there was no user stored in the user storage. Accessing the "${prop}" property of the session object is not supported. Please use getUser() instead.`);
     }, "get"),
-    set: /* @__PURE__ */ __name((_target, prop) => {
+    set: /* @__PURE__ */ __name2((_target, prop) => {
       throw new Error(`@supabase/auth-js: client was created with userStorage option and there was no user stored in the user storage. Setting the "${prop}" property of the session object is not supported. Please use getUser() to fetch a user object you can manipulate.`);
     }, "set"),
-    deleteProperty: /* @__PURE__ */ __name((_target, prop) => {
+    deleteProperty: /* @__PURE__ */ __name2((_target, prop) => {
       throw new Error(`@supabase/auth-js: client was created with userStorage option and there was no user stored in the user storage. Deleting the "${prop}" property of the session object is not supported. Please use getUser() to fetch a user object you can manipulate.`);
     }, "deleteProperty")
   });
 }
 __name(userNotAvailableProxy, "userNotAvailableProxy");
+__name2(userNotAvailableProxy, "userNotAvailableProxy");
 function insecureUserWarningProxy(user, suppressWarningRef) {
   return new Proxy(user, {
-    get: /* @__PURE__ */ __name((target, prop, receiver) => {
+    get: /* @__PURE__ */ __name2((target, prop, receiver) => {
       if (prop === "__isInsecureUserWarningProxy") {
         return true;
       }
@@ -7864,13 +8061,13 @@ function insecureUserWarningProxy(user, suppressWarningRef) {
   });
 }
 __name(insecureUserWarningProxy, "insecureUserWarningProxy");
+__name2(insecureUserWarningProxy, "insecureUserWarningProxy");
 function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 __name(deepClone, "deepClone");
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/fetch.js
-var _getErrorMessage2 = /* @__PURE__ */ __name((err) => err.msg || err.message || err.error_description || err.error || JSON.stringify(err), "_getErrorMessage");
+__name2(deepClone, "deepClone");
+var _getErrorMessage2 = /* @__PURE__ */ __name2((err) => err.msg || err.message || err.error_description || err.error || JSON.stringify(err), "_getErrorMessage");
 var NETWORK_ERROR_CODES = [502, 503, 504];
 async function handleError2(error) {
   var _a;
@@ -7904,8 +8101,9 @@ async function handleError2(error) {
   }
   throw new AuthApiError(_getErrorMessage2(data), error.status || 500, errorCode);
 }
-__name(handleError2, "handleError");
-var _getRequestParams2 = /* @__PURE__ */ __name((method, options, parameters, body) => {
+__name(handleError2, "handleError2");
+__name2(handleError2, "handleError");
+var _getRequestParams2 = /* @__PURE__ */ __name2((method, options, parameters, body) => {
   const params = { method, headers: (options === null || options === void 0 ? void 0 : options.headers) || {} };
   if (method === "GET") {
     return params;
@@ -7935,6 +8133,7 @@ async function _request(fetcher, method, url, options) {
   return (options === null || options === void 0 ? void 0 : options.xform) ? options === null || options === void 0 ? void 0 : options.xform(data) : { data: Object.assign({}, data), error: null };
 }
 __name(_request, "_request");
+__name2(_request, "_request");
 async function _handleRequest2(fetcher, method, url, options, parameters, body) {
   const requestParams = _getRequestParams2(method, options, parameters, body);
   let result;
@@ -7956,7 +8155,8 @@ async function _handleRequest2(fetcher, method, url, options, parameters, body) 
     await handleError2(e);
   }
 }
-__name(_handleRequest2, "_handleRequest");
+__name(_handleRequest2, "_handleRequest2");
+__name2(_handleRequest2, "_handleRequest");
 function _sessionResponse(data) {
   var _a;
   let session = null;
@@ -7970,6 +8170,7 @@ function _sessionResponse(data) {
   return { data: { session, user }, error: null };
 }
 __name(_sessionResponse, "_sessionResponse");
+__name2(_sessionResponse, "_sessionResponse");
 function _sessionResponsePassword(data) {
   const response = _sessionResponse(data);
   if (!response.error && data.weak_password && typeof data.weak_password === "object" && Array.isArray(data.weak_password.reasons) && data.weak_password.reasons.length && data.weak_password.message && typeof data.weak_password.message === "string" && data.weak_password.reasons.reduce((a, i) => a && typeof i === "string", true)) {
@@ -7978,16 +8179,19 @@ function _sessionResponsePassword(data) {
   return response;
 }
 __name(_sessionResponsePassword, "_sessionResponsePassword");
+__name2(_sessionResponsePassword, "_sessionResponsePassword");
 function _userResponse(data) {
   var _a;
   const user = (_a = data.user) !== null && _a !== void 0 ? _a : data;
   return { data: { user }, error: null };
 }
 __name(_userResponse, "_userResponse");
+__name2(_userResponse, "_userResponse");
 function _ssoResponse(data) {
   return { data, error: null };
 }
 __name(_ssoResponse, "_ssoResponse");
+__name2(_ssoResponse, "_ssoResponse");
 function _generateLinkResponse(data) {
   const { action_link, email_otp, hashed_token, redirect_to, verification_type } = data, rest = __rest(data, ["action_link", "email_otp", "hashed_token", "redirect_to", "verification_type"]);
   const properties = {
@@ -8007,22 +8211,24 @@ function _generateLinkResponse(data) {
   };
 }
 __name(_generateLinkResponse, "_generateLinkResponse");
+__name2(_generateLinkResponse, "_generateLinkResponse");
 function _noResolveJsonResponse(data) {
   return data;
 }
 __name(_noResolveJsonResponse, "_noResolveJsonResponse");
+__name2(_noResolveJsonResponse, "_noResolveJsonResponse");
 function hasSession(data) {
   return data.access_token && data.refresh_token && data.expires_in;
 }
 __name(hasSession, "hasSession");
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/types.js
+__name2(hasSession, "hasSession");
 var SIGN_OUT_SCOPES = ["global", "local", "others"];
-
-// ../node_modules/@supabase/auth-js/dist/module/GoTrueAdminApi.js
 var GoTrueAdminApi = class {
   static {
     __name(this, "GoTrueAdminApi");
+  }
+  static {
+    __name2(this, "GoTrueAdminApi");
   }
   /**
    * Creates an admin API client that can be used to manage users and OAuth clients.
@@ -8289,7 +8495,7 @@ var GoTrueAdminApi = class {
     try {
       const { data, error } = await _request(this.fetch, "GET", `${this.url}/admin/users/${params.userId}/factors`, {
         headers: this.headers,
-        xform: /* @__PURE__ */ __name((factors) => {
+        xform: /* @__PURE__ */ __name2((factors) => {
           return { data: { factors }, error: null };
         }, "xform")
       });
@@ -8367,7 +8573,7 @@ var GoTrueAdminApi = class {
       return await _request(this.fetch, "POST", `${this.url}/admin/oauth/clients`, {
         body: params,
         headers: this.headers,
-        xform: /* @__PURE__ */ __name((client) => {
+        xform: /* @__PURE__ */ __name2((client) => {
           return { data: client, error: null };
         }, "xform")
       });
@@ -8388,7 +8594,7 @@ var GoTrueAdminApi = class {
     try {
       return await _request(this.fetch, "GET", `${this.url}/admin/oauth/clients/${clientId}`, {
         headers: this.headers,
-        xform: /* @__PURE__ */ __name((client) => {
+        xform: /* @__PURE__ */ __name2((client) => {
           return { data: client, error: null };
         }, "xform")
       });
@@ -8410,7 +8616,7 @@ var GoTrueAdminApi = class {
       return await _request(this.fetch, "PUT", `${this.url}/admin/oauth/clients/${clientId}`, {
         body: params,
         headers: this.headers,
-        xform: /* @__PURE__ */ __name((client) => {
+        xform: /* @__PURE__ */ __name2((client) => {
           return { data: client, error: null };
         }, "xform")
       });
@@ -8451,7 +8657,7 @@ var GoTrueAdminApi = class {
     try {
       return await _request(this.fetch, "POST", `${this.url}/admin/oauth/clients/${clientId}/regenerate_secret`, {
         headers: this.headers,
-        xform: /* @__PURE__ */ __name((client) => {
+        xform: /* @__PURE__ */ __name2((client) => {
           return { data: client, error: null };
         }, "xform")
       });
@@ -8463,24 +8669,21 @@ var GoTrueAdminApi = class {
     }
   }
 };
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/local-storage.js
 function memoryLocalStorageAdapter(store = {}) {
   return {
-    getItem: /* @__PURE__ */ __name((key) => {
+    getItem: /* @__PURE__ */ __name2((key) => {
       return store[key] || null;
     }, "getItem"),
-    setItem: /* @__PURE__ */ __name((key, value) => {
+    setItem: /* @__PURE__ */ __name2((key, value) => {
       store[key] = value;
     }, "setItem"),
-    removeItem: /* @__PURE__ */ __name((key) => {
+    removeItem: /* @__PURE__ */ __name2((key) => {
       delete store[key];
     }, "removeItem")
   };
 }
 __name(memoryLocalStorageAdapter, "memoryLocalStorageAdapter");
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/locks.js
+__name2(memoryLocalStorageAdapter, "memoryLocalStorageAdapter");
 var internals = {
   /**
    * @experimental
@@ -8491,6 +8694,9 @@ var LockAcquireTimeoutError = class extends Error {
   static {
     __name(this, "LockAcquireTimeoutError");
   }
+  static {
+    __name2(this, "LockAcquireTimeoutError");
+  }
   constructor(message) {
     super(message);
     this.isAcquireTimeout = true;
@@ -8499,6 +8705,9 @@ var LockAcquireTimeoutError = class extends Error {
 var NavigatorLockAcquireTimeoutError = class extends LockAcquireTimeoutError {
   static {
     __name(this, "NavigatorLockAcquireTimeoutError");
+  }
+  static {
+    __name2(this, "NavigatorLockAcquireTimeoutError");
   }
 };
 async function navigatorLock(name, acquireTimeout, fn) {
@@ -8562,14 +8771,13 @@ async function navigatorLock(name, acquireTimeout, fn) {
   }
 }
 __name(navigatorLock, "navigatorLock");
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/polyfills.js
+__name2(navigatorLock, "navigatorLock");
 function polyfillGlobalThis() {
   if (typeof globalThis === "object")
     return;
   try {
     Object.defineProperty(Object.prototype, "__magic__", {
-      get: /* @__PURE__ */ __name(function() {
+      get: /* @__PURE__ */ __name2(function() {
         return this;
       }, "get"),
       configurable: true
@@ -8583,8 +8791,7 @@ function polyfillGlobalThis() {
   }
 }
 __name(polyfillGlobalThis, "polyfillGlobalThis");
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/web3/ethereum.js
+__name2(polyfillGlobalThis, "polyfillGlobalThis");
 function getAddress(address) {
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
     throw new Error(`@supabase/auth-js: Address "${address}" is invalid.`);
@@ -8592,16 +8799,19 @@ function getAddress(address) {
   return address.toLowerCase();
 }
 __name(getAddress, "getAddress");
+__name2(getAddress, "getAddress");
 function fromHex(hex) {
   return parseInt(hex, 16);
 }
 __name(fromHex, "fromHex");
+__name2(fromHex, "fromHex");
 function toHex(value) {
   const bytes = new TextEncoder().encode(value);
   const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
   return "0x" + hex;
 }
 __name(toHex, "toHex");
+__name2(toHex, "toHex");
 function createSiweMessage(parameters) {
   var _a;
   const { chainId, domain, expirationTime, issuedAt = /* @__PURE__ */ new Date(), nonce, notBefore, requestId, resources, scheme, uri, version: version5 } = parameters;
@@ -8655,11 +8865,13 @@ Request ID: ${requestId}`;
 ${suffix}`;
 }
 __name(createSiweMessage, "createSiweMessage");
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js
+__name2(createSiweMessage, "createSiweMessage");
 var WebAuthnError = class extends Error {
   static {
     __name(this, "WebAuthnError");
+  }
+  static {
+    __name2(this, "WebAuthnError");
   }
   constructor({ message, code, cause, name }) {
     var _a;
@@ -8672,6 +8884,9 @@ var WebAuthnError = class extends Error {
 var WebAuthnUnknownError = class extends WebAuthnError {
   static {
     __name(this, "WebAuthnUnknownError");
+  }
+  static {
+    __name2(this, "WebAuthnUnknownError");
   }
   constructor(message, originalError) {
     super({
@@ -8783,6 +8998,7 @@ function identifyRegistrationError({ error, options }) {
   });
 }
 __name(identifyRegistrationError, "identifyRegistrationError");
+__name2(identifyRegistrationError, "identifyRegistrationError");
 function identifyAuthenticationError({ error, options }) {
   const { publicKey } = options;
   if (!publicKey) {
@@ -8831,11 +9047,13 @@ function identifyAuthenticationError({ error, options }) {
   });
 }
 __name(identifyAuthenticationError, "identifyAuthenticationError");
-
-// ../node_modules/@supabase/auth-js/dist/module/lib/webauthn.js
+__name2(identifyAuthenticationError, "identifyAuthenticationError");
 var WebAuthnAbortService = class {
   static {
     __name(this, "WebAuthnAbortService");
+  }
+  static {
+    __name2(this, "WebAuthnAbortService");
   }
   /**
    * Create an abort signal for a new WebAuthn operation.
@@ -8905,6 +9123,7 @@ function deserializeCredentialCreationOptions(options) {
   return result;
 }
 __name(deserializeCredentialCreationOptions, "deserializeCredentialCreationOptions");
+__name2(deserializeCredentialCreationOptions, "deserializeCredentialCreationOptions");
 function deserializeCredentialRequestOptions(options) {
   if (!options) {
     throw new Error("Credential request options are required");
@@ -8933,6 +9152,7 @@ function deserializeCredentialRequestOptions(options) {
   return result;
 }
 __name(deserializeCredentialRequestOptions, "deserializeCredentialRequestOptions");
+__name2(deserializeCredentialRequestOptions, "deserializeCredentialRequestOptions");
 function serializeCredentialCreationResponse(credential) {
   var _a;
   if ("toJSON" in credential && typeof credential.toJSON === "function") {
@@ -8953,6 +9173,7 @@ function serializeCredentialCreationResponse(credential) {
   };
 }
 __name(serializeCredentialCreationResponse, "serializeCredentialCreationResponse");
+__name2(serializeCredentialCreationResponse, "serializeCredentialCreationResponse");
 function serializeCredentialRequestResponse(credential) {
   var _a;
   if ("toJSON" in credential && typeof credential.toJSON === "function") {
@@ -8978,6 +9199,7 @@ function serializeCredentialRequestResponse(credential) {
   };
 }
 __name(serializeCredentialRequestResponse, "serializeCredentialRequestResponse");
+__name2(serializeCredentialRequestResponse, "serializeCredentialRequestResponse");
 function isValidDomain(hostname) {
   return (
     // Consider localhost valid as well since it's okay wrt Secure Contexts
@@ -8985,11 +9207,13 @@ function isValidDomain(hostname) {
   );
 }
 __name(isValidDomain, "isValidDomain");
+__name2(isValidDomain, "isValidDomain");
 function browserSupportsWebAuthn() {
   var _a, _b;
   return !!(isBrowser() && "PublicKeyCredential" in window && window.PublicKeyCredential && "credentials" in navigator && typeof ((_a = navigator === null || navigator === void 0 ? void 0 : navigator.credentials) === null || _a === void 0 ? void 0 : _a.create) === "function" && typeof ((_b = navigator === null || navigator === void 0 ? void 0 : navigator.credentials) === null || _b === void 0 ? void 0 : _b.get) === "function");
 }
 __name(browserSupportsWebAuthn, "browserSupportsWebAuthn");
+__name2(browserSupportsWebAuthn, "browserSupportsWebAuthn");
 async function createCredential(options) {
   try {
     const response = await navigator.credentials.create(
@@ -9020,6 +9244,7 @@ async function createCredential(options) {
   }
 }
 __name(createCredential, "createCredential");
+__name2(createCredential, "createCredential");
 async function getCredential(options) {
   try {
     const response = await navigator.credentials.get(
@@ -9050,6 +9275,7 @@ async function getCredential(options) {
   }
 }
 __name(getCredential, "getCredential");
+__name2(getCredential, "getCredential");
 var DEFAULT_CREATION_OPTIONS = {
   hints: ["security-key"],
   authenticatorSelection: {
@@ -9068,8 +9294,8 @@ var DEFAULT_REQUEST_OPTIONS = {
   attestation: "direct"
 };
 function deepMerge(...sources) {
-  const isObject = /* @__PURE__ */ __name((val) => val !== null && typeof val === "object" && !Array.isArray(val), "isObject");
-  const isArrayBufferLike = /* @__PURE__ */ __name((val) => val instanceof ArrayBuffer || ArrayBuffer.isView(val), "isArrayBufferLike");
+  const isObject = /* @__PURE__ */ __name2((val) => val !== null && typeof val === "object" && !Array.isArray(val), "isObject");
+  const isArrayBufferLike = /* @__PURE__ */ __name2((val) => val instanceof ArrayBuffer || ArrayBuffer.isView(val), "isArrayBufferLike");
   const result = {};
   for (const source of sources) {
     if (!source)
@@ -9097,17 +9323,23 @@ function deepMerge(...sources) {
   return result;
 }
 __name(deepMerge, "deepMerge");
+__name2(deepMerge, "deepMerge");
 function mergeCredentialCreationOptions(baseOptions, overrides) {
   return deepMerge(DEFAULT_CREATION_OPTIONS, baseOptions, overrides || {});
 }
 __name(mergeCredentialCreationOptions, "mergeCredentialCreationOptions");
+__name2(mergeCredentialCreationOptions, "mergeCredentialCreationOptions");
 function mergeCredentialRequestOptions(baseOptions, overrides) {
   return deepMerge(DEFAULT_REQUEST_OPTIONS, baseOptions, overrides || {});
 }
 __name(mergeCredentialRequestOptions, "mergeCredentialRequestOptions");
+__name2(mergeCredentialRequestOptions, "mergeCredentialRequestOptions");
 var WebAuthnApi = class {
   static {
     __name(this, "WebAuthnApi");
+  }
+  static {
+    __name2(this, "WebAuthnApi");
   }
   constructor(client) {
     this.client = client;
@@ -9371,8 +9603,6 @@ var WebAuthnApi = class {
     }
   }
 };
-
-// ../node_modules/@supabase/auth-js/dist/module/GoTrueClient.js
 polyfillGlobalThis();
 var DEFAULT_OPTIONS = {
   url: GOTRUE_URL,
@@ -9393,10 +9623,14 @@ async function lockNoOp(name, acquireTimeout, fn) {
   return await fn();
 }
 __name(lockNoOp, "lockNoOp");
+__name2(lockNoOp, "lockNoOp");
 var GLOBAL_JWKS = {};
 var GoTrueClient = class _GoTrueClient {
   static {
-    __name(this, "GoTrueClient");
+    __name(this, "_GoTrueClient");
+  }
+  static {
+    __name2(this, "GoTrueClient");
   }
   /**
    * The JWKS used for verifying asymmetric JWTs
@@ -10818,7 +11052,7 @@ var GoTrueClient = class _GoTrueClient {
     const subscription = {
       id,
       callback,
-      unsubscribe: /* @__PURE__ */ __name(() => {
+      unsubscribe: /* @__PURE__ */ __name2(() => {
         this._debug("#unsubscribe()", "state change callback with id removed", id);
         this.stateChangeEmitters.delete(id);
       }, "unsubscribe")
@@ -11698,7 +11932,7 @@ var GoTrueClient = class _GoTrueClient {
         return await _request(this.fetch, "GET", `${this.url}/oauth/authorizations/${authorizationId}`, {
           headers: this.headers,
           jwt: session.access_token,
-          xform: /* @__PURE__ */ __name((data) => ({ data, error: null }), "xform")
+          xform: /* @__PURE__ */ __name2((data) => ({ data, error: null }), "xform")
         });
       });
     } catch (error) {
@@ -11726,7 +11960,7 @@ var GoTrueClient = class _GoTrueClient {
           headers: this.headers,
           jwt: session.access_token,
           body: { action: "approve" },
-          xform: /* @__PURE__ */ __name((data) => ({ data, error: null }), "xform")
+          xform: /* @__PURE__ */ __name2((data) => ({ data, error: null }), "xform")
         });
         if (response.data && response.data.redirect_url) {
           if (isBrowser() && !(options === null || options === void 0 ? void 0 : options.skipBrowserRedirect)) {
@@ -11760,7 +11994,7 @@ var GoTrueClient = class _GoTrueClient {
           headers: this.headers,
           jwt: session.access_token,
           body: { action: "deny" },
-          xform: /* @__PURE__ */ __name((data) => ({ data, error: null }), "xform")
+          xform: /* @__PURE__ */ __name2((data) => ({ data, error: null }), "xform")
         });
         if (response.data && response.data.redirect_url) {
           if (isBrowser() && !(options === null || options === void 0 ? void 0 : options.skipBrowserRedirect)) {
@@ -11793,7 +12027,7 @@ var GoTrueClient = class _GoTrueClient {
         return await _request(this.fetch, "GET", `${this.url}/user/oauth/grants`, {
           headers: this.headers,
           jwt: session.access_token,
-          xform: /* @__PURE__ */ __name((data) => ({ data, error: null }), "xform")
+          xform: /* @__PURE__ */ __name2((data) => ({ data, error: null }), "xform")
         });
       });
     } catch (error) {
@@ -11930,12 +12164,8 @@ var GoTrueClient = class _GoTrueClient {
 };
 GoTrueClient.nextInstanceID = {};
 var GoTrueClient_default = GoTrueClient;
-
-// ../node_modules/@supabase/auth-js/dist/module/AuthClient.js
 var AuthClient = GoTrueClient_default;
 var AuthClient_default = AuthClient;
-
-// ../node_modules/@supabase/supabase-js/dist/index.mjs
 var version4 = "2.97.0";
 var JS_ENV = "";
 if (typeof Deno !== "undefined") JS_ENV = "deno";
@@ -11960,7 +12190,8 @@ function _typeof3(o) {
     return o$1 && "function" == typeof Symbol && o$1.constructor === Symbol && o$1 !== Symbol.prototype ? "symbol" : typeof o$1;
   }, _typeof3(o);
 }
-__name(_typeof3, "_typeof");
+__name(_typeof3, "_typeof3");
+__name2(_typeof3, "_typeof");
 function toPrimitive3(t, r) {
   if ("object" != _typeof3(t) || !t) return t;
   var e = t[Symbol.toPrimitive];
@@ -11971,12 +12202,14 @@ function toPrimitive3(t, r) {
   }
   return ("string" === r ? String : Number)(t);
 }
-__name(toPrimitive3, "toPrimitive");
+__name(toPrimitive3, "toPrimitive3");
+__name2(toPrimitive3, "toPrimitive");
 function toPropertyKey3(t) {
   var i = toPrimitive3(t, "string");
   return "symbol" == _typeof3(i) ? i : i + "";
 }
-__name(toPropertyKey3, "toPropertyKey");
+__name(toPropertyKey3, "toPropertyKey3");
+__name2(toPropertyKey3, "toPropertyKey");
 function _defineProperty3(e, r, t) {
   return (r = toPropertyKey3(r)) in e ? Object.defineProperty(e, r, {
     value: t,
@@ -11985,7 +12218,8 @@ function _defineProperty3(e, r, t) {
     writable: true
   }) : e[r] = t, e;
 }
-__name(_defineProperty3, "_defineProperty");
+__name(_defineProperty3, "_defineProperty3");
+__name2(_defineProperty3, "_defineProperty");
 function ownKeys3(e, r) {
   var t = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
@@ -11996,7 +12230,8 @@ function ownKeys3(e, r) {
   }
   return t;
 }
-__name(ownKeys3, "ownKeys");
+__name(ownKeys3, "ownKeys3");
+__name2(ownKeys3, "ownKeys");
 function _objectSpread23(e) {
   for (var r = 1; r < arguments.length; r++) {
     var t = null != arguments[r] ? arguments[r] : {};
@@ -12008,15 +12243,16 @@ function _objectSpread23(e) {
   }
   return e;
 }
-__name(_objectSpread23, "_objectSpread2");
-var resolveFetch4 = /* @__PURE__ */ __name((customFetch) => {
+__name(_objectSpread23, "_objectSpread23");
+__name2(_objectSpread23, "_objectSpread2");
+var resolveFetch4 = /* @__PURE__ */ __name2((customFetch) => {
   if (customFetch) return (...args) => customFetch(...args);
   return (...args) => fetch(...args);
 }, "resolveFetch");
-var resolveHeadersConstructor = /* @__PURE__ */ __name(() => {
+var resolveHeadersConstructor = /* @__PURE__ */ __name2(() => {
   return Headers;
 }, "resolveHeadersConstructor");
-var fetchWithAuth = /* @__PURE__ */ __name((supabaseKey, getAccessToken, customFetch) => {
+var fetchWithAuth = /* @__PURE__ */ __name2((supabaseKey, getAccessToken, customFetch) => {
   const fetch$1 = resolveFetch4(customFetch);
   const HeadersConstructor = resolveHeadersConstructor();
   return async (input, init) => {
@@ -12032,6 +12268,7 @@ function ensureTrailingSlash(url) {
   return url.endsWith("/") ? url : url + "/";
 }
 __name(ensureTrailingSlash, "ensureTrailingSlash");
+__name2(ensureTrailingSlash, "ensureTrailingSlash");
 function applySettingDefaults(options, defaults) {
   var _DEFAULT_GLOBAL_OPTIO, _globalOptions$header;
   const { db: dbOptions, auth: authOptions, realtime: realtimeOptions, global: globalOptions } = options;
@@ -12042,13 +12279,14 @@ function applySettingDefaults(options, defaults) {
     realtime: _objectSpread23(_objectSpread23({}, DEFAULT_REALTIME_OPTIONS$1), realtimeOptions),
     storage: {},
     global: _objectSpread23(_objectSpread23(_objectSpread23({}, DEFAULT_GLOBAL_OPTIONS$1), globalOptions), {}, { headers: _objectSpread23(_objectSpread23({}, (_DEFAULT_GLOBAL_OPTIO = DEFAULT_GLOBAL_OPTIONS$1 === null || DEFAULT_GLOBAL_OPTIONS$1 === void 0 ? void 0 : DEFAULT_GLOBAL_OPTIONS$1.headers) !== null && _DEFAULT_GLOBAL_OPTIO !== void 0 ? _DEFAULT_GLOBAL_OPTIO : {}), (_globalOptions$header = globalOptions === null || globalOptions === void 0 ? void 0 : globalOptions.headers) !== null && _globalOptions$header !== void 0 ? _globalOptions$header : {}) }),
-    accessToken: /* @__PURE__ */ __name(async () => "", "accessToken")
+    accessToken: /* @__PURE__ */ __name2(async () => "", "accessToken")
   };
   if (options.accessToken) result.accessToken = options.accessToken;
   else delete result.accessToken;
   return result;
 }
 __name(applySettingDefaults, "applySettingDefaults");
+__name2(applySettingDefaults, "applySettingDefaults");
 function validateSupabaseUrl(supabaseUrl) {
   const trimmedUrl = supabaseUrl === null || supabaseUrl === void 0 ? void 0 : supabaseUrl.trim();
   if (!trimmedUrl) throw new Error("supabaseUrl is required.");
@@ -12060,9 +12298,13 @@ function validateSupabaseUrl(supabaseUrl) {
   }
 }
 __name(validateSupabaseUrl, "validateSupabaseUrl");
+__name2(validateSupabaseUrl, "validateSupabaseUrl");
 var SupabaseAuthClient = class extends AuthClient_default {
   static {
     __name(this, "SupabaseAuthClient");
+  }
+  static {
+    __name2(this, "SupabaseAuthClient");
   }
   constructor(options) {
     super(options);
@@ -12071,6 +12313,9 @@ var SupabaseAuthClient = class extends AuthClient_default {
 var SupabaseClient = class {
   static {
     __name(this, "SupabaseClient");
+  }
+  static {
+    __name2(this, "SupabaseClient");
   }
   /**
   * Create a new client for use in the browser.
@@ -12118,7 +12363,7 @@ var SupabaseClient = class {
       this.auth = this._initSupabaseAuthClient((_settings$auth = settings.auth) !== null && _settings$auth !== void 0 ? _settings$auth : {}, this.headers, settings.global.fetch);
     } else {
       this.accessToken = settings.accessToken;
-      this.auth = new Proxy({}, { get: /* @__PURE__ */ __name((_, prop) => {
+      this.auth = new Proxy({}, { get: /* @__PURE__ */ __name2((_, prop) => {
         throw new Error(`@supabase/supabase-js: Supabase Client is configured with the accessToken option, accessing supabase.auth.${String(prop)} is not possible`);
       }, "get") });
     }
@@ -12274,7 +12519,7 @@ var SupabaseClient = class {
     }
   }
 };
-var createClient = /* @__PURE__ */ __name((supabaseUrl, supabaseKey, options) => {
+var createClient = /* @__PURE__ */ __name2((supabaseUrl, supabaseKey, options) => {
   return new SupabaseClient(supabaseUrl, supabaseKey, options);
 }, "createClient");
 function shouldShowDeprecationWarning() {
@@ -12288,17 +12533,14 @@ function shouldShowDeprecationWarning() {
   return parseInt(versionMatch[1], 10) <= 18;
 }
 __name(shouldShowDeprecationWarning, "shouldShowDeprecationWarning");
+__name2(shouldShowDeprecationWarning, "shouldShowDeprecationWarning");
 if (shouldShowDeprecationWarning()) console.warn("\u26A0\uFE0F  Node.js 18 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 20 or later. For more information, visit: https://github.com/orgs/supabase/discussions/37217");
-
-// utils/supabase.js
-var createSupabaseClient = /* @__PURE__ */ __name((env) => {
+var createSupabaseClient = /* @__PURE__ */ __name2((env) => {
   if (!env.SUPABASE_URL || !env.SUPABASE_KEY) {
     throw new Error("Missing SUPABASE_URL or SUPABASE_KEY in environment");
   }
   return createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 }, "createSupabaseClient");
-
-// api/add-domain.js
 async function onRequestPost6(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12330,7 +12572,8 @@ async function onRequestPost6(context) {
     return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost6, "onRequestPost");
+__name(onRequestPost6, "onRequestPost6");
+__name2(onRequestPost6, "onRequestPost");
 async function onRequestOptions6() {
   return new Response(null, {
     headers: {
@@ -12340,9 +12583,8 @@ async function onRequestOptions6() {
     }
   });
 }
-__name(onRequestOptions6, "onRequestOptions");
-
-// api/add-team-member.js
+__name(onRequestOptions6, "onRequestOptions6");
+__name2(onRequestOptions6, "onRequestOptions");
 async function onRequestPost7(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12368,9 +12610,8 @@ async function onRequestPost7(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost7, "onRequestPost");
-
-// api/change-password.js
+__name(onRequestPost7, "onRequestPost7");
+__name2(onRequestPost7, "onRequestPost");
 async function onRequestPost8(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12391,7 +12632,8 @@ async function onRequestPost8(context) {
     return new Response(JSON.stringify({ error: "Failed to update password: " + error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost8, "onRequestPost");
+__name(onRequestPost8, "onRequestPost8");
+__name2(onRequestPost8, "onRequestPost");
 async function onRequestOptions7() {
   return new Response(null, {
     headers: {
@@ -12401,9 +12643,8 @@ async function onRequestOptions7() {
     }
   });
 }
-__name(onRequestOptions7, "onRequestOptions");
-
-// api/delete-domain.js
+__name(onRequestOptions7, "onRequestOptions7");
+__name2(onRequestOptions7, "onRequestOptions");
 async function onRequest(context) {
   if (context.request.method !== "DELETE" && context.request.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
@@ -12444,6 +12685,7 @@ async function onRequest(context) {
   }
 }
 __name(onRequest, "onRequest");
+__name2(onRequest, "onRequest");
 async function onRequestOptions8() {
   return new Response(null, {
     headers: {
@@ -12453,9 +12695,8 @@ async function onRequestOptions8() {
     }
   });
 }
-__name(onRequestOptions8, "onRequestOptions");
-
-// api/delete-team-member.js
+__name(onRequestOptions8, "onRequestOptions8");
+__name2(onRequestOptions8, "onRequestOptions");
 async function onRequestPost9(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12476,9 +12717,8 @@ async function onRequestPost9(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost9, "onRequestPost");
-
-// api/get-admin-password.js
+__name(onRequestPost9, "onRequestPost9");
+__name2(onRequestPost9, "onRequestPost");
 async function onRequestGet(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12498,8 +12738,7 @@ async function onRequestGet(context) {
   }
 }
 __name(onRequestGet, "onRequestGet");
-
-// api/get-clicks-report.js
+__name2(onRequestGet, "onRequestGet");
 async function onRequestGet2(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12543,9 +12782,8 @@ async function onRequestGet2(context) {
     return new Response(JSON.stringify({ error: "Failed to fetch reports: " + err.message }), { status: 500, headers });
   }
 }
-__name(onRequestGet2, "onRequestGet");
-
-// api/get-domains.js
+__name(onRequestGet2, "onRequestGet2");
+__name2(onRequestGet2, "onRequestGet");
 async function onRequestGet3(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12562,9 +12800,8 @@ async function onRequestGet3(context) {
     return new Response(JSON.stringify({ error: "Failed to fetch domains: " + error.message }), { status: 500, headers });
   }
 }
-__name(onRequestGet3, "onRequestGet");
-
-// api/get-recent-clicks.js
+__name(onRequestGet3, "onRequestGet3");
+__name2(onRequestGet3, "onRequestGet");
 async function onRequestGet4(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12604,9 +12841,8 @@ async function onRequestGet4(context) {
     return new Response(JSON.stringify({ error: err.message, details: err }), { status: 500, headers });
   }
 }
-__name(onRequestGet4, "onRequestGet");
-
-// api/get-settings.js
+__name(onRequestGet4, "onRequestGet4");
+__name2(onRequestGet4, "onRequestGet");
 async function onRequestGet5(context) {
   const { request, env } = context;
   const url = new URL(request.url);
@@ -12628,9 +12864,8 @@ async function onRequestGet5(context) {
     headers: { "Content-Type": "application/json" }
   });
 }
-__name(onRequestGet5, "onRequestGet");
-
-// api/get-smartlink-by-user.js
+__name(onRequestGet5, "onRequestGet5");
+__name2(onRequestGet5, "onRequestGet");
 async function onRequestGet6(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12662,9 +12897,8 @@ async function onRequestGet6(context) {
     return new Response(JSON.stringify({ error: "Failed to fetch smartlink: " + error.message }), { status: 500, headers });
   }
 }
-__name(onRequestGet6, "onRequestGet");
-
-// api/get-team.js
+__name(onRequestGet6, "onRequestGet6");
+__name2(onRequestGet6, "onRequestGet");
 async function onRequestGet7(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12718,9 +12952,8 @@ async function onRequestGet7(context) {
     }), { status: 500, headers });
   }
 }
-__name(onRequestGet7, "onRequestGet");
-
-// api/login.js
+__name(onRequestGet7, "onRequestGet7");
+__name2(onRequestGet7, "onRequestGet");
 function generateToken(username) {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2);
@@ -12732,6 +12965,7 @@ function generateToken(username) {
   }
 }
 __name(generateToken, "generateToken");
+__name2(generateToken, "generateToken");
 async function onRequestPost10(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12776,7 +13010,8 @@ async function onRequestPost10(context) {
     return new Response(JSON.stringify({ success: false, error: "Server error: " + error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost10, "onRequestPost");
+__name(onRequestPost10, "onRequestPost10");
+__name2(onRequestPost10, "onRequestPost");
 async function onRequestOptions9() {
   return new Response(null, {
     headers: {
@@ -12786,9 +13021,8 @@ async function onRequestOptions9() {
     }
   });
 }
-__name(onRequestOptions9, "onRequestOptions");
-
-// api/save-link.js
+__name(onRequestOptions9, "onRequestOptions9");
+__name2(onRequestOptions9, "onRequestOptions");
 async function onRequestPost11(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12832,7 +13066,8 @@ async function onRequestPost11(context) {
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500, headers });
   }
 }
-__name(onRequestPost11, "onRequestPost");
+__name(onRequestPost11, "onRequestPost11");
+__name2(onRequestPost11, "onRequestPost");
 async function onRequestOptions10() {
   return new Response(null, {
     headers: {
@@ -12842,9 +13077,8 @@ async function onRequestOptions10() {
     }
   });
 }
-__name(onRequestOptions10, "onRequestOptions");
-
-// api/save-settings.js
+__name(onRequestOptions10, "onRequestOptions10");
+__name2(onRequestOptions10, "onRequestOptions");
 async function onRequestPost12(context) {
   const { request, env } = context;
   const body = await request.json();
@@ -12868,9 +13102,8 @@ async function onRequestPost12(context) {
     headers: { "Content-Type": "application/json" }
   });
 }
-__name(onRequestPost12, "onRequestPost");
-
-// api/shorten-link.js
+__name(onRequestPost12, "onRequestPost12");
+__name2(onRequestPost12, "onRequestPost");
 async function onRequestPost13(context) {
   try {
     const { url, service, apiKey } = await context.request.json();
@@ -12931,9 +13164,8 @@ async function onRequestPost13(context) {
     });
   }
 }
-__name(onRequestPost13, "onRequestPost");
-
-// api/update-click-ip.js
+__name(onRequestPost13, "onRequestPost13");
+__name2(onRequestPost13, "onRequestPost");
 async function onRequestPost14(context) {
   const supabase = createSupabaseClient(context.env);
   try {
@@ -12954,9 +13186,8 @@ async function onRequestPost14(context) {
     });
   }
 }
-__name(onRequestPost14, "onRequestPost");
-
-// api/update-team-member.js
+__name(onRequestPost14, "onRequestPost14");
+__name2(onRequestPost14, "onRequestPost");
 async function onRequestPost15(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
@@ -12987,9 +13218,8 @@ async function onRequestPost15(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost15, "onRequestPost");
-
-// [[path]].js
+__name(onRequestPost15, "onRequestPost15");
+__name2(onRequestPost15, "onRequestPost");
 function isTrackingBot(userAgent) {
   if (!userAgent) return true;
   const ua = userAgent.toLowerCase();
@@ -13016,6 +13246,7 @@ function isTrackingBot(userAgent) {
   return bots.some((bot) => ua.includes(bot));
 }
 __name(isTrackingBot, "isTrackingBot");
+__name2(isTrackingBot, "isTrackingBot");
 function isPreviewBot(userAgent) {
   if (!userAgent) return true;
   const ua = userAgent.toLowerCase();
@@ -13027,8 +13258,6 @@ function isPreviewBot(userAgent) {
     "slackbot",
     "telegrambot",
     "discordbot",
-    "googlebot",
-    "bingbot",
     "yandex",
     "duckduckgo",
     "baidu",
@@ -13047,6 +13276,7 @@ function isPreviewBot(userAgent) {
   return false;
 }
 __name(isPreviewBot, "isPreviewBot");
+__name2(isPreviewBot, "isPreviewBot");
 function detectOS(userAgent) {
   if (!userAgent) return "Unknown";
   const ua = userAgent.toLowerCase();
@@ -13060,6 +13290,7 @@ function detectOS(userAgent) {
   return "Unknown";
 }
 __name(detectOS, "detectOS");
+__name2(detectOS, "detectOS");
 function detectBrowser(userAgent) {
   if (!userAgent) return "Unknown";
   const ua = userAgent.toLowerCase();
@@ -13081,6 +13312,7 @@ function detectBrowser(userAgent) {
   return "Other";
 }
 __name(detectBrowser, "detectBrowser");
+__name2(detectBrowser, "detectBrowser");
 async function recordClick(supabase, link, request) {
   const userAgent = request.headers.get("user-agent") || "";
   const referer = request.headers.get("referer") || "";
@@ -13098,7 +13330,7 @@ async function recordClick(supabase, link, request) {
     clickId = requestUrl.searchParams.get("gclid") || requestUrl.searchParams.get("fbclid");
   }
   const country = request.cf?.country || "XX";
-  const getBestIP = /* @__PURE__ */ __name(() => {
+  const getBestIP = /* @__PURE__ */ __name2(() => {
     const h = request.headers;
     const cf = request.cf || {};
     const candidates = [
@@ -13108,7 +13340,7 @@ async function recordClick(supabase, link, request) {
       h.get("true-client-ip"),
       h.get("x-real-ip")
     ];
-    const isInternal = /* @__PURE__ */ __name((ip2) => {
+    const isInternal = /* @__PURE__ */ __name2((ip2) => {
       if (!ip2) return true;
       return ip2.startsWith("2a06:98c0") || ip2.startsWith("2400:cb00") || ip2.startsWith("2606:4700") || ip2 === "2a06:98c0:3600::103";
     }, "isInternal");
@@ -13169,6 +13401,7 @@ async function recordClick(supabase, link, request) {
   }
 }
 __name(recordClick, "recordClick");
+__name2(recordClick, "recordClick");
 async function onRequest2(context) {
   const supabase = createSupabaseClient(context.env);
   const url = new URL(context.request.url);
@@ -13195,15 +13428,15 @@ async function onRequest2(context) {
   if (!userAgent) {
     return new Response("Access Denied", { status: 403 });
   }
-  const clickId = await recordClick(supabase, link, context.request);
+  context.waitUntil(recordClick(supabase, link, context.request));
   const country = context.request.cf?.country || "XX";
   const hasCustomMeta = link.title || link.description || link.image_url;
   if (isPreviewBot(userAgent) && hasCustomMeta) {
     const title = (link.title || "Link Preview").replace(/"/g, "&quot;").replace(/</g, "&lt;");
     const description = (link.description || "Click to view this link").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-    const image2 = link.image_url || "";
+    const image = link.image_url || "";
     const pageUrl = url.toString();
-    const html2 = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13213,7 +13446,7 @@ async function onRequest2(context) {
     <meta property="og:url" content="${pageUrl}">
     <meta property="og:title" content="${title}">
     <meta property="og:description" content="${description}">
-    ${image2 ? `<meta property="og:image" content="${image2}">
+    ${image ? `<meta property="og:image" content="${image}">
     <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -13221,11 +13454,11 @@ async function onRequest2(context) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${title}">
     <meta name="twitter:description" content="${description}">
-    ${image2 ? `<meta name="twitter:image" content="${image2}">` : ""}
+    ${image ? `<meta name="twitter:image" content="${image}">` : ""}
 </head>
 <body></body>
 </html>`;
-    return new Response(html2, {
+    return new Response(html, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control": "no-cache, no-store, must-revalidate"
@@ -13233,111 +13466,20 @@ async function onRequest2(context) {
     });
   }
   let target = link.original_url;
-  if (url.search) {
+  try {
     const targetUrl = new URL(target);
     const requestParams = new URL(context.request.url).searchParams;
     requestParams.forEach((value, key) => {
-      targetUrl.searchParams.append(key, value);
+      targetUrl.searchParams.set(key, value);
     });
     target = targetUrl.toString();
+  } catch (e) {
+    console.error("URL Parsing Error:", e);
   }
-  const image = link.image_url || "";
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer">
-    <title>Waiting for you...</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: #111827;
-            ${image ? `background-image: url('${image}');` : ""}
-            background-size: cover;
-            background-position: center;
-            background-blend-mode: overlay;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Outfit', sans-serif;
-            overflow: hidden;
-        }
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: -1;
-        }
-        .loader {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-left-color: #f97316;
-            border-radius: 50%;
-            width: 50px; height: 50px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        h2 {
-            font-weight: 300; letter-spacing: 1px;
-            font-size: 1.2rem; margin: 0; opacity: 0.9;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-    <div class="loader"></div>
-    <h2 id="status">Waiting for you...</h2>
-    
-    <script>
-        (async function() {
-            // clickId is the database PRIMARY KEY returned by recordClick
-            const dbRecordId = "${clickId}";
-            const target = "${target}";
-            
-            try {
-                // 1. Get Genuine Public IP (Bypass Cloudflare Proxy via Client Request)
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                const realIp = data.ip;
-
-                if (realIp && dbRecordId && dbRecordId !== "null") {
-                    // 2. Update server-side log with true IP
-                    // We use the ID to update the exact record
-                    await fetch('/api/update-click-ip', {
-                        method: 'POST',
-                        body: JSON.stringify({ click_id: dbRecordId, ip_address: realIp })
-                    });
-                }
-            } catch (e) {
-                console.warn('IP Recovery failed:', e);
-            } finally {
-                // 3. Final Redirect
-                setTimeout(() => {
-                    window.location.replace(target);
-                }, 400); 
-            }
-        })();
-    <\/script>
-</body>
-</html>`;
-  return new Response(html, {
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Referrer-Policy": "no-referrer",
-      "Cache-Control": "no-cache, no-store, must-revalidate"
-    }
-  });
+  return Response.redirect(target, 302);
 }
-__name(onRequest2, "onRequest");
-
-// ../.wrangler/tmp/pages-wGVa62/functionsRoutes-0.452679686390686.mjs
+__name(onRequest2, "onRequest2");
+__name2(onRequest2, "onRequest");
 var routes = [
   {
     routePath: "/api/cloudflare/add-pages-domain",
@@ -13578,8 +13720,6 @@ var routes = [
     modules: [onRequest2]
   }
 ];
-
-// ../node_modules/path-to-regexp/dist.es2015/index.js
 function lexer(str) {
   var tokens = [];
   var i = 0;
@@ -13664,6 +13804,7 @@ function lexer(str) {
   return tokens;
 }
 __name(lexer, "lexer");
+__name2(lexer, "lexer");
 function parse(str, options) {
   if (options === void 0) {
     options = {};
@@ -13674,18 +13815,18 @@ function parse(str, options) {
   var key = 0;
   var i = 0;
   var path = "";
-  var tryConsume = /* @__PURE__ */ __name(function(type) {
+  var tryConsume = /* @__PURE__ */ __name2(function(type) {
     if (i < tokens.length && tokens[i].type === type)
       return tokens[i++].value;
   }, "tryConsume");
-  var mustConsume = /* @__PURE__ */ __name(function(type) {
+  var mustConsume = /* @__PURE__ */ __name2(function(type) {
     var value2 = tryConsume(type);
     if (value2 !== void 0)
       return value2;
     var _a2 = tokens[i], nextType = _a2.type, index = _a2.index;
     throw new TypeError("Unexpected ".concat(nextType, " at ").concat(index, ", expected ").concat(type));
   }, "mustConsume");
-  var consumeText = /* @__PURE__ */ __name(function() {
+  var consumeText = /* @__PURE__ */ __name2(function() {
     var result2 = "";
     var value2;
     while (value2 = tryConsume("CHAR") || tryConsume("ESCAPED_CHAR")) {
@@ -13693,7 +13834,7 @@ function parse(str, options) {
     }
     return result2;
   }, "consumeText");
-  var isSafe = /* @__PURE__ */ __name(function(value2) {
+  var isSafe = /* @__PURE__ */ __name2(function(value2) {
     for (var _i = 0, delimiter_1 = delimiter; _i < delimiter_1.length; _i++) {
       var char2 = delimiter_1[_i];
       if (value2.indexOf(char2) > -1)
@@ -13701,7 +13842,7 @@ function parse(str, options) {
     }
     return false;
   }, "isSafe");
-  var safePattern = /* @__PURE__ */ __name(function(prefix2) {
+  var safePattern = /* @__PURE__ */ __name2(function(prefix2) {
     var prev = result[result.length - 1];
     var prevText = prefix2 || (prev && typeof prev === "string" ? prev : "");
     if (prev && !prevText) {
@@ -13764,12 +13905,14 @@ function parse(str, options) {
   return result;
 }
 __name(parse, "parse");
+__name2(parse, "parse");
 function match(str, options) {
   var keys = [];
   var re = pathToRegexp(str, keys, options);
   return regexpToFunction(re, keys, options);
 }
 __name(match, "match");
+__name2(match, "match");
 function regexpToFunction(re, keys, options) {
   if (options === void 0) {
     options = {};
@@ -13783,7 +13926,7 @@ function regexpToFunction(re, keys, options) {
       return false;
     var path = m[0], index = m.index;
     var params = /* @__PURE__ */ Object.create(null);
-    var _loop_1 = /* @__PURE__ */ __name(function(i2) {
+    var _loop_1 = /* @__PURE__ */ __name2(function(i2) {
       if (m[i2] === void 0)
         return "continue";
       var key = keys[i2 - 1];
@@ -13802,14 +13945,17 @@ function regexpToFunction(re, keys, options) {
   };
 }
 __name(regexpToFunction, "regexpToFunction");
+__name2(regexpToFunction, "regexpToFunction");
 function escapeString(str) {
   return str.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
 }
 __name(escapeString, "escapeString");
+__name2(escapeString, "escapeString");
 function flags(options) {
   return options && options.sensitive ? "" : "i";
 }
 __name(flags, "flags");
+__name2(flags, "flags");
 function regexpToRegexp(path, keys) {
   if (!keys)
     return path;
@@ -13830,6 +13976,7 @@ function regexpToRegexp(path, keys) {
   return path;
 }
 __name(regexpToRegexp, "regexpToRegexp");
+__name2(regexpToRegexp, "regexpToRegexp");
 function arrayToRegexp(paths, keys, options) {
   var parts = paths.map(function(path) {
     return pathToRegexp(path, keys, options).source;
@@ -13837,10 +13984,12 @@ function arrayToRegexp(paths, keys, options) {
   return new RegExp("(?:".concat(parts.join("|"), ")"), flags(options));
 }
 __name(arrayToRegexp, "arrayToRegexp");
+__name2(arrayToRegexp, "arrayToRegexp");
 function stringToRegexp(path, keys, options) {
   return tokensToRegexp(parse(path, options), keys, options);
 }
 __name(stringToRegexp, "stringToRegexp");
+__name2(stringToRegexp, "stringToRegexp");
 function tokensToRegexp(tokens, keys, options) {
   if (options === void 0) {
     options = {};
@@ -13896,6 +14045,7 @@ function tokensToRegexp(tokens, keys, options) {
   return new RegExp(route, flags(options));
 }
 __name(tokensToRegexp, "tokensToRegexp");
+__name2(tokensToRegexp, "tokensToRegexp");
 function pathToRegexp(path, keys, options) {
   if (path instanceof RegExp)
     return regexpToRegexp(path, keys);
@@ -13904,8 +14054,7 @@ function pathToRegexp(path, keys, options) {
   return stringToRegexp(path, keys, options);
 }
 __name(pathToRegexp, "pathToRegexp");
-
-// ../node_modules/wrangler/templates/pages-template-worker.ts
+__name2(pathToRegexp, "pathToRegexp");
 var escapeRegex = /[.+?^${}()|[\]\\]/g;
 function* executeRequest(request) {
   const requestPath = new URL(request.url).pathname;
@@ -13956,13 +14105,14 @@ function* executeRequest(request) {
   }
 }
 __name(executeRequest, "executeRequest");
+__name2(executeRequest, "executeRequest");
 var pages_template_worker_default = {
   async fetch(originalRequest, env, workerContext) {
     let request = originalRequest;
     const handlerIterator = executeRequest(request);
     let data = {};
     let isFailOpen = false;
-    const next = /* @__PURE__ */ __name(async (input, init) => {
+    const next = /* @__PURE__ */ __name2(async (input, init) => {
       if (input !== void 0) {
         let url = input;
         if (typeof input === "string") {
@@ -13989,7 +14139,7 @@ var pages_template_worker_default = {
           },
           env,
           waitUntil: workerContext.waitUntil.bind(workerContext),
-          passThroughOnException: /* @__PURE__ */ __name(() => {
+          passThroughOnException: /* @__PURE__ */ __name2(() => {
             isFailOpen = true;
           }, "passThroughOnException")
         };
@@ -14017,16 +14167,14 @@ var pages_template_worker_default = {
     }
   }
 };
-var cloneResponse = /* @__PURE__ */ __name((response) => (
+var cloneResponse = /* @__PURE__ */ __name2((response) => (
   // https://fetch.spec.whatwg.org/#null-body-status
   new Response(
     [101, 204, 205, 304].includes(response.status) ? null : response.body,
     response
   )
 ), "cloneResponse");
-
-// ../node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
-var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } finally {
@@ -14042,8 +14190,6 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
-
-// ../node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
 function reduceError(e) {
   return {
     name: e?.name,
@@ -14053,7 +14199,8 @@ function reduceError(e) {
   };
 }
 __name(reduceError, "reduceError");
-var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+__name2(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } catch (e) {
@@ -14065,20 +14212,17 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
-
-// ../.wrangler/tmp/bundle-BFV7bz/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = pages_template_worker_default;
-
-// ../node_modules/wrangler/templates/middleware/common.ts
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
 }
 __name(__facade_register__, "__facade_register__");
+__name2(__facade_register__, "__facade_register__");
 function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   const [head2, ...tail] = middlewareChain;
   const middlewareCtx = {
@@ -14090,6 +14234,7 @@ function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   return head2(request, env, ctx, middlewareCtx);
 }
 __name(__facade_invokeChain__, "__facade_invokeChain__");
+__name2(__facade_invokeChain__, "__facade_invokeChain__");
 function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   return __facade_invokeChain__(request, env, ctx, dispatch, [
     ...__facade_middleware__,
@@ -14097,16 +14242,18 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 __name(__facade_invoke__, "__facade_invoke__");
-
-// ../.wrangler/tmp/bundle-BFV7bz/middleware-loader.entry.ts
+__name2(__facade_invoke__, "__facade_invoke__");
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
+  static {
+    __name(this, "___Facade_ScheduledController__");
+  }
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
     this.cron = cron;
     this.#noRetry = noRetry;
   }
   static {
-    __name(this, "__Facade_ScheduledController__");
+    __name2(this, "__Facade_ScheduledController__");
   }
   #noRetry;
   noRetry() {
@@ -14123,7 +14270,7 @@ function wrapExportedHandler(worker) {
   for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
     __facade_register__(middleware);
   }
-  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+  const fetchDispatcher = /* @__PURE__ */ __name2(function(request, env, ctx) {
     if (worker.fetch === void 0) {
       throw new Error("Handler does not export a fetch() function.");
     }
@@ -14132,7 +14279,7 @@ function wrapExportedHandler(worker) {
   return {
     ...worker,
     fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+      const dispatcher = /* @__PURE__ */ __name2(function(type, init) {
         if (type === "scheduled" && worker.scheduled !== void 0) {
           const controller = new __Facade_ScheduledController__(
             Date.now(),
@@ -14148,6 +14295,7 @@ function wrapExportedHandler(worker) {
   };
 }
 __name(wrapExportedHandler, "wrapExportedHandler");
+__name2(wrapExportedHandler, "wrapExportedHandler");
 function wrapWorkerEntrypoint(klass) {
   if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
     return klass;
@@ -14156,7 +14304,7 @@ function wrapWorkerEntrypoint(klass) {
     __facade_register__(middleware);
   }
   return class extends klass {
-    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+    #fetchDispatcher = /* @__PURE__ */ __name2((request, env, ctx) => {
       this.env = env;
       this.ctx = ctx;
       if (super.fetch === void 0) {
@@ -14164,7 +14312,7 @@ function wrapWorkerEntrypoint(klass) {
       }
       return super.fetch(request);
     }, "#fetchDispatcher");
-    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+    #dispatcher = /* @__PURE__ */ __name2((type, init) => {
       if (type === "scheduled" && super.scheduled !== void 0) {
         const controller = new __Facade_ScheduledController__(
           Date.now(),
@@ -14187,6 +14335,7 @@ function wrapWorkerEntrypoint(klass) {
   };
 }
 __name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+__name2(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
 var WRAPPED_ENTRY;
 if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
@@ -14194,8 +14343,178 @@ if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
 }
 var middleware_loader_entry_default = WRAPPED_ENTRY;
-export {
-  __INTERNAL_WRANGLER_MIDDLEWARE__,
-  middleware_loader_entry_default as default
+
+// node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default2 = drainBody2;
+
+// node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError2(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError2(e.cause)
+  };
+}
+__name(reduceError2, "reduceError");
+var jsonError2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError2(e);
+    return Response.json(error, {
+      status: 500,
+      headers: { "MF-Experimental-Error-Stack": "true" }
+    });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default2 = jsonError2;
+
+// .wrangler/tmp/bundle-0L1PY2/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__2 = [
+  middleware_ensure_req_body_drained_default2,
+  middleware_miniflare3_json_error_default2
+];
+var middleware_insertion_facade_default2 = middleware_loader_entry_default;
+
+// node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__2 = [];
+function __facade_register__2(...args) {
+  __facade_middleware__2.push(...args.flat());
+}
+__name(__facade_register__2, "__facade_register__");
+function __facade_invokeChain__2(request, env, ctx, dispatch, middlewareChain) {
+  const [head2, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__2(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head2(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__2, "__facade_invokeChain__");
+function __facade_invoke__2(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__2(request, env, ctx, dispatch, [
+    ...__facade_middleware__2,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__2, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-0L1PY2/middleware-loader.entry.ts
+var __Facade_ScheduledController__2 = class ___Facade_ScheduledController__2 {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  static {
+    __name(this, "__Facade_ScheduledController__");
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof ___Facade_ScheduledController__2)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
 };
-//# sourceMappingURL=functionsWorker-0.2651139499136054.mjs.map
+function wrapExportedHandler2(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__2(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__2(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler2, "wrapExportedHandler");
+function wrapWorkerEntrypoint2(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    }, "#fetchDispatcher");
+    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__2(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    }, "#dispatcher");
+    fetch(request) {
+      return __facade_invoke__2(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint2, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY2;
+if (typeof middleware_insertion_facade_default2 === "object") {
+  WRAPPED_ENTRY2 = wrapExportedHandler2(middleware_insertion_facade_default2);
+} else if (typeof middleware_insertion_facade_default2 === "function") {
+  WRAPPED_ENTRY2 = wrapWorkerEntrypoint2(middleware_insertion_facade_default2);
+}
+var middleware_loader_entry_default2 = WRAPPED_ENTRY2;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__2 as __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default2 as default
+};
+//# sourceMappingURL=functionsWorker-0.36351197246344114.js.map
