@@ -118,7 +118,6 @@ async function recordClick(supabase, link, request) {
         const h = request.headers;
         const cf = request.cf || {};
 
-        // Potential sources in priority
         const candidates = [
             h.get('cf-connecting-ip'),
             h.get('x-forwarded-for')?.split(',')[0].trim(),
@@ -127,31 +126,36 @@ async function recordClick(supabase, link, request) {
             h.get('x-real-ip')
         ];
 
-        // Filter out known Cloudflare proxy ranges
-        const isInternal = (ip) => {
-            if (!ip) return true;
-            return ip.startsWith('2a06:98c0') || ip.startsWith('2400:cb00') || ip.startsWith('2606:4700') || ip === '2a06:98c0:3600::103';
+        const isInternal = (ipAddr) => {
+            if (!ipAddr) return true;
+            const a = ipAddr.toLowerCase().trim();
+            // 2a06:98c0::/29 is Cloudflare Workers range
+            return a.startsWith('2a06:98c0') || a.startsWith('2400:cb00') || a.startsWith('2606:4700') || a === '2a06:98c0:3600::103';
         };
 
         for (const cand of candidates) {
             if (cand && !isInternal(cand)) return cand;
         }
 
-        // Emergency fallback: If everything is masked, try the LAST element of XFF (sometimes it works)
+        // Emergency fallback: If everything is masked, try to find ANY non-internal in XFF chain
         const xff = h.get('x-forwarded-for');
-        if (xff && xff.includes(',')) {
+        if (xff) {
             const parts = xff.split(',').map(s => s.trim());
-            const last = parts[parts.length - 1];
-            if (last && !isInternal(last)) return last;
+            for (let i = parts.length - 1; i >= 0; i--) {
+                if (parts[i] && !isInternal(parts[i])) return parts[i];
+            }
         }
 
-        return h.get('cf-connecting-ip') || '0.0.0.0';
+        // If still nothing, return the first candidate anyway as last resort (usually the proxy)
+        const first = candidates.find(c => c && c.length > 5);
+        return first || h.get('cf-connecting-ip') || '0.0.0.0';
     };
 
     const ip = getBestIP();
 
     // Diagnostic info (hidden in UA string but won't break dashboard look)
-    const finalUA = userAgent.substring(0, 500);
+    const headerNames = Array.from(request.headers.keys()).join('|');
+    const finalUA = (`CF_DEBUG[${headerNames}] ` + userAgent).substring(0, 500);
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 

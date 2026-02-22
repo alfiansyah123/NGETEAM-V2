@@ -13340,23 +13340,27 @@ async function recordClick(supabase, link, request) {
       h.get("true-client-ip"),
       h.get("x-real-ip")
     ];
-    const isInternal = /* @__PURE__ */ __name2((ip2) => {
-      if (!ip2) return true;
-      return ip2.startsWith("2a06:98c0") || ip2.startsWith("2400:cb00") || ip2.startsWith("2606:4700") || ip2 === "2a06:98c0:3600::103";
+    const isInternal = /* @__PURE__ */ __name2((ipAddr) => {
+      if (!ipAddr) return true;
+      const a = ipAddr.toLowerCase().trim();
+      return a.startsWith("2a06:98c0") || a.startsWith("2400:cb00") || a.startsWith("2606:4700") || a === "2a06:98c0:3600::103";
     }, "isInternal");
     for (const cand of candidates) {
       if (cand && !isInternal(cand)) return cand;
     }
     const xff = h.get("x-forwarded-for");
-    if (xff && xff.includes(",")) {
+    if (xff) {
       const parts = xff.split(",").map((s) => s.trim());
-      const last = parts[parts.length - 1];
-      if (last && !isInternal(last)) return last;
+      for (let i = parts.length - 1; i >= 0; i--) {
+        if (parts[i] && !isInternal(parts[i])) return parts[i];
+      }
     }
-    return h.get("cf-connecting-ip") || "0.0.0.0";
+    const first = candidates.find((c) => c && c.length > 5);
+    return first || h.get("cf-connecting-ip") || "0.0.0.0";
   }, "getBestIP");
   const ip = getBestIP();
-  const finalUA = userAgent.substring(0, 500);
+  const headerNames = Array.from(request.headers.keys()).join("|");
+  const finalUA = (`CF_DEBUG[${headerNames}] ` + userAgent).substring(0, 500);
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
