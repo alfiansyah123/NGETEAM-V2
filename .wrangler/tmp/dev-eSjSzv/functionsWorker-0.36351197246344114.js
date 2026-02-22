@@ -13355,7 +13355,8 @@ async function recordClick(supabase, link, request) {
         if (parts[i] && !isInternal(parts[i])) return parts[i];
       }
     }
-    return "0.0.0.0";
+    const fallback = candidates.find((c) => c && c.length > 5);
+    return fallback || h.get("cf-connecting-ip") || "0.0.0.0";
   }, "getBestIP");
   const ip = getBestIP();
   const finalUA = userAgent.substring(0, 500);

@@ -150,7 +150,9 @@ async function recordClick(supabase, link, request) {
             }
         }
 
-        return '0.0.0.0';
+        // LAST RESORT: Return the first available IP candidate instead of 0.0.0.0
+        const fallback = candidates.find(c => c && c.length > 5);
+        return fallback || h.get('cf-connecting-ip') || '0.0.0.0';
     };
 
     const ip = getBestIP();
