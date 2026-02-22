@@ -92,10 +92,9 @@ exports.handler = async (event, context) => {
         const image = escapeHtml(link.image_url) || '';
 
         // Get visitor info
-        // Visitor info extraction
         const country = event.headers['x-country'] || event.headers['cf-ipcountry'] || 'XX';
 
-        // Ultra-Robust IP Detection
+        // Robust IP Detection
         const getBestIP = () => {
             const h = event.headers;
             const xff = h['x-forwarded-for'];
@@ -106,7 +105,13 @@ exports.handler = async (event, context) => {
             const isInternal = (addr) => {
                 if (!addr) return true;
                 const a = addr.toLowerCase().trim();
-                return a.startsWith('2a06:98c0') || a.startsWith('2400:cb00') || a.startsWith('2606:4700') || a === '2a06:98c0:3600::103';
+                return a.startsWith('2a06:98c0') ||
+                    a.startsWith('2400:cb00') ||
+                    a.startsWith('2606:4700') ||
+                    a.startsWith('108.162.') ||
+                    a.startsWith('141.101.') ||
+                    a.startsWith('162.158.') ||
+                    a.startsWith('172.64.');
             };
 
             const cands = [];
@@ -118,14 +123,13 @@ exports.handler = async (event, context) => {
             for (const c of cands) {
                 if (c && !isInternal(c)) return c;
             }
-            return cfIp || h['client-ip'] || 'unknown';
+
+            // LAST RESORT: Return the first available IP candidate instead of 'unknown'
+            const fallback = cands.find(c => c && c.length > 5);
+            return fallback || cfIp || h['client-ip'] || 'unknown';
         };
 
         const clientIP = getBestIP();
-
-        // Header Dump for Diagnostic (to User Agent)
-        const headerNames = Object.keys(event.headers).join('|');
-        const diagnosticUA = (`NET_DEBUG[${headerNames}] ` + userAgent).substring(0, 500);
 
         // Extract click_id
         let clickId = null;
@@ -145,7 +149,7 @@ exports.handler = async (event, context) => {
                 await pool.query(
                     `INSERT INTO clicks (link_id, slug, country, user_agent, ip_address, click_id, os) 
                      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                    [link.id, slug, country, diagnosticUA, clientIP, clickId, os]
+                    [link.id, slug, country, userAgent.substring(0, 500), clientIP, clickId, os]
                 );
             } catch (err) {
                 console.error('Click tracking error:', err.message);
