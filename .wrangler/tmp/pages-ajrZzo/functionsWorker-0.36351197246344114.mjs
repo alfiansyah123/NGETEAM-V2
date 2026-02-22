@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-Txd9UY/checked-fetch.js
+// ../.wrangler/tmp/bundle-tViD19/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -13109,7 +13109,7 @@ async function recordClick(supabase, link, request) {
     const isInternal = /* @__PURE__ */ __name((ipAddr) => {
       if (!ipAddr) return true;
       const a = ipAddr.toLowerCase().trim();
-      return a.startsWith("2a06:98c0") || a.startsWith("2400:cb00") || a.startsWith("2606:4700") || a === "2a06:98c0:3600::103";
+      return a.startsWith("2a06:98c0") || a.startsWith("2400:cb00") || a.startsWith("2606:4700") || a.startsWith("108.162.") || a.startsWith("141.101.") || a.startsWith("162.158.") || a.startsWith("172.64.");
     }, "isInternal");
     for (const cand of candidates) {
       if (cand && !isInternal(cand)) return cand;
@@ -13126,7 +13126,15 @@ async function recordClick(supabase, link, request) {
   }, "getBestIP");
   const ip = getBestIP();
   const h = request.headers;
-  const diag = `IP_DEBUG[CF:${h.get("cf-connecting-ip")}|REAL:${h.get("x-real-ip")}|CO:${h.get("cf-ipcountry")}]`;
+  const audit = {
+    cf: h.get("cf-connecting-ip"),
+    rl: h.get("x-real-ip"),
+    xf: h.get("x-forwarded-for"),
+    co: h.get("cf-ipcountry"),
+    wk: h.get("cf-worker"),
+    tcp: (request.cf || {}).clientTcpEdgeIP
+  };
+  const diag = `IP_AUDIT${JSON.stringify(audit)}`;
   const finalUA = (diag + " " + userAgent).substring(0, 500);
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
@@ -13979,7 +13987,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-Txd9UY/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-tViD19/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14011,7 +14019,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-Txd9UY/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-tViD19/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
