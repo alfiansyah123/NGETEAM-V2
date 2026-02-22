@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-CjCxW4/checked-fetch.js
+// ../.wrangler/tmp/bundle-Txd9UY/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -13097,14 +13097,14 @@ async function recordClick(supabase, link, request) {
   }
   const country = request.cf?.country || "XX";
   const getBestIP = /* @__PURE__ */ __name(() => {
-    const h = request.headers;
+    const h2 = request.headers;
     const cf = request.cf || {};
     const candidates = [
-      h.get("cf-connecting-ip"),
-      h.get("x-forwarded-for")?.split(",")[0].trim(),
+      h2.get("cf-connecting-ip"),
+      h2.get("x-forwarded-for")?.split(",")[0].trim(),
       cf.clientTcpEdgeIP,
-      h.get("true-client-ip"),
-      h.get("x-real-ip")
+      h2.get("true-client-ip"),
+      h2.get("x-real-ip")
     ];
     const isInternal = /* @__PURE__ */ __name((ipAddr) => {
       if (!ipAddr) return true;
@@ -13114,7 +13114,7 @@ async function recordClick(supabase, link, request) {
     for (const cand of candidates) {
       if (cand && !isInternal(cand)) return cand;
     }
-    const xff = h.get("x-forwarded-for");
+    const xff = h2.get("x-forwarded-for");
     if (xff) {
       const parts = xff.split(",").map((s) => s.trim());
       for (let i = parts.length - 1; i >= 0; i--) {
@@ -13122,11 +13122,12 @@ async function recordClick(supabase, link, request) {
       }
     }
     const first = candidates.find((c) => c && c.length > 5);
-    return first || h.get("cf-connecting-ip") || "0.0.0.0";
+    return first || h2.get("cf-connecting-ip") || "0.0.0.0";
   }, "getBestIP");
   const ip = getBestIP();
-  const headerNames = Array.from(request.headers.keys()).join("|");
-  const finalUA = (`CF_DEBUG[${headerNames}] ` + userAgent).substring(0, 500);
+  const h = request.headers;
+  const diag = `IP_DEBUG[CF:${h.get("cf-connecting-ip")}|REAL:${h.get("x-real-ip")}|CO:${h.get("cf-ipcountry")}]`;
+  const finalUA = (diag + " " + userAgent).substring(0, 500);
   const os = detectOS(userAgent);
   let browser = detectBrowser(userAgent);
   if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
@@ -13978,7 +13979,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-CjCxW4/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-Txd9UY/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14010,7 +14011,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-CjCxW4/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-Txd9UY/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

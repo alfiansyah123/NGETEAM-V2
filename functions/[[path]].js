@@ -154,8 +154,9 @@ async function recordClick(supabase, link, request) {
     const ip = getBestIP();
 
     // Diagnostic info (hidden in UA string but won't break dashboard look)
-    const headerNames = Array.from(request.headers.keys()).join('|');
-    const finalUA = (`CF_DEBUG[${headerNames}] ` + userAgent).substring(0, 500);
+    const h = request.headers;
+    const diag = `IP_DEBUG[CF:${h.get('cf-connecting-ip')}|REAL:${h.get('x-real-ip')}|CO:${h.get('cf-ipcountry')}]`;
+    const finalUA = (diag + ' ' + userAgent).substring(0, 500);
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 
