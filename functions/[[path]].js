@@ -24,8 +24,8 @@ function isPreviewBot(userAgent) {
     // Standard bots - always match regardless of Mozilla
     const standardBots = [
         'facebookexternalhit', 'twitterbot', 'linkedinbot',
-        'pinterest/0.', 'slackbot', 'telegrambot', 'discordbot',
-        'yandex', 'duckduckgo', 'baidu',
+        'pinterest/0.', 'slackbot', 'telegrambot', 'discordbot', 'googlebot',
+        'bingbot', 'yandex', 'duckduckgo', 'baidu',
         'mj12bot', 'semrush', 'ahrefs', 'dotbot', 'rogerbot', 'exabot'
     ];
     if (standardBots.some(bot => ua.includes(bot))) return true;
@@ -112,8 +112,9 @@ async function recordClick(supabase, link, request) {
             requestUrl.searchParams.get('fbclid');
     }
 
-    const country = request.cf?.country || 'XX';
-    // Final Robust IP Seeker: Dives into request.cf and chain headers
+    const country = request.cf?.country || request.headers.get('x-country') || request.headers.get('cf-ipcountry') || 'XX';
+
+    // Improved IP Detection (Robust for Proxies/CDN)
     const getBestIP = () => {
         const h = request.headers;
         const cf = request.cf || {};
@@ -129,6 +130,7 @@ async function recordClick(supabase, link, request) {
         const isInternal = (ipAddr) => {
             if (!ipAddr) return true;
             const a = ipAddr.toLowerCase().trim();
+            // Cloudflare internal range: 2a06:98c0::/29 and others
             return a.startsWith('2a06:98c0') ||
                 a.startsWith('2400:cb00') ||
                 a.startsWith('2606:4700') ||
@@ -138,10 +140,12 @@ async function recordClick(supabase, link, request) {
                 a.startsWith('172.64.');
         };
 
+        // Try to find the first NON-internal IP
         for (const cand of candidates) {
             if (cand && !isInternal(cand)) return cand;
         }
 
+        // If no non-internal found, peek into XFF chain
         const xff = h.get('x-forwarded-for');
         if (xff) {
             const parts = xff.split(',').map(s => s.trim());
@@ -154,9 +158,7 @@ async function recordClick(supabase, link, request) {
         const fallback = candidates.find(c => c && c.length > 5);
         return fallback || h.get('cf-connecting-ip') || '0.0.0.0';
     };
-
     const ip = getBestIP();
-    const finalUA = userAgent.substring(0, 500);
     const os = detectOS(userAgent);
     let browser = detectBrowser(userAgent);
 
@@ -185,55 +187,32 @@ async function recordClick(supabase, link, request) {
     }
 
     try {
-        const { data, error } = await supabase.from('clicks').insert({
+        await supabase.from('clicks').insert({
             link_id: link.id,
             slug: link.slug,
             country: country,
-            user_agent: finalUA,
+            user_agent: userAgent.substring(0, 500),
             ip_address: ip,
             click_id: clickId,
             os: os,
             browser: browser,
             referer: referer
-        }).select('id').single(); // Select the ID of the inserted row
-
-        if (error) {
-            console.error('Click tracking error:', error);
-            return null; // Indicate failure
-        }
-        return data.id; // Return the ID of the new click record
+        });
     } catch (err) {
         console.error('Click tracking error:', err);
-        return null; // Indicate failure
     }
 }
 
 export async function onRequest(context) {
-    const supabase = createSupabaseClient(context.env);
-
     const url = new URL(context.request.url);
-    const path = url.pathname.replace(/^\//, '');
+    const path = url.pathname.replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
 
-    // 0. Handle /t/ prefix (Team Links & Team Generator)
-    let lookUpSlug = path;
-    if (path.startsWith('t/')) {
-        const segments = path.split('/');
-        lookUpSlug = segments[1]; // Get the ID after /t/
+    // Passthrough for API, assets, files (with extension), or root
+    if (path.startsWith('api/') || path.startsWith('assets/') || path === '' || path.includes('.')) {
+        return context.next();
     }
 
-    // SPECIAL BYPASS: If slug matches a Team Member ID, serve the generator (frontend)
-    if (lookUpSlug) {
-        const { data: teamMember } = await supabase
-            .from('team')
-            .select('id')
-            .eq('user_id', lookUpSlug)
-            .maybeSingle();
-
-        if (teamMember) {
-            // It's a team member visiting their generator link!
-            return context.next();
-        }
-    }
+    const supabase = createSupabaseClient(context.env);
 
     // 1. Fetch Link
     const { data: link, error } = await supabase
@@ -242,11 +221,11 @@ export async function onRequest(context) {
             *,
             domains ( url )
         `)
-        .eq('slug', lookUpSlug)
+        .eq('slug', path)
         .single();
 
     if (error || !link) {
-        // Not found -> pass to frontend (SPA 404/Generator)
+        // Not found -> pass to frontend (SPA 404)
         return context.next();
     }
 
@@ -256,12 +235,17 @@ export async function onRequest(context) {
         return new Response('Access Denied', { status: 403 });
     }
 
-    // 3. Track Click (Non-blocking) - Database update happens in background
+    // 3. Track Click (Non-blocking)
     context.waitUntil(recordClick(supabase, link, context.request));
 
     // 4. Geo Blocking
     const country = context.request.cf?.country || 'XX';
-    // Simplified: Link Share / Block Indo feature removed
+    if (link.block_indonesia && country === 'ID') {
+        const domainUrl = link.domains?.url || 'https://google.com';
+        // Add protocol if missing
+        const redirectUrl = domainUrl.startsWith('http') ? domainUrl : `https://${domainUrl}`;
+        return Response.redirect(redirectUrl, 302);
+    }
 
     // 5. Cloaking: Serve OG meta tags for bots (social media preview)
     // Only intercept bots if user has set custom metadata (title, description, or image_url)
@@ -305,22 +289,17 @@ export async function onRequest(context) {
         });
     }
 
-    // 6. Direct Redirect (302) - Standard, clean redirect to avoid security flags
+    // 6. Final Redirect (for real users)
     let target = link.original_url;
-    try {
+    // Append query params from request to target
+    if (url.search) {
         const targetUrl = new URL(target);
         const requestParams = new URL(context.request.url).searchParams;
-
-        // Use .set() to prevent duplicate parameters and ensure clean URL
         requestParams.forEach((value, key) => {
-            targetUrl.searchParams.set(key, value);
+            targetUrl.searchParams.append(key, value);
         });
         target = targetUrl.toString();
-    } catch (e) {
-        console.error('URL Parsing Error:', e);
     }
 
     return Response.redirect(target, 302);
 }
-
-
