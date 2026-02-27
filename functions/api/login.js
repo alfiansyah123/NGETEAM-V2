@@ -1,7 +1,7 @@
 // Simple authentication - change these credentials!
 // ideally move to env vars, but keeping as is for direct port
 const VALID_USERS = {
-    'admin': 'NGEteam2025!',
+    'ngeteam': 'NGEteam25!',
     'nge': 'supersecret123'
 };
 
@@ -37,8 +37,8 @@ export async function onRequestPost(context) {
         }
 
         // 1. Check Admin Credentials
-        if (username === 'admin') {
-            let adminPass = 'NGEteam2025!';
+        if (username === 'ngeteam') {
+            let adminPass = 'NGEteam25!';
             try {
                 const { data } = await supabase.from('settings').select('value').eq('key', 'admin_password').single();
                 if (data?.value) adminPass = data.value;

@@ -21,7 +21,7 @@ export async function onRequestGet(context) {
         }
 
         // Default if not set
-        const password = data?.value || 'NGEteam2025!';
+        const password = data?.value || 'NGEteam25!';
 
         return new Response(JSON.stringify({ success: true, password }), { status: 200, headers });
 
