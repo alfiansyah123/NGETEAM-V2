@@ -356,17 +356,39 @@ function App() {
     return (
       <Login
         teamContext={teamMode}
-        onLogin={() => {
+        onLogin={async () => {
           setIsLoggedIn(true);
           // Check if we are on a team path to load context immediately after login
           const path = window.location.pathname;
           const segments = path.split('/').filter(Boolean);
           if (segments[0] === 't' && segments.length === 2) {
             loadTeamContext(segments[1]);
+          } else {
+            // Let's redirect admins to the admin page immediately upon login
+            const loggedUser = localStorage.getItem('auth_user');
+            // We need to fetch the admin username from settings to check properly, 
+            // but since login just happened, checking against 'loggedUser' and potentially role is safer.
+            // Usually, only the admin user can access the admin panel. 
+            // To be 100% safe without an extra API call here, we check if they just logged in and want to go to admin.
+
+            // A better way: The login API returns the role, let's store it!
           }
         }}
       />
     );
+  }
+
+  // If user is logged in, and they are an admin, redirect them to /admin 
+  // ONLY if they are currently on the root path '/' (so we don't trap them if they intentionally visit another route, though they really shouldn't)
+  if (isLoggedIn && window.location.pathname === '/') {
+    const userRole = localStorage.getItem('auth_role');
+    // For backwards compatibility, if role isn't set, we won't force redirect, but ideally login sets it.
+    // Let's also check if user is the default 'ngeteam'
+    const loggedUser = localStorage.getItem('auth_user');
+    if (userRole === 'admin' || loggedUser === 'ngeteam' || loggedUser === 'admin') {
+      window.location.href = '/admin';
+      return null; // Return null while redirecting
+    }
   }
 
   return (

@@ -31,6 +31,9 @@ const Login = ({ onLogin, teamContext }) => {
             if (result.success) {
                 localStorage.setItem('auth_token', result.token);
                 localStorage.setItem('auth_user', username);
+                if (result.role) {
+                    localStorage.setItem('auth_role', result.role);
+                }
                 onLogin();
             } else {
                 setError(result.error || 'Login failed');
