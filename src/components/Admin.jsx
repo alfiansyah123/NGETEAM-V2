@@ -26,6 +26,13 @@ const Admin = () => {
     const [editingId, setEditingId] = useState(null);
     const [oldSlug, setOldSlug] = useState('');
 
+    const handleLogout = () => {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        localStorage.removeItem('auth_role');
+        window.location.href = '/';
+    };
+
     // Load saved credentials & initial data
     useEffect(() => {
         fetchSettings();
@@ -380,14 +387,14 @@ const Admin = () => {
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                     </button>
-                    {/* Actual Home link */}
-                    <a href="/" className="mnx-power-btn" title="Back to Generator" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {/* Logout button */}
+                    <button onClick={handleLogout} className="mnx-power-btn" title="Logout" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-red)" strokeWidth="2.5" fill="none">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                             <polyline points="16 17 21 12 16 7"></polyline>
                             <line x1="21" y1="12" x2="9" y2="12"></line>
                         </svg>
-                    </a>
+                    </button>
                 </div>
             </div>
 
