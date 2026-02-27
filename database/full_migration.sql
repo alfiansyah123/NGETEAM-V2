@@ -114,7 +114,10 @@ CREATE POLICY "Enable read access for all users" ON settings FOR SELECT USING (t
 CREATE POLICY "Enable insert access for all users" ON settings FOR INSERT WITH CHECK (true);
 CREATE POLICY "Enable update access for all users" ON settings FOR UPDATE USING (true);
 
--- 10. Insert default domains
+-- 10. Enable Realtime for Live Traffic
+ALTER PUBLICATION supabase_realtime ADD TABLE public.clicks;
+
+-- 11. Insert default domains
 INSERT INTO public.domains (url) VALUES 
 ('l.404family.com'),
 ('link.example.com'),
