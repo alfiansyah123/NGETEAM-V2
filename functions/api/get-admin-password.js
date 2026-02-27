@@ -9,19 +9,21 @@ export async function onRequestGet(context) {
 
     try {
         const supabase = createSupabaseClient(context.env);
+        let password = 'NGEteam25!';
 
-        const { data, error } = await supabase
-            .from('settings')
-            .select('value')
-            .eq('key', 'admin_password')
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('settings')
+                .select('value')
+                .eq('key', 'admin_password')
+                .single();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 is "Row not found"
-            throw error;
+            if (!error && data?.value) {
+                password = data.value;
+            }
+        } catch (dbError) {
+            console.warn('Could not fetch admin password from DB, using default.', dbError);
         }
-
-        // Default if not set
-        const password = data?.value || 'NGEteam25!';
 
         return new Response(JSON.stringify({ success: true, password }), { status: 200, headers });
 
