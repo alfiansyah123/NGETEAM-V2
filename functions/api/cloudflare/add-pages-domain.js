@@ -15,7 +15,7 @@ export async function onRequestPost(context) {
             }), { status: 400, headers });
         }
 
-        const projectName = context.env.PAGES_PROJECT_NAME || 'gen-codot';
+        const projectName = context.env.PAGES_PROJECT_NAME || 'ngeteam-gen';
 
         const domainsToLink = [domain, `*.${domain}`];
         const results = [];
