@@ -37,13 +37,24 @@ export async function onRequestPost(context) {
         }
 
         // 1. Check Admin Credentials
-        if (username === 'ngeteam') {
-            let adminPass = 'NGEteam25!';
-            try {
-                const { data } = await supabase.from('settings').select('value').eq('key', 'admin_password').single();
-                if (data?.value) adminPass = data.value;
-            } catch (e) { }
+        let adminUser = 'ngeteam';
+        let adminPass = 'NGEteam25!';
 
+        try {
+            // Try to get custom admin credentials from settings
+            const { data } = await supabase.from('settings').select('key, value').in('key', ['admin_username', 'admin_password']);
+            if (data && data.length > 0) {
+                const usernameSetting = data.find(s => s.key === 'admin_username');
+                const passwordSetting = data.find(s => s.key === 'admin_password');
+
+                if (usernameSetting?.value) adminUser = usernameSetting.value;
+                if (passwordSetting?.value) adminPass = passwordSetting.value;
+            }
+        } catch (e) {
+            console.warn('Could not fetch custom admin credentials from settings', e);
+        }
+
+        if (username === adminUser) {
             if (password === adminPass) {
                 const token = generateToken(username);
                 return new Response(JSON.stringify({
