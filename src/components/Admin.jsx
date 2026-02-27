@@ -486,7 +486,20 @@ const Admin = () => {
                                 <span className="section-label">🌐 REGISTERED DOMAINS</span>
                                 <div className="mnx-input-group" style={{ marginTop: '15px', marginBottom: '15px' }}>
                                     <input type="text" className="mnx-input" placeholder="example.com" value={newDomain} onChange={(e) => setNewDomain(e.target.value)} />
-                                    <button className="btn-mnx-main" onClick={addDomainWithCloudflare} disabled={loading} style={{ width: 'auto', padding: '0 25px', marginTop: 0, borderRadius: '0 12px 12px 0' }}>ADD</button>
+                                    <button className="btn-mnx-main" onClick={addDomainWithCloudflare} disabled={loading} style={{ width: 'auto', padding: '0 25px', marginTop: 0, borderRadius: '0 12px 12px 0', minWidth: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        {loading ? (
+                                            <svg className="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}>
+                                                <line x1="12" y1="2" x2="12" y2="6"></line>
+                                                <line x1="12" y1="18" x2="12" y2="22"></line>
+                                                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                                                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                                                <line x1="2" y1="12" x2="6" y2="12"></line>
+                                                <line x1="18" y1="12" x2="22" y2="12"></line>
+                                                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                                                <line x1="16.24" y1="4.93" x2="19.07" y2="7.76"></line>
+                                            </svg>
+                                        ) : 'ADD'}
+                                    </button>
                                 </div>
                                 <div className="output-scroll" style={{ maxHeight: '300px' }}>
                                     {domains.map((d, i) => (
