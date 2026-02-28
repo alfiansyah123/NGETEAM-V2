@@ -41,29 +41,29 @@
 .mnx-brand-info {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
+  line-height: 1;
 }
 
-.mnx-brand-name {
-  font-size: 1.1rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  background: var(--liquid-gradient);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin: 0;
-  text-transform: uppercase;
-  animation: liquid-flow 5s linear infinite;
+.mnx-brand-logo {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.3));
+  transition: all 0.3s var(--cubic);
+}
+
+.mnx-brand-logo:hover {
+  filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.5)) saturate(1.2);
+  transform: scale(1.05);
 }
 
 .mnx-brand-badge {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
+  margin-top: 2px;
 }
 
 .mnx-status-controls {

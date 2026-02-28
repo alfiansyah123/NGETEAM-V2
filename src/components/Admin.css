@@ -21,14 +21,17 @@
     box-shadow: var(--liquid-shadow);
 }
 
-.admin-title {
-    font-size: 1.2rem;
-    font-weight: 800;
-    background: var(--liquid-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -0.01em;
+.admin-brand-logo {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.3));
+    transition: all 0.3s var(--cubic);
+}
+
+.admin-brand-logo:hover {
+    filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.5));
+    transform: scale(1.05);
 }
 
 /* Sidebar Layout */

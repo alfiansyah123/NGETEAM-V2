@@ -402,7 +402,7 @@ function App() {
             </svg>
           </div>
           <div className="mnx-brand-info">
-            <h1 className="mnx-brand-name">{brandName || 'NGETEAM'}</h1>
+            <img src="/ngeteam-logo.png" alt="NGETEAM" className="mnx-brand-logo" />
             <span className="mnx-brand-badge">{brandBadge}</span>
           </div>
         </div>

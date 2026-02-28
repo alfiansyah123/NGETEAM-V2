@@ -352,8 +352,8 @@ const Admin = () => {
             {/* Top Bar */}
             <header className="admin-header">
                 <div>
-                    <h1 className="admin-title">{brandName || 'NGETEAM GEN'}</h1>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>ADMIN PANEL V1.0</p>
+                    <img src="/ngeteam-logo.png" alt="NGETEAM" className="admin-brand-logo" />
+                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>ADMIN PANEL V1.0</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="sidebar-nav-item" style={{ padding: '10px 16px', border: '1px solid var(--accent-red)', color: 'var(--accent-red)' }} onClick={handleLogout}>LOGOUT</button>

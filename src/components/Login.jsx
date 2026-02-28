@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './Login.css';
 
 const Login = ({ onLogin, teamContext }) => {
-    const [username, setUsername] = useState(teamContext?.user_id || '');
+    const [username, setUsername] = useState(teamContext?.user_id || 'admin');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -51,31 +51,16 @@ const Login = ({ onLogin, teamContext }) => {
 
             <div className="login-card">
                 <div className="login-header">
-                    <h1 className="login-title">
-                        {teamContext ? teamContext.name : 'NGE-team'}
-                    </h1>
+                    <div className="login-logo-wrapper">
+                        <img src="/ngeteam-logo.png" alt="NGETEAM" className="login-logo" />
+                    </div>
                     <p className="login-subtitle">
-                        {teamContext ? `Team Portal: /t/${teamContext.user_id}` : 'Premium Link Generator'}
+                        {teamContext ? `Team Portal: /t/${teamContext.user_id}` : ''}
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="login-form">
                     {error && <div className="login-error">{error}</div>}
-
-                    {/* Only show username for non-team login */}
-                    {!teamContext && (
-                        <div className="login-field">
-                            <label>Username</label>
-                            <input
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                placeholder="Enter username"
-                                required
-                                autoComplete="username"
-                            />
-                        </div>
-                    )}
 
                     <div className="login-field">
                         <label>Password</label>
@@ -99,7 +84,7 @@ const Login = ({ onLogin, teamContext }) => {
                 </form>
 
                 <div className="login-footer">
-                    <p>© 2025 NGE-team. All rights reserved.</p>
+                    <p>© 2026 NGE-team. All rights reserved.</p>
                 </div>
             </div>
         </div>
