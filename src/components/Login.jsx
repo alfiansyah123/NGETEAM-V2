@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './Login.css';
 
 const Login = ({ onLogin, teamContext }) => {
-    const [username, setUsername] = useState(teamContext?.user_id || 'admin');
+    const [username, setUsername] = useState(teamContext?.user_id || 'ngeteam');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
