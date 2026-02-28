@@ -189,17 +189,25 @@ async function recordClick(supabase, link, request) {
 }
 
 // Security Headers Helper
-function getSecurityHeaders() {
-    return {
+function getSecurityHeaders(allowCache = false) {
+    const headers = {
         'X-Content-Type-Options': 'nosniff',
         'X-Frame-Options': 'DENY',
         'Referrer-Policy': 'no-referrer',
         'X-Robots-Tag': 'noindex, nofollow, noarchive',
-        'Permissions-Policy': 'interest-cohort=()',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        'Permissions-Policy': 'interest-cohort=()'
     };
+
+    if (allowCache) {
+        // Cache for 10 minutes at the Edge to save Cloudflare Worker requests
+        headers['Cache-Control'] = 'public, max-age=600, s-maxage=600';
+    } else {
+        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        headers['Pragma'] = 'no-cache';
+        headers['Expires'] = '0';
+    }
+
+    return headers;
 }
 
 export async function onRequest(context) {
@@ -273,7 +281,7 @@ export async function onRequest(context) {
 
         return new Response(html, {
             headers: {
-                ...getSecurityHeaders(),
+                ...getSecurityHeaders(true),
                 'Content-Type': 'text/html; charset=utf-8'
             }
         });
@@ -291,11 +299,11 @@ export async function onRequest(context) {
         } catch (e) { /* ignore if target is invalid URL */ }
     }
 
-    // Clean Redirect with Security Headers
+    // Clean Redirect with Security Headers + Edge Caching
     return new Response(null, {
         status: 302,
         headers: {
-            ...getSecurityHeaders(),
+            ...getSecurityHeaders(true),
             'Location': target
         }
     });

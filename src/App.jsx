@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react'
 import './App.css'
-import { fetchDomains, saveLink, addDomain } from './services/api'
+import { fetchDomains, saveLink, batchSaveLinks, addDomain } from './services/api'
 import Login from './components/Login'
 import LiveTraffic from './components/LiveTraffic'
 import Reports from './components/Reports'
@@ -243,6 +243,9 @@ function App() {
     let processCount = 0
 
     try {
+      const linksToBatch = [];
+      const generatedLinks = [];
+
       for (const url of urls) {
         for (let i = 0; i < jumlah; i++) {
           processCount++
@@ -295,7 +298,7 @@ function App() {
             }
           }
 
-          await saveLink({
+          linksToBatch.push({
             slug: randomSlug,
             original_url: url,
             domain_url: domainToUse,
@@ -303,15 +306,20 @@ function App() {
             description: deskripsi,
             image_url: imageUrl,
             user_id: teamMode?.user_id || null
-          })
+          });
 
-          generated.push(finalLink)
+          generatedLinks.push(finalLink);
         }
       }
 
-      if (generated.length > 0) {
-        setOutput(generated)
-        addToHistory(generated)
+      // Batch Save all links in a single request!
+      if (linksToBatch.length > 0) {
+        await batchSaveLinks(linksToBatch);
+      }
+
+      if (generatedLinks.length > 0) {
+        setOutput(generatedLinks)
+        addToHistory(generatedLinks)
         if (customSlug) setCustomSlug('')
       }
     } catch (err) {

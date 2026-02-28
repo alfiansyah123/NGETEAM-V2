@@ -12344,8 +12344,71 @@ async function onRequestPost7(context) {
 }
 __name(onRequestPost7, "onRequestPost");
 
-// api/change-password.js
+// api/batch-save-links.js
 async function onRequestPost8(context) {
+  const supabase = createSupabaseClient(context.env);
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Content-Type": "application/json"
+  };
+  try {
+    const body = await context.request.json();
+    const { links } = body;
+    if (!links || !Array.isArray(links) || links.length === 0) {
+      return new Response(JSON.stringify({ error: "Valid links array required" }), { status: 400, headers });
+    }
+    const domainUrls = [...new Set(links.map((l) => l.domain_url.replace(/^https?:\/\//, "").replace(/\/$/, "")))];
+    const { data: domainList, error: domainError } = await supabase.from("domains").select("id, url").in("url", domainUrls).eq("active", true);
+    if (domainError || !domainList) throw domainError;
+    const domainMap = {};
+    domainList.forEach((d) => {
+      domainMap[d.url.toLowerCase()] = d.id;
+    });
+    const insertData = links.map((link) => {
+      const cleanDomain = link.domain_url.replace(/^https?:\/\//, "").replace(/\/$/, "").toLowerCase();
+      const domainId = domainMap[cleanDomain];
+      if (!domainId) return null;
+      return {
+        slug: link.slug,
+        original_url: link.original_url,
+        domain_id: domainId,
+        user_id: link.user_id || null,
+        title: link.title || null,
+        description: link.description || null,
+        image_url: link.image_url || null
+      };
+    }).filter(Boolean);
+    if (insertData.length === 0) {
+      return new Response(JSON.stringify({ error: "No valid domains found" }), { status: 400, headers });
+    }
+    const { error: insertError } = await supabase.from("links").insert(insertData);
+    if (insertError) {
+      if (insertError.code === "23505") {
+        return new Response(JSON.stringify({ error: "One or more slugs already exist" }), { status: 400, headers });
+      }
+      throw insertError;
+    }
+    return new Response(JSON.stringify({ success: true, count: insertData.length }), { status: 200, headers });
+  } catch (err) {
+    console.error("Batch Save Link Error:", err);
+    return new Response(JSON.stringify({ error: "Internal Server Error: " + err.message }), { status: 500, headers });
+  }
+}
+__name(onRequestPost8, "onRequestPost");
+async function onRequestOptions7() {
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    }
+  });
+}
+__name(onRequestOptions7, "onRequestOptions");
+
+// api/change-password.js
+async function onRequestPost9(context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -12365,8 +12428,8 @@ async function onRequestPost8(context) {
     return new Response(JSON.stringify({ error: "Failed to update password: " + error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost8, "onRequestPost");
-async function onRequestOptions7() {
+__name(onRequestPost9, "onRequestPost");
+async function onRequestOptions8() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12375,7 +12438,7 @@ async function onRequestOptions7() {
     }
   });
 }
-__name(onRequestOptions7, "onRequestOptions");
+__name(onRequestOptions8, "onRequestOptions");
 
 // api/delete-domain.js
 async function onRequest(context) {
@@ -12418,7 +12481,7 @@ async function onRequest(context) {
   }
 }
 __name(onRequest, "onRequest");
-async function onRequestOptions8() {
+async function onRequestOptions9() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12427,10 +12490,10 @@ async function onRequestOptions8() {
     }
   });
 }
-__name(onRequestOptions8, "onRequestOptions");
+__name(onRequestOptions9, "onRequestOptions");
 
 // api/delete-team-member.js
-async function onRequestPost9(context) {
+async function onRequestPost10(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12450,7 +12513,7 @@ async function onRequestPost9(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost9, "onRequestPost");
+__name(onRequestPost10, "onRequestPost");
 
 // api/get-admin-password.js
 async function onRequestGet(context) {
@@ -12710,7 +12773,7 @@ function generateToken(username) {
   }
 }
 __name(generateToken, "generateToken");
-async function onRequestPost10(context) {
+async function onRequestPost11(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12761,8 +12824,8 @@ async function onRequestPost10(context) {
     return new Response(JSON.stringify({ success: false, error: "Server error: " + error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost10, "onRequestPost");
-async function onRequestOptions9() {
+__name(onRequestPost11, "onRequestPost");
+async function onRequestOptions10() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12771,10 +12834,10 @@ async function onRequestOptions9() {
     }
   });
 }
-__name(onRequestOptions9, "onRequestOptions");
+__name(onRequestOptions10, "onRequestOptions");
 
 // api/save-link.js
-async function onRequestPost11(context) {
+async function onRequestPost12(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12817,8 +12880,8 @@ async function onRequestPost11(context) {
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500, headers });
   }
 }
-__name(onRequestPost11, "onRequestPost");
-async function onRequestOptions10() {
+__name(onRequestPost12, "onRequestPost");
+async function onRequestOptions11() {
   return new Response(null, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -12827,10 +12890,10 @@ async function onRequestOptions10() {
     }
   });
 }
-__name(onRequestOptions10, "onRequestOptions");
+__name(onRequestOptions11, "onRequestOptions");
 
 // api/save-settings.js
-async function onRequestPost12(context) {
+async function onRequestPost13(context) {
   const { request, env } = context;
   const body = await request.json();
   const { key, value } = body;
@@ -12853,10 +12916,10 @@ async function onRequestPost12(context) {
     headers: { "Content-Type": "application/json" }
   });
 }
-__name(onRequestPost12, "onRequestPost");
+__name(onRequestPost13, "onRequestPost");
 
 // api/shorten-link.js
-async function onRequestPost13(context) {
+async function onRequestPost14(context) {
   try {
     const { url, service, apiKey } = await context.request.json();
     if (!url || !service) {
@@ -12916,10 +12979,10 @@ async function onRequestPost13(context) {
     });
   }
 }
-__name(onRequestPost13, "onRequestPost");
+__name(onRequestPost14, "onRequestPost");
 
 // api/update-click-ip.js
-async function onRequestPost14(context) {
+async function onRequestPost15(context) {
   const supabase = createSupabaseClient(context.env);
   try {
     const { click_id, ip_address } = await context.request.json();
@@ -12939,10 +13002,10 @@ async function onRequestPost14(context) {
     });
   }
 }
-__name(onRequestPost14, "onRequestPost");
+__name(onRequestPost15, "onRequestPost");
 
 // api/update-team-member.js
-async function onRequestPost15(context) {
+async function onRequestPost16(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -12978,7 +13041,7 @@ async function onRequestPost15(context) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
-__name(onRequestPost15, "onRequestPost");
+__name(onRequestPost16, "onRequestPost");
 
 // [[path]].js
 function isTrackingBot(userAgent) {
@@ -13160,17 +13223,22 @@ async function recordClick(supabase, link, request) {
   }
 }
 __name(recordClick, "recordClick");
-function getSecurityHeaders() {
-  return {
+function getSecurityHeaders(allowCache = false) {
+  const headers = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "no-referrer",
     "X-Robots-Tag": "noindex, nofollow, noarchive",
-    "Permissions-Policy": "interest-cohort=()",
-    "Cache-Control": "no-cache, no-store, must-revalidate",
-    "Pragma": "no-cache",
-    "Expires": "0"
+    "Permissions-Policy": "interest-cohort=()"
   };
+  if (allowCache) {
+    headers["Cache-Control"] = "public, max-age=600, s-maxage=600";
+  } else {
+    headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    headers["Pragma"] = "no-cache";
+    headers["Expires"] = "0";
+  }
+  return headers;
 }
 __name(getSecurityHeaders, "getSecurityHeaders");
 async function onRequest2(context) {
@@ -13229,7 +13297,7 @@ async function onRequest2(context) {
 </html>`;
     return new Response(html, {
       headers: {
-        ...getSecurityHeaders(),
+        ...getSecurityHeaders(true),
         "Content-Type": "text/html; charset=utf-8"
       }
     });
@@ -13249,7 +13317,7 @@ async function onRequest2(context) {
   return new Response(null, {
     status: 302,
     headers: {
-      ...getSecurityHeaders(),
+      ...getSecurityHeaders(true),
       "Location": target
     }
   });
@@ -13350,32 +13418,46 @@ var routes = [
     modules: [onRequestPost7]
   },
   {
-    routePath: "/api/change-password",
+    routePath: "/api/batch-save-links",
     mountPath: "/api",
     method: "OPTIONS",
     middlewares: [],
     modules: [onRequestOptions7]
   },
   {
-    routePath: "/api/change-password",
+    routePath: "/api/batch-save-links",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
     modules: [onRequestPost8]
   },
   {
-    routePath: "/api/delete-domain",
+    routePath: "/api/change-password",
     mountPath: "/api",
     method: "OPTIONS",
     middlewares: [],
     modules: [onRequestOptions8]
   },
   {
-    routePath: "/api/delete-team-member",
+    routePath: "/api/change-password",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
     modules: [onRequestPost9]
+  },
+  {
+    routePath: "/api/delete-domain",
+    mountPath: "/api",
+    method: "OPTIONS",
+    middlewares: [],
+    modules: [onRequestOptions9]
+  },
+  {
+    routePath: "/api/delete-team-member",
+    mountPath: "/api",
+    method: "POST",
+    middlewares: [],
+    modules: [onRequestPost10]
   },
   {
     routePath: "/api/get-admin-password",
@@ -13431,56 +13513,56 @@ var routes = [
     mountPath: "/api",
     method: "OPTIONS",
     middlewares: [],
-    modules: [onRequestOptions9]
+    modules: [onRequestOptions10]
   },
   {
     routePath: "/api/login",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost10]
+    modules: [onRequestPost11]
   },
   {
     routePath: "/api/save-link",
     mountPath: "/api",
     method: "OPTIONS",
     middlewares: [],
-    modules: [onRequestOptions10]
+    modules: [onRequestOptions11]
   },
   {
     routePath: "/api/save-link",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost11]
+    modules: [onRequestPost12]
   },
   {
     routePath: "/api/save-settings",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost12]
+    modules: [onRequestPost13]
   },
   {
     routePath: "/api/shorten-link",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost13]
+    modules: [onRequestPost14]
   },
   {
     routePath: "/api/update-click-ip",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost14]
+    modules: [onRequestPost15]
   },
   {
     routePath: "/api/update-team-member",
     mountPath: "/api",
     method: "POST",
     middlewares: [],
-    modules: [onRequestPost15]
+    modules: [onRequestPost16]
   },
   {
     routePath: "/api/delete-domain",
@@ -13985,7 +14067,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-Lq2vqO/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-c4CIss/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14017,7 +14099,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-Lq2vqO/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-c4CIss/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

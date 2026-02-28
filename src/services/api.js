@@ -23,6 +23,22 @@ export const saveLink = async (data) => {
     return result;
 };
 
+export const batchSaveLinks = async (links) => {
+    const response = await fetch('/api/batch-save-links', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ links }),
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to batch save links');
+    }
+    return result;
+};
+
 export const addDomain = async (url) => {
     const response = await fetch('/api/add-domain', {
         method: 'POST',

@@ -11,6 +11,8 @@ import { onRequestPost as __api_cloudflare_setup_worker_proxy_js_onRequestPost }
 import { onRequestOptions as __api_add_domain_js_onRequestOptions } from "C:\\project\\NGETEAM-GEN\\functions\\api\\add-domain.js"
 import { onRequestPost as __api_add_domain_js_onRequestPost } from "C:\\project\\NGETEAM-GEN\\functions\\api\\add-domain.js"
 import { onRequestPost as __api_add_team_member_js_onRequestPost } from "C:\\project\\NGETEAM-GEN\\functions\\api\\add-team-member.js"
+import { onRequestOptions as __api_batch_save_links_js_onRequestOptions } from "C:\\project\\NGETEAM-GEN\\functions\\api\\batch-save-links.js"
+import { onRequestPost as __api_batch_save_links_js_onRequestPost } from "C:\\project\\NGETEAM-GEN\\functions\\api\\batch-save-links.js"
 import { onRequestOptions as __api_change_password_js_onRequestOptions } from "C:\\project\\NGETEAM-GEN\\functions\\api\\change-password.js"
 import { onRequestPost as __api_change_password_js_onRequestPost } from "C:\\project\\NGETEAM-GEN\\functions\\api\\change-password.js"
 import { onRequestOptions as __api_delete_domain_js_onRequestOptions } from "C:\\project\\NGETEAM-GEN\\functions\\api\\delete-domain.js"
@@ -124,6 +126,20 @@ export const routes = [
       method: "POST",
       middlewares: [],
       modules: [__api_add_team_member_js_onRequestPost],
+    },
+  {
+      routePath: "/api/batch-save-links",
+      mountPath: "/api",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_batch_save_links_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/batch-save-links",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_batch_save_links_js_onRequestPost],
     },
   {
       routePath: "/api/change-password",
