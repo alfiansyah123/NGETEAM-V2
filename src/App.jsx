@@ -393,302 +393,283 @@ function App() {
 
   return (
     <div className="container fade-in">
-      {/* MNX Top Bar */}
-      <div className="mnx-top-bar">
+      {/* Top Bar / Header */}
+      <header className="mnx-top-bar">
         <div className="mnx-logo-group">
           <div className="mnx-logo-icon">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--accent-cyan)" strokeWidth="2.5" fill="none">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
             </svg>
           </div>
-          <div className="mnx-logo-text">
-            {/* Split brandName for styling if it contains space, else use default pattern */}
-            {brandName.includes(' ') ? (
-              <h1>{brandName.split(' ')[0]} <span>{brandName.split(' ').slice(1).join(' ')}</span></h1>
-            ) : (
-              <h1>{brandName}</h1>
-            )}
-            <span className="mnx-logo-badge">{brandBadge}</span>
+          <div className="mnx-brand-info">
+            <h1 className="mnx-brand-name">{brandName || 'NGETEAM'}</h1>
+            <span className="mnx-brand-badge">{brandBadge}</span>
           </div>
         </div>
 
         <div className="mnx-status-controls">
           {teamMode && (
-            <div className="mnx-pill-select" style={{ border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', gap: '8px' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <div className="mnx-pill-select team-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
               {teamMode.name.toUpperCase()}
             </div>
           )}
-          <div className="mnx-pill-select">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            IMONETIZEIT
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </div>
-          <div
-            onClick={toggleTheme}
-            className="mnx-theme-toggle"
-          >
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke={theme === 'light' ? 'var(--accent-orange)' : 'var(--accent-blue)'} strokeWidth="2" fill="none">
-              {theme === 'light' ? (
-                <path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
-              ) : (
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              )}
-            </svg>
-            <div className={`mnx-toggle ${theme === 'dark' ? 'active' : ''}`}></div>
+
+          <div className="mnx-theme-toggle-wrapper">
+            <button
+              onClick={toggleTheme}
+              className={`mnx-theme-btn ${theme === 'light' ? 'light' : 'dark'}`}
+              title="Toggle Theme"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2.5" fill="none">
+                {theme === 'light' ? (
+                  <path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                ) : (
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                )}
+              </svg>
+            </button>
           </div>
 
-          <button className="mnx-power-btn" onClick={handleLogout}>
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+          <button className="mnx-logout-btn" onClick={handleLogout} title="Logout">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Cyber Tabs Navigation */}
-      <div className="cyber-tabs">
-        <div className={`cyber-tab ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-          Generate Link
-        </div>
-        <div className={`cyber-tab ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-          Reports
-        </div>
+      {/* Sleek Segmented Control Navigation */}
+      <div className="mnx-tab-nav">
+        <button
+          className={`mnx-tab-btn ${activeTab === 'generator' ? 'active' : ''}`}
+          onClick={() => setActiveTab('generator')}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+          GENERATE LINK
+        </button>
+        <button
+          className={`mnx-tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
+          onClick={() => setActiveTab('reports')}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          REPORTS
+        </button>
       </div>
 
       {/* Content Area */}
-      {activeTab === 'generator' ? (
-        <div className="mnx-card-container fade-in">
-          <div className="mnx-card">
+      {
+        activeTab === 'generator' ? (
+          <div className="admin-section fade-in">
+            <div className="admin-section">
 
-            {/* Domain Selection */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span className="section-label" style={{ marginBottom: 0 }}>SELECTED DOMAIN</span>
-              <button
-                onClick={handleAddDomain}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--accent-orange)',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontWeight: '800',
-                  letterSpacing: '1px'
-                }}
-              >
-                + ADD NEW
-              </button>
-            </div>
-            <div className="mnx-input-group">
-              <div className="mnx-input-prepend">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                DOMAIN
+              {/* Domain Selection */}
+              <div className="section-header">
+                <span className="section-title">SELECTED DOMAIN</span>
+                <button
+                  className="mnx-link-btn"
+                  onClick={handleAddDomain}
+                >
+                  + ADD NEW
+                </button>
               </div>
-              <select
-                className="mnx-input"
-                style={{ background: 'transparent', color: 'var(--text-primary)', appearance: 'auto' }}
-                value={selectedDomain}
-                onChange={(e) => setSelectedDomain(e.target.value)}
-              >
-                <option value="__RANDOM__" style={{ background: 'var(--bg-surface)' }}>Random Domain</option>
-                {domains.map(d => <option key={d} value={d} style={{ background: 'var(--bg-surface)' }}>{d}</option>)}
-              </select>
-            </div>
-
-            {/* URL Canonical / Target URLs */}
-            <span className="section-label">TARGET URLS {teamMode && <span style={{ color: 'var(--accent-orange)' }}>(LOCKED)</span>}</span>
-            <div className="mnx-input-group" style={{ alignItems: teamMode ? 'center' : 'flex-start', padding: teamMode ? '0' : '10px', background: 'transparent', marginBottom: '20px' }}>
-              {teamMode ? (
-                <>
-                  <div className="mnx-input-prepend" style={{ height: 'auto', alignSelf: 'stretch', display: 'flex', alignItems: 'center' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    LOCKED
-                  </div>
-                  <textarea
-                    className="mnx-input"
-                    style={{ minHeight: '60px', padding: '12px', background: 'transparent', cursor: 'not-allowed' }}
-                    value={targetUrls}
-                    readOnly
-                  />
-                </>
-              ) : (
-                <textarea
+              <div className="mnx-input-group">
+                <div className="mnx-input-prepend">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                  DOMAIN
+                </div>
+                <select
                   className="mnx-input"
-                  style={{ minHeight: '120px', resize: 'vertical' }}
-                  placeholder="Paste URL Target Disini (Satu per baris)..."
-                  value={targetUrls}
-                  onChange={(e) => setTargetUrls(e.target.value)}
-                />
-              )}
-            </div>
+                  value={selectedDomain}
+                  onChange={(e) => setSelectedDomain(e.target.value)}
+                >
+                  <option value="__RANDOM__">Random Domain</option>
+                  {domains.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
 
-            {/* INTEGRATED CLICK ID ADJUSTMENT - ALIGNED WITH DOMAIN SECTION */}
-            {teamMode && (
-              <div className="fade-in" style={{ marginBottom: '20px' }}>
-                <span className="section-label">CUSTOMIZE CLICK ID</span>
-                <div className="mnx-input-group">
-                  <div className="mnx-input-prepend">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    CLICK ID
-                  </div>
-                  <input
-                    className="mnx-input"
-                    style={{ background: 'transparent', color: 'var(--text-primary)' }}
-                    placeholder="e.g. Alcemits-ig"
-                    value={subId}
-                    onChange={(e) => handleSubIdChange(e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Slug & Metadata Row */}
-            <div className="mnx-grid" style={{ gridTemplateColumns: '1fr 1fr 120px' }}>
-              <div>
-                <span className="section-label">CUSTOM SLUG</span>
-                <div className="mnx-input-group">
-                  <input className="mnx-input" placeholder="slug-viral" value={customSlug} onChange={(e) => setCustomSlug(e.target.value)} />
-                </div>
-              </div>
-              <div>
-                <span className="section-label">JUDUL META</span>
-                <div className="mnx-input-group">
-                  <input className="mnx-input" placeholder="Input Judul Link..." value={judul} onChange={(e) => setJudul(e.target.value)} />
-                </div>
-              </div>
-              <div>
-                <span className="section-label">JUMLAH</span>
-                <div className="mnx-input-group" style={{ padding: '4px 10px' }}>
-                  <input
-                    type="number"
-                    className="mnx-input"
-                    style={{ textAlign: 'center', padding: '14px 0' }}
-                    value={jumlah}
-                    onChange={(e) => setJumlah(parseInt(e.target.value) || 1)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Metadata Fields (Image & Description) */}
-            <div className="mnx-grid">
-              <div>
-                <span className="section-label">IMAGE URL</span>
-                <div className="mnx-input-group">
-                  <div className="mnx-input-prepend" style={{ minWidth: 'auto', padding: '10px 15px' }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                  </div>
-                  <input className="mnx-input" style={{ padding: '10px 15px' }} placeholder="https://image.url/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-                </div>
-              </div>
-              <div>
-                <span className="section-label">DESKRIPSI META</span>
-                <div className="mnx-input-group">
-                  <div className="mnx-input-prepend" style={{ minWidth: 'auto', padding: '10px 15px' }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                  </div>
-                  <input className="mnx-input" style={{ padding: '10px 15px' }} placeholder="Deskripsi link..." value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
-                </div>
-              </div>
-            </div>
-
-
-            {/* Main Action Button */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
-              <button
-                className={`service-btn ${useFSubdomain ? 'active' : ''}`}
-                onClick={() => setUseFSubdomain(!useFSubdomain)}
-                style={{ flex: 1, padding: '15px', fontSize: '0.9rem' }}
-              >
-                {useFSubdomain ? 'F-SUBDOMAIN: ON' : 'F-SUBDOMAIN: OFF'}
-              </button>
-              <button className="btn-mnx-main" style={{ flex: 2 }} onClick={generateLinks} disabled={loading}>
-                {loading ? 'GENERATING...' : (
+              <span className="section-title">TARGET URLS {teamMode && <span className="locked-badge">(LOCKED)</span>}</span>
+              <div className="mnx-input-group target-url-group">
+                {teamMode ? (
                   <>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                    GENERATE LINK
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Result Area */}
-            <div className="mnx-output-bar">
-              {output.length > 0 ? (
-                <div className="output-scroll">
-                  {output.map((link, idx) => (
-                    <div key={idx} className="mnx-output-item">
-                      <span>{link}</span>
-                      <svg onClick={() => { navigator.clipboard.writeText(link); alert('Copied!'); }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ cursor: 'pointer' }}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <div className="mnx-input-prepend" style={{ height: 'auto', alignSelf: 'stretch', display: 'flex', alignItems: 'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                      LOCKED
                     </div>
-                  ))}
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                    <button className="service-btn active" onClick={copyAll}>{copied ? 'COPIED!' : 'COPY ALL'}</button>
-                    <button className="service-btn" onClick={clearOutput}>CLEAR</button>
-                  </div>
-                </div>
-              ) : (
-                "Resulting link..."
-              )}
-            </div>
-
-            {/* Shortener Service Selection */}
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-              <span className="section-label" style={{ marginBottom: '10px' }}>SHORTENER SERVICE</span>
-              <div className="mnx-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: selectedShortener === 'IX.SK' ? '15px' : '0' }}>
-                {['DEFAULT', 'IX.SK'].map(service => (
-                  <button
-                    key={service}
-                    className={`service-btn ${selectedShortener === service ? 'active' : ''}`}
-                    onClick={() => setSelectedShortener(service)}
-                  >
-                    {service}
-                  </button>
-                ))}
+                    <textarea
+                      className="mnx-input locked-textarea"
+                      value={targetUrls}
+                      readOnly
+                    />
+                  </>
+                ) : (
+                  <textarea
+                    className="mnx-textarea"
+                    placeholder="Paste URL Target Disini (Satu per baris)..."
+                    value={targetUrls}
+                    onChange={(e) => setTargetUrls(e.target.value)}
+                  />
+                )}
               </div>
 
-              {selectedShortener === 'IX.SK' && (
-                <div className="fade-in mnx-input-group" style={{ marginBottom: '0' }}>
-                  <div className="mnx-input-prepend" style={{ minWidth: 'auto', padding: '10px 15px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3y-2.5 2.5z"></path></svg>
-                    API KEY
+              {teamMode && (
+                <div className="fade-in form-group">
+                  <span className="section-title">CUSTOMIZE CLICK ID</span>
+                  <div className="mnx-input-group">
+                    <div className="mnx-input-prepend">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                      CLICK ID
+                    </div>
+                    <input
+                      className="mnx-input"
+                      placeholder="e.g. Alcemits-ig"
+                      value={subId}
+                      onChange={(e) => handleSubIdChange(e.target.value)}
+                    />
                   </div>
-                  <input
-                    className="mnx-input"
-                    style={{ padding: '10px 15px', fontSize: '0.85rem' }}
-                    placeholder="Masukkan IX.SK API Key..."
-                    value={ixSkApiKey}
-                    onChange={(e) => {
-                      setIxSkApiKey(e.target.value);
-                      localStorage.setItem('ix_sk_api_key', e.target.value);
-                    }}
-                  />
                 </div>
               )}
+
+              <div className="mnx-grid grid-3-col">
+                <div className="form-group">
+                  <span className="section-title">CUSTOM SLUG</span>
+                  <div className="mnx-input-group">
+                    <input className="mnx-input" placeholder="slug-viral" value={customSlug} onChange={(e) => setCustomSlug(e.target.value)} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <span className="section-title">JUDUL META</span>
+                  <div className="mnx-input-group">
+                    <input className="mnx-input" placeholder="Input Judul Link..." value={judul} onChange={(e) => setJudul(e.target.value)} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <span className="section-title">JUMLAH</span>
+                  <div className="mnx-input-group">
+                    <input
+                      type="number"
+                      className="mnx-input"
+                      value={jumlah}
+                      onChange={(e) => setJumlah(parseInt(e.target.value) || 1)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mnx-grid">
+                <div className="form-group">
+                  <span className="section-title">IMAGE URL</span>
+                  <div className="mnx-input-group">
+                    <input className="mnx-input" placeholder="https://image.url/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <span className="section-title">DESKRIPSI META</span>
+                  <div className="mnx-input-group">
+                    <input className="mnx-input" placeholder="Deskripsi link..." value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mnx-grid mobile-col-1">
+                <button
+                  className={`secondary-glass-btn ${useFSubdomain ? 'active' : ''}`}
+                  onClick={() => setUseFSubdomain(!useFSubdomain)}
+                >
+                  F-SUBDOMAIN: {useFSubdomain ? 'ON' : 'OFF'}
+                </button>
+                <button className="btn-mnx-main" onClick={generateLinks} disabled={loading}>
+                  {loading ? 'GENERATING...' : (
+                    <>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                      GENERATE LINK
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Result Area */}
+              <div className="mnx-output-bar">
+                {output.length > 0 ? (
+                  <div className="output-scroll">
+                    {output.map((link, idx) => (
+                      <div key={idx} className="mnx-output-item">
+                        <span>{link}</span>
+                        <svg onClick={() => { navigator.clipboard.writeText(link); alert('Copied!'); }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ cursor: 'pointer' }}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </div>
+                    ))}
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                      <button className="service-btn active" onClick={copyAll}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        {copied ? 'COPIED!' : 'COPY ALL'}
+                      </button>
+                      <button className="service-btn" onClick={clearOutput}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                        CLEAR
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  "Resulting link..."
+                )}
+              </div>
+
+              {/* Shortener Service Selection */}
+              <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                <span className="section-title" style={{ marginBottom: '10px' }}>SHORTENER SERVICE</span>
+                <div className="mnx-compact-nav" style={{ marginBottom: selectedShortener === 'IX.SK' ? '15px' : '0' }}>
+                  {['DEFAULT', 'IX.SK'].map(service => (
+                    <button
+                      key={service}
+                      className={`mnx-tab-btn ${selectedShortener === service ? 'active' : ''}`}
+                      onClick={() => setSelectedShortener(service)}
+                    >
+                      {service}
+                    </button>
+                  ))}
+                </div>
+
+                {selectedShortener === 'IX.SK' && (
+                  <div className="fade-in mnx-input-group" style={{ marginBottom: '0' }}>
+                    <div className="mnx-input-prepend" style={{ minWidth: 'auto', padding: '10px 15px' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3y-2.5 2.5z"></path></svg>
+                      API KEY
+                    </div>
+                    <input
+                      className="mnx-input"
+                      style={{ padding: '10px 15px', fontSize: '0.85rem' }}
+                      placeholder="Masukkan IX.SK API Key..."
+                      value={ixSkApiKey}
+                      onChange={(e) => {
+                        setIxSkApiKey(e.target.value);
+                        localStorage.setItem('ix_sk_api_key', e.target.value);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
             </div>
 
+            <div className="mnx-footer">
+              ccpXengine &nbsp; V 1 . 0
+            </div>
           </div>
-
-          <div className="mnx-footer">
-            ccpXengine &nbsp; V 1 . 0
+        ) : (
+          <div className="mnx-card fade-in">
+            <Reports />
           </div>
-        </div>
-      ) : (
-        <div className="mnx-card fade-in">
-          <Reports />
-        </div>
-      )}
+        )
+      }
 
       {/* Floating Traffic Sidebar if in Generator */}
-      {activeTab === 'generator' && (
-        <div style={{ marginTop: '40px' }} className="fade-in">
-          <LiveTraffic />
-        </div>
-      )}
+      {
+        activeTab === 'generator' && (
+          <div style={{ marginTop: '40px' }} className="fade-in">
+            <LiveTraffic />
+          </div>
+        )
+      }
 
-    </div>
+    </div >
   )
 }
 

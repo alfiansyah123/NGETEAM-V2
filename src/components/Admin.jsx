@@ -350,53 +350,15 @@ const Admin = () => {
     return (
         <div className="admin-container fade-in">
             {/* Top Bar */}
-            <div className="mnx-top-bar" style={{ marginBottom: '30px' }}>
-                <div className="mnx-logo-group">
-                    <div className="mnx-logo-icon">
-                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                        </svg>
-                    </div>
-                    <div className="mnx-logo-text">
-                        {brandName.includes(' ') ? (
-                            <h1>{brandName.split(' ')[0]} <span>{brandName.split(' ').slice(1).join(' ')}</span></h1>
-                        ) : (
-                            <h1>{brandName}</h1>
-                        )}
-                        <span className="mnx-logo-badge">{brandBadge}</span>
-                    </div>
+            <header className="admin-header">
+                <div>
+                    <h1 className="admin-title">{brandName || 'NGETEAM GEN'}</h1>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>ADMIN PANEL V1.0</p>
                 </div>
-                <div className="mnx-status-controls">
-                    <div className="mnx-pill-select" style={{ border: '1px solid var(--accent-orange)', color: 'var(--accent-orange)' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                        ADMIN PANEL
-                    </div>
-                    {/* HOME REPLACED WITH TEAM BUTTON */}
-                    <button
-                        className={`mnx-power-btn ${activeSection === 'team' ? 'active' : ''}`}
-                        title="Team Management"
-                        onClick={() => setActiveSection('team')}
-                        style={{ background: activeSection === 'team' ? 'var(--bg-tabs)' : 'none' }}
-                    >
-                        <svg viewBox="0 0 24 24" width="20" height="20" stroke={activeSection === 'team' ? 'var(--accent-cyan)' : 'currentColor'} strokeWidth="2.5" fill="none">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                    </button>
-                    {/* Logout button */}
-                    <button onClick={handleLogout} className="mnx-power-btn" title="Logout" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--accent-red)" strokeWidth="2.5" fill="none">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                    </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="sidebar-nav-item" style={{ padding: '10px 16px', border: '1px solid var(--accent-red)', color: 'var(--accent-red)' }} onClick={handleLogout}>LOGOUT</button>
                 </div>
-            </div>
+            </header>
 
             <div className="admin-layout">
                 {/* Sidebar */}
@@ -426,17 +388,16 @@ const Admin = () => {
                 {/* Main Content Area */}
                 <div className="admin-content">
                     {activeSection === 'appearance' && (
-                        <div className="mnx-card fade-in">
-                            <span className="section-label">🎨 APPEARANCE SETTINGS</span>
-                            <div className="mnx-grid" style={{ marginBottom: '20px', marginTop: '15px' }}>
-                                <div>
-                                    <span className="section-label">BRAND NAME</span>
+                        <div className="admin-section fade-in">
+                            <div className="mnx-grid">
+                                <div className="form-group">
+                                    <span className="section-title">BRAND NAME</span>
                                     <div className="mnx-input-group">
                                         <input type="text" className="mnx-input" value={brandName} onChange={(e) => setBrandName(e.target.value)} />
                                     </div>
                                 </div>
-                                <div>
-                                    <span className="section-label">BRAND BADGE</span>
+                                <div className="form-group">
+                                    <span className="section-title">BRAND BADGE</span>
                                     <div className="mnx-input-group">
                                         <input type="text" className="mnx-input" value={brandBadge} onChange={(e) => setBrandBadge(e.target.value)} />
                                     </div>
@@ -447,17 +408,16 @@ const Admin = () => {
                     )}
 
                     {activeSection === 'cloudflare' && (
-                        <div className="mnx-card fade-in">
-                            <span className="section-label">☁️ CLOUDFLARE SETTINGS</span>
-                            <div className="mnx-grid" style={{ marginBottom: '20px', marginTop: '15px' }}>
-                                <div>
-                                    <span className="section-label">API TOKEN</span>
+                        <div className="admin-section fade-in">
+                            <div className="mnx-grid">
+                                <div className="form-group">
+                                    <span className="section-title">API TOKEN</span>
                                     <div className="mnx-input-group">
                                         <input type="password" className="mnx-input" value={cfToken} onChange={(e) => setCfToken(e.target.value)} />
                                     </div>
                                 </div>
-                                <div>
-                                    <span className="section-label">ACCOUNT ID</span>
+                                <div className="form-group">
+                                    <span className="section-title">ACCOUNT ID</span>
                                     <div className="mnx-input-group">
                                         <input type="text" className="mnx-input" value={cfAccountId} onChange={(e) => setCfAccountId(e.target.value)} />
                                     </div>
@@ -482,8 +442,8 @@ const Admin = () => {
 
                     {activeSection === 'domains' && (
                         <div className="fade-in">
-                            <div className="mnx-card">
-                                <span className="section-label">🌐 REGISTERED DOMAINS</span>
+                            <div className="admin-section">
+                                <span className="section-title">🌐 REGISTERED DOMAINS</span>
                                 <div className="mnx-input-group" style={{ marginTop: '15px', marginBottom: '15px' }}>
                                     <input type="text" className="mnx-input" placeholder="example.com" value={newDomain} onChange={(e) => setNewDomain(e.target.value)} />
                                     <button className="btn-mnx-main" onClick={addDomainWithCloudflare} disabled={loading} style={{ width: 'auto', padding: '0 25px', marginTop: 0, borderRadius: '0 12px 12px 0', minWidth: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -515,8 +475,8 @@ const Admin = () => {
 
                     {activeSection === 'team' && (
                         <div className="fade-in">
-                            <div className="mnx-card">
-                                <span className="section-label">🚀 SMARTLINK MANAGEMENT (TEAM)</span>
+                            <div className="admin-section">
+                                <span className="section-title">🚀 SMARTLINK MANAGEMENT (TEAM)</span>
 
                                 <form onSubmit={handleAddSmartlink} style={{ marginTop: '20px', background: 'rgba(15, 23, 42, 0.4)', padding: '20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '30px', position: 'relative' }}>
                                     {editingId && (
@@ -543,7 +503,7 @@ const Admin = () => {
                                         </div>
                                     </div>
                                     <div style={{ marginTop: '15px' }}>
-                                        <span className="section-label">TARGET URL (DESTINATION)</span>
+                                        <span className="section-title">TARGET URL (DESTINATION)</span>
                                         <input type="text" className="mnx-input" placeholder="https://..." value={smartUrl} onChange={(e) => setSmartUrl(e.target.value)} />
                                     </div>
                                     <button className="btn-mnx-main" type="submit" disabled={loading} style={{ marginTop: '20px' }}>

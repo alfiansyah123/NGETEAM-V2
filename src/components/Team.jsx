@@ -77,10 +77,10 @@ const Team = () => {
             <div className="team-grid">
                 {/* List Section */}
                 <div className="team-list-section">
-                    <h3 className="mnx-section-title">TEAM MEMBERS <span className="mnx-badge">{team.length}</span></h3>
+                    <h3 className="section-title">TEAM MEMBERS <span className="mnx-badge">{team.length}</span></h3>
                     <div className="team-members-list">
                         {team.length === 0 ? (
-                            <div className="mnx-card" style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>
+                            <div className="admin-section" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
                                 No team members yet.
                             </div>
                         ) : (

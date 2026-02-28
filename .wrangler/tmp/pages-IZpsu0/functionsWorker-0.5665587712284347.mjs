@@ -15,7 +15,7 @@ async function onRequestPost(context) {
         error: "Missing required fields: domain, cfToken, cfAccountId"
       }), { status: 400, headers });
     }
-    const projectName = context.env.PAGES_PROJECT_NAME || "gen-codot";
+    const projectName = context.env.PAGES_PROJECT_NAME || "ngeteam-gen";
     const domainsToLink = [domain, `*.${domain}`];
     const results = [];
     let hasError = false;
@@ -242,7 +242,7 @@ async function onRequestPost4(context) {
         error: "Missing required fields: zoneId, domain, cfToken"
       }), { status: 400, headers });
     }
-    const pagesTarget = context.env.PAGES_DOMAIN || "gen-codot.pages.dev";
+    const pagesTarget = context.env.PAGES_DOMAIN || "ngeteam-gen.pages.dev";
     const records = [
       { type: "CNAME", name: "@", content: pagesTarget, proxied: true },
       { type: "CNAME", name: "*", content: pagesTarget, proxied: true }
@@ -346,7 +346,7 @@ async function onRequestPost5(context) {
         error: "Missing required fields: domain, cfToken, cfAccountId"
       }), { status: 400, headers });
     }
-    const pagesTarget = context.env.PAGES_DOMAIN || "gen-codot.pages.dev";
+    const pagesTarget = context.env.PAGES_DOMAIN || "ngeteam-gen.pages.dev";
     const workerName = `proxy-${domain.replace(/\./g, "-")}`;
     const scriptContent = `
 addEventListener('fetch', event => {
@@ -12460,11 +12460,15 @@ async function onRequestGet(context) {
   };
   try {
     const supabase = createSupabaseClient(context.env);
-    const { data, error } = await supabase.from("settings").select("value").eq("key", "admin_password").single();
-    if (error && error.code !== "PGRST116") {
-      throw error;
+    let password = "NGEteam25!";
+    try {
+      const { data, error } = await supabase.from("settings").select("value").eq("key", "admin_password").single();
+      if (!error && data?.value) {
+        password = data.value;
+      }
+    } catch (dbError) {
+      console.warn("Could not fetch admin password from DB, using default.", dbError);
     }
-    const password = data?.value || "NGEteam2025!";
     return new Response(JSON.stringify({ success: true, password }), { status: 200, headers });
   } catch (error) {
     console.error("Error fetching password:", error);
@@ -12718,13 +12722,20 @@ async function onRequestPost10(context) {
     if (!username || !password) {
       return new Response(JSON.stringify({ success: false, error: "Username and password required" }), { status: 400, headers });
     }
-    if (username === "admin") {
-      let adminPass = "NGEteam2025!";
-      try {
-        const { data } = await supabase.from("settings").select("value").eq("key", "admin_password").single();
-        if (data?.value) adminPass = data.value;
-      } catch (e) {
+    let adminUser = "ngeteam";
+    let adminPass = "NGEteam25!";
+    try {
+      const { data } = await supabase.from("settings").select("key, value").in("key", ["admin_username", "admin_password"]);
+      if (data && data.length > 0) {
+        const usernameSetting = data.find((s) => s.key === "admin_username");
+        const passwordSetting = data.find((s) => s.key === "admin_password");
+        if (usernameSetting?.value) adminUser = usernameSetting.value;
+        if (passwordSetting?.value) adminPass = passwordSetting.value;
       }
+    } catch (e) {
+      console.warn("Could not fetch custom admin credentials from settings", e);
+    }
+    if (username === adminUser) {
       if (password === adminPass) {
         const token = generateToken(username);
         return new Response(JSON.stringify({
@@ -13974,7 +13985,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-5uvNVW/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-7762Qs/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14006,7 +14017,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-5uvNVW/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-7762Qs/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
