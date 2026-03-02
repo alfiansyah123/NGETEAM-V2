@@ -463,12 +463,9 @@ function App() {
               {/* Domain Selection */}
               <div className="section-header">
                 <span className="section-title">SELECTED DOMAIN</span>
-                <button
-                  className="mnx-link-btn"
-                  onClick={handleAddDomain}
-                >
-                  + ADD NEW
-                </button>
+                <div className="mnx-network-badge">
+                  iMonetizeit
+                </div>
               </div>
               <div className="mnx-input-group">
                 <div className="mnx-input-prepend">

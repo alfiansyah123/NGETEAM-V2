@@ -397,6 +397,38 @@
     0 0 30px rgba(34, 211, 238, 0.3);
 }
 
+.mnx-network-badge {
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: var(--accent-cyan);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 8px 16px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  backdrop-filter: var(--glass-blur);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.1);
+  animation: badge-glow 3s ease-in-out infinite;
+}
+
+@keyframes badge-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.1);
+    border-color: rgba(34, 211, 238, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(34, 211, 238, 0.2);
+    border-color: rgba(34, 211, 238, 0.6);
+  }
+}
+
 .mnx-link-btn {
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.3);
