@@ -96,8 +96,6 @@ const Reports = () => {
                                 <tr>
                                     <th>Time</th>
                                     <th>Click ID</th>
-                                    <th>Owner</th>
-                                    <th>Referrer</th>
                                     <th>Country</th>
                                     <th>OS</th>
                                     <th>Browser</th>
@@ -109,17 +107,7 @@ const Reports = () => {
                                 {clicks.map((click) => (
                                     <tr key={click.id}>
                                         <td>{formatTime(click.time)}</td>
-                                        <td className="mono">{click.clickId || '-'}</td>
-                                        <td className="mono" style={{ color: 'var(--accent-cyan)', fontWeight: 'bold' }}>{click.owner}</td>
-                                        <td style={{ maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={click.referer}>
-                                            {click.referer ? (() => {
-                                                try {
-                                                    return new URL(click.referer).hostname;
-                                                } catch {
-                                                    return click.referer;
-                                                }
-                                            })() : '-'}
-                                        </td>
+                                        <td className="mono" style={{ color: 'var(--accent-cyan)', fontWeight: 'bold' }}>{click.clickId || '-'}</td>
                                         <td>
                                             <div className="flex-center">
                                                 {getCountryFlag(click.country)}

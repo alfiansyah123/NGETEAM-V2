@@ -25,6 +25,8 @@ const Admin = () => {
     const [smartPassword, setSmartPassword] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [oldSlug, setOldSlug] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showSmartlinkForm, setShowSmartlinkForm] = useState(false);
 
     const handleLogout = () => {
         localStorage.removeItem('auth_token');
@@ -35,6 +37,25 @@ const Admin = () => {
 
     // Load saved credentials & initial data
     useEffect(() => {
+        const token = localStorage.getItem('auth_token');
+        const role = localStorage.getItem('auth_role');
+        const user = localStorage.getItem('auth_user');
+
+        const isAdmin = (role || '').toLowerCase().trim() === 'admin' ||
+            (user || '').toLowerCase().trim() === 'ngeteam' ||
+            (user || '').toLowerCase().trim() === 'admin';
+
+        console.log('Admin Auth Check:', { token: !!token, role, user, isAdmin });
+
+        if (!token) {
+            console.warn('Redirecting to home: No token found');
+            window.location.href = '/';
+            return;
+        }
+
+        // Removed strict local 'isAdmin' redirect to prevent loops. 
+        // The backend will enforce security on API calls.
+
         fetchSettings();
         fetchDomains();
         fetchCurrentPassword();
@@ -133,6 +154,7 @@ const Admin = () => {
 
                 setMessage({ type: 'success', text: 'Smartlink updated!' });
                 cancelEdit();
+                setShowSmartlinkForm(false);
                 fetchSmartlinks();
             } else {
                 // ADD MODE
@@ -168,6 +190,7 @@ const Admin = () => {
                     setSmartSlug('');
                     setSmartUrl('');
                     setSmartPassword('');
+                    setShowSmartlinkForm(false);
                     fetchSmartlinks();
                 }
             }
@@ -185,6 +208,7 @@ const Admin = () => {
         setOldSlug(link.user_id);
         setSmartPassword(link.password);
         setSmartUrl(link.links?.original_url || '');
+        setShowSmartlinkForm(true);
         // Scroll to form
         const form = document.querySelector('form');
         if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -197,6 +221,7 @@ const Admin = () => {
         setSmartSlug('');
         setSmartUrl('');
         setSmartPassword('');
+        setShowSmartlinkForm(false);
     };
 
     const handleDeleteSmartlink = async (id) => {
@@ -347,6 +372,18 @@ const Admin = () => {
         }
     };
 
+    // Filtered Smartlinks
+    const filteredSmartlinks = smartlinks.filter(link =>
+    (link.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        link.user_id?.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text);
+        setMessage({ type: 'success', text: 'Copied to clipboard!' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 2000);
+    };
+
     return (
         <div className="admin-container fade-in">
             {/* Top Bar */}
@@ -476,77 +513,128 @@ const Admin = () => {
                     {activeSection === 'team' && (
                         <div className="fade-in">
                             <div className="admin-section">
-                                <span className="section-title">🚀 SMARTLINK MANAGEMENT (TEAM)</span>
-
-                                <form onSubmit={handleAddSmartlink} style={{ marginTop: '20px', background: 'rgba(15, 23, 42, 0.4)', padding: '20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '30px', position: 'relative' }}>
-                                    {editingId && (
-                                        <button
-                                            type="button"
-                                            onClick={cancelEdit}
-                                            style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem' }}
-                                        >
-                                            CANCEL EDIT [X]
-                                        </button>
-                                    )}
-                                    <div className="mnx-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', marginBottom: '15px' }}>
-                                        <div>
-                                            <span className="section-label">NAMA MEMBER</span>
-                                            <input type="text" className="mnx-input" placeholder="e.g. Alfi Team" value={smartName} onChange={(e) => setSmartName(e.target.value)} />
-                                        </div>
-                                        <div>
-                                            <span className="section-label">SLUG ID (/t/...)</span>
-                                            <input type="text" className="mnx-input" placeholder="e.g. alfi" value={smartSlug} onChange={(e) => setSmartSlug(e.target.value)} />
-                                        </div>
-                                        <div>
-                                            <span className="section-label">PASSWORD</span>
-                                            <input type="text" className="mnx-input" placeholder="password123" value={smartPassword} onChange={(e) => setSmartPassword(e.target.value)} />
-                                        </div>
-                                    </div>
-                                    <div style={{ marginTop: '15px' }}>
-                                        <span className="section-title">TARGET URL (DESTINATION)</span>
-                                        <input type="text" className="mnx-input" placeholder="https://..." value={smartUrl} onChange={(e) => setSmartUrl(e.target.value)} />
-                                    </div>
-                                    <button className="btn-mnx-main" type="submit" disabled={loading} style={{ marginTop: '20px' }}>
-                                        {editingId ? 'SIMPAN PERUBAHAN' : 'BUAT SMARTLINK'}
+                                <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                    <span className="section-title" style={{ margin: 0 }}>🚀 SMARTLINK MANAGEMENT (TEAM)</span>
+                                    <button
+                                        className="mnx-link-btn"
+                                        style={{ fontSize: '0.7rem', padding: '8px 16px' }}
+                                        onClick={() => setShowSmartlinkForm(!showSmartlinkForm)}
+                                    >
+                                        {showSmartlinkForm ? 'CLOSE [X]' : '+ BUAT SMARTLINK'}
                                     </button>
-                                </form>
+                                </div>
+
+                                {showSmartlinkForm && (
+                                    <form onSubmit={handleAddSmartlink} className="smartlink-elevated-form fade-in">
+                                        {editingId && (
+                                            <button
+                                                type="button"
+                                                onClick={cancelEdit}
+                                                style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem' }}
+                                            >
+                                                CANCEL EDIT [X]
+                                            </button>
+                                        )}
+                                        <div className="mnx-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', marginBottom: '15px' }}>
+                                            <div>
+                                                <span className="section-label">NAMA MEMBER</span>
+                                                <input type="text" className="mnx-input" placeholder="e.g. Alfi Team" value={smartName} onChange={(e) => setSmartName(e.target.value)} />
+                                            </div>
+                                            <div>
+                                                <span className="section-label">SLUG ID (/t/...)</span>
+                                                <input type="text" className="mnx-input" placeholder="e.g. alfi" value={smartSlug} onChange={(e) => setSmartSlug(e.target.value)} />
+                                            </div>
+                                            <div>
+                                                <span className="section-label">PASSWORD</span>
+                                                <input type="text" className="mnx-input" placeholder="password123" value={smartPassword} onChange={(e) => setSmartPassword(e.target.value)} />
+                                            </div>
+                                        </div>
+                                        <div style={{ marginTop: '15px' }}>
+                                            <span className="section-title">TARGET URL (DESTINATION)</span>
+                                            <input type="text" className="mnx-input" placeholder="https://..." value={smartUrl} onChange={(e) => setSmartUrl(e.target.value)} />
+                                        </div>
+                                        <button className="btn-mnx-main" type="submit" disabled={loading} style={{ marginTop: '20px', width: '100%', maxWidth: 'none' }}>
+                                            {editingId ? 'SIMPAN PERUBAHAN' : 'BUAT SMARTLINK'}
+                                        </button>
+                                    </form>
+                                )}
+
+                                <div className="search-bar-container" style={{ marginTop: '40px', marginBottom: '20px' }}>
+                                    <div className="mnx-input-group">
+                                        <div className="mnx-input-prepend">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            className="mnx-input"
+                                            placeholder="Cari member berdasarkan nama atau slug..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
 
                                 <div className="table-wrapper" style={{ overflowX: 'auto' }}>
-                                    <table className="mnx-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+                                    <table className="mnx-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px', tableLayout: 'fixed' }}>
                                         <thead>
                                             <tr>
-                                                <th style={{ textAlign: 'left', padding: '12px', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800 }}>NAMA</th>
-                                                <th style={{ textAlign: 'left', padding: '12px', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800 }}>SLUG</th>
-                                                <th style={{ textAlign: 'left', padding: '12px', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800 }}>PASSWORD</th>
-                                                <th style={{ textAlign: 'left', padding: '12px', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800 }}>TARGET URL</th>
-                                                <th style={{ textAlign: 'left', padding: '12px', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800 }}>LINK GEN</th>
-                                                <th style={{ textAlign: 'center', padding: '12px', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 800 }}>AKSI</th>
+                                                <th style={{ width: '12%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>NAMA</th>
+                                                <th style={{ width: '10%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>SLUG</th>
+                                                <th style={{ width: '12%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>PASSWORD</th>
+                                                <th style={{ width: '38%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>LINK GEN</th>
+                                                <th style={{ width: '15%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>TARGET URL</th>
+                                                <th style={{ width: '13%', textAlign: 'center', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>AKSI</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {smartlinks.map(link => (
-                                                <tr key={link.id} className="mnx-output-item-row" style={{ background: 'rgba(15, 23, 42, 0.4)' }}>
-                                                    <td style={{ padding: '15px', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px', fontWeight: 700, color: '#fff' }}>{link.name}</td>
-                                                    <td style={{ padding: '15px' }}><span className="mnx-pill" style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', fontSize: '0.7rem' }}>/t/{link.user_id}</span></td>
-                                                    <td style={{ padding: '15px', color: '#ff9d00', fontSize: '0.8rem', fontFamily: 'monospace' }}>{link.password}</td>
-                                                    <td style={{ padding: '15px', color: '#94a3b8', fontSize: '0.8rem', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link.links?.original_url || '-'}</td>
-                                                    <td style={{ padding: '15px' }}>
-                                                        <a href={`${window.location.protocol}//${window.location.host}/t/${link.user_id}`} target="_blank" rel="noreferrer" style={{ color: '#06b6d4', fontSize: '0.8rem', textDecoration: 'none' }}>
-                                                            {window.location.host}/t/{link.user_id}
-                                                        </a>
-                                                    </td>
-                                                    <td style={{ padding: '15px', borderTopRightRadius: '12px', borderBottomRightRadius: '12px', textAlign: 'center' }}>
-                                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                            <button className="mnx-power-btn" onClick={() => handleEditClick(link)} style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4' }}>
-                                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                                            </button>
-                                                            <button className="mnx-power-btn" onClick={() => handleDeleteSmartlink(link.id)}>
-                                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {filteredSmartlinks.map(link => {
+                                                const genLink = `https://${window.location.host}/t/${link.user_id}`;
+                                                return (
+                                                    <tr key={link.id} className="mnx-output-item-row" style={{ background: 'rgba(15, 23, 42, 0.4)' }}>
+                                                        <td style={{ padding: '10px 8px', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px', fontWeight: 700, color: '#fff', fontSize: '0.7rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link.name}</td>
+                                                        <td style={{ padding: '10px 8px', overflow: 'hidden' }}><span className="mnx-pill" style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', fontSize: '0.55rem', padding: '2px 6px', display: 'inline-block', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>/t/{link.user_id}</span></td>
+                                                        <td style={{ padding: '10px 8px', color: '#ff9d00', fontSize: '0.7rem', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                <span style={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{link.password}</span>
+                                                                <button
+                                                                    className="mnx-copy-mini-btn"
+                                                                    onClick={() => copyToClipboard(link.password)}
+                                                                    title="Copy Password"
+                                                                    style={{ padding: '1px', flexShrink: 0 }}
+                                                                >
+                                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        <td style={{ padding: '10px 8px', overflow: 'hidden' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', width: '100%' }}>
+                                                                <a href={genLink} target="_blank" rel="noreferrer" style={{ color: '#06b6d4', fontSize: '0.65rem', textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexGrow: 1 }}>
+                                                                    {genLink.replace('https://', '')}
+                                                                </a>
+                                                                <button
+                                                                    className="mnx-copy-mini-btn"
+                                                                    onClick={() => copyToClipboard(genLink)}
+                                                                    title="Copy Link"
+                                                                    style={{ padding: '1px', flexShrink: 0 }}
+                                                                >
+                                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        <td style={{ padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link.links?.original_url?.replace('https://', '') || '-'}</td>
+                                                        <td style={{ padding: '10px 8px', borderTopRightRadius: '12px', borderBottomRightRadius: '12px', textAlign: 'center', overflow: 'hidden' }}>
+                                                            <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                                                <button className="mnx-power-btn" onClick={() => handleEditClick(link)} style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', padding: '5px' }}>
+                                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                                                </button>
+                                                                <button className="mnx-power-btn" onClick={() => handleDeleteSmartlink(link.id)} style={{ padding: '5px' }}>
+                                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>

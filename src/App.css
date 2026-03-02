@@ -323,6 +323,19 @@
   font-family: inherit;
   width: 100%;
   min-width: 0;
+  cursor: pointer;
+}
+
+.mnx-input option {
+  background-color: #1e293b;
+  /* Slate-800 for dark mode */
+  color: #ffffff;
+  padding: 12px;
+}
+
+[data-theme='light'] .mnx-input option {
+  background-color: #ffffff;
+  color: #0f172a;
 }
 
 .locked-textarea {

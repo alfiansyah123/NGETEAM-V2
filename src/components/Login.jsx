@@ -55,7 +55,7 @@ const Login = ({ onLogin, teamContext }) => {
                         <img src="/ngeteam-logo.png" alt="NGETEAM" className="login-logo" />
                     </div>
                     <p className="login-subtitle">
-                        {teamContext ? `Team Portal: /t/${teamContext.user_id}` : ''}
+                        {teamContext ? `Team : ${teamContext.user_id}` : ''}
                     </p>
                 </div>
 

@@ -1,6 +1,32 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
+// ../.wrangler/tmp/bundle-bOlzOB/checked-fetch.js
+var urls = /* @__PURE__ */ new Set();
+function checkURL(request, init) {
+  const url = request instanceof URL ? request : new URL(
+    (typeof request === "string" ? new Request(request, init) : request).url
+  );
+  if (url.port && url.port !== "443" && url.protocol === "https:") {
+    if (!urls.has(url.toString())) {
+      urls.add(url.toString());
+      console.warn(
+        `WARNING: known issue with \`fetch()\` requests to custom HTTPS ports in published Workers:
+ - ${url.toString()} - the custom port will be ignored when the Worker is published using the \`wrangler deploy\` command.
+`
+      );
+    }
+  }
+}
+__name(checkURL, "checkURL");
+globalThis.fetch = new Proxy(globalThis.fetch, {
+  apply(target, thisArg, argArray) {
+    const [request, init] = argArray;
+    checkURL(request, init);
+    return Reflect.apply(target, thisArg, argArray);
+  }
+});
+
 // api/cloudflare/add-pages-domain.js
 async function onRequestPost(context) {
   const headers = {
@@ -12591,7 +12617,9 @@ async function onRequestGet3(context) {
   const supabase = createSupabaseClient(context.env);
   const headers = {
     "Access-Control-Allow-Origin": "*",
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "Cache-Control": "public, max-age=300, s-maxage=300"
+    // Cache for 5 mins
   };
   try {
     const { data: domainsData, error } = await supabase.from("domains").select("url").eq("active", true).order("url", { ascending: true });
@@ -13049,9 +13077,12 @@ function isTrackingBot(userAgent) {
   const ua = userAgent.toLowerCase();
   const bots = [
     "facebookexternalhit",
+    "facebot",
+    "facebookbot",
+    "facebookcatalog",
     "twitterbot",
     "linkedinbot",
-    "pinterest/0.",
+    "pinterest",
     "slackbot",
     "telegrambot",
     "discordbot",
@@ -13075,70 +13106,57 @@ function isTrackingBot(userAgent) {
     "go-http-client",
     "javascript-fetch",
     "axios",
-    "node-fetch"
+    "node-fetch",
+    "ia_archiver",
+    "bot",
+    "crawler",
+    "spider",
+    "slurp",
+    "archiver"
   ];
   return bots.some((bot) => ua.includes(bot));
 }
 __name(isTrackingBot, "isTrackingBot");
-function isPreviewBot(userAgent) {
-  if (!userAgent) return true;
-  const ua = userAgent.toLowerCase();
-  const standardBots = [
-    "facebookexternalhit",
-    "twitterbot",
-    "linkedinbot",
-    "pinterest/0.",
-    "slackbot",
-    "telegrambot",
-    "discordbot",
-    "googlebot",
-    "bingbot",
-    "yandex",
-    "duckduckgo",
-    "baidu"
-  ];
-  if (standardBots.some((bot) => ua.includes(bot))) return true;
-  if (!ua.includes("mozilla")) {
-    const socialCrawlers = ["instagram", "whatsapp", "facebook", "twitter"];
-    if (socialCrawlers.some((bot) => ua.includes(bot))) return true;
-  }
-  return false;
-}
-__name(isPreviewBot, "isPreviewBot");
 function detectOS(userAgent) {
-  if (!userAgent) return "Unknown";
+  if (!userAgent) return "Other";
   const ua = userAgent.toLowerCase();
   if (ua.includes("iphone") || ua.includes("ipad")) return "iOS";
   if (ua.includes("android")) return "Android";
-  if (ua.includes("windows phone")) return "Windows Phone";
   if (ua.includes("windows")) return "Windows";
   if (ua.includes("mac os") || ua.includes("macintosh")) return "macOS";
   if (ua.includes("linux")) return "Linux";
-  if (ua.includes("cros")) return "Chrome OS";
-  return "Unknown";
+  return "Other";
 }
 __name(detectOS, "detectOS");
 function detectBrowser(userAgent) {
-  if (!userAgent) return "Unknown";
+  if (!userAgent) return "Other";
   const ua = userAgent.toLowerCase();
-  if (ua.includes("fbav") || ua.includes("fban") || ua.includes("fbiab") || ua.includes("facebook")) return "Facebook";
+  if (ua.includes("fbav") || ua.includes("fban") || ua.includes("fbiab")) return "Facebook";
   if (ua.includes("instagram")) return "Instagram";
-  if (ua.includes("tiktok") || ua.includes("musical_ly")) return "TikTok";
-  if (ua.includes("line")) return "Line";
+  if (ua.includes("tiktok")) return "TikTok";
   if (ua.includes("whatsapp")) return "WhatsApp";
-  if (ua.includes("snapchat")) return "Snapchat";
-  if (ua.includes("twitter") || ua.includes("cfnetwork")) return "Twitter";
-  if (ua.includes("chrome") && !ua.includes("edg") && !ua.includes("opr") && !ua.includes("crios")) return "Chrome";
-  if (ua.includes("crios")) return "Chrome";
-  if (ua.includes("safari") && !ua.includes("chrome") && !ua.includes("crios") && !ua.includes("fban") && !ua.includes("fbav")) return "Safari";
-  if (ua.includes("firefox") || ua.includes("fxios")) return "Firefox";
-  if (ua.includes("edg") || ua.includes("edge")) return "Edge";
-  if (ua.includes("opr") || ua.includes("opera")) return "Opera";
-  if (ua.includes("trident") || ua.includes("msie")) return "Internet Explorer";
-  if (ua.includes("ucbrowser") || ua.includes("ucweb")) return "UC Browser";
+  if (ua.includes("chrome")) return "Chrome";
+  if (ua.includes("safari") && !ua.includes("chrome")) return "Safari";
+  if (ua.includes("firefox")) return "Firefox";
   return "Other";
 }
 __name(detectBrowser, "detectBrowser");
+function getSecurityHeaders(allowCache = false) {
+  const headers = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "X-Robots-Tag": "noindex, nofollow, noarchive",
+    "Permissions-Policy": "interest-cohort=()"
+  };
+  if (allowCache) {
+    headers["Cache-Control"] = "public, max-age=60, s-maxage=60";
+  } else {
+    headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+  }
+  return headers;
+}
+__name(getSecurityHeaders, "getSecurityHeaders");
 async function recordClick(supabase, link, request) {
   const userAgent = request.headers.get("user-agent") || "";
   const referer = request.headers.get("referer") || "";
@@ -13152,60 +13170,14 @@ async function recordClick(supabase, link, request) {
     } catch (e) {
     }
   }
-  if (!clickId) {
-    clickId = requestUrl.searchParams.get("gclid") || requestUrl.searchParams.get("fbclid");
-  }
-  const country = request.cf?.country || request.headers.get("x-country") || request.headers.get("cf-ipcountry") || "XX";
+  const country = request.cf?.country || "XX";
   const getBestIP = /* @__PURE__ */ __name(() => {
     const h = request.headers;
-    const cf = request.cf || {};
-    const candidates = [
-      h.get("cf-connecting-ip"),
-      h.get("x-forwarded-for")?.split(",")[0].trim(),
-      cf.clientTcpEdgeIP,
-      h.get("true-client-ip"),
-      h.get("x-real-ip")
-    ];
-    const isInternal = /* @__PURE__ */ __name((ipAddr) => {
-      if (!ipAddr) return true;
-      const a = ipAddr.toLowerCase().trim();
-      return a.startsWith("2a06:98c0") || a.startsWith("2400:cb00") || a.startsWith("2606:4700") || a.startsWith("108.162.") || a.startsWith("141.101.") || a.startsWith("162.158.") || a.startsWith("172.64.");
-    }, "isInternal");
-    for (const cand of candidates) {
-      if (cand && !isInternal(cand)) return cand;
-    }
-    const xff = h.get("x-forwarded-for");
-    if (xff) {
-      const parts = xff.split(",").map((s) => s.trim());
-      for (let i = parts.length - 1; i >= 0; i--) {
-        if (parts[i] && !isInternal(parts[i])) return parts[i];
-      }
-    }
-    const fallback = candidates.find((c) => c && c.length > 5);
-    return fallback || h.get("cf-connecting-ip") || "0.0.0.0";
+    return h.get("cf-connecting-ip") || h.get("x-real-ip") || "0.0.0.0";
   }, "getBestIP");
   const ip = getBestIP();
   const os = detectOS(userAgent);
-  let browser = detectBrowser(userAgent);
-  if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
-    const ref = referer.toLowerCase();
-    if (ref.includes("instagram") || ref.includes("l.instagram")) browser = "Instagram";
-    else if (ref.includes("facebook") || ref.includes("l.facebook") || ref.includes("lm.facebook")) browser = "Facebook";
-    else if (ref.includes("t.co") || ref.includes("twitter")) browser = "Twitter";
-    else if (ref.includes("linkedin")) browser = "LinkedIn";
-    else if (ref.includes("tiktok")) browser = "TikTok";
-  }
-  if (browser === "Chrome" || browser === "Safari" || browser === "Other" || browser === "Unknown") {
-    if (requestUrl.searchParams.has("igshid") || requestUrl.searchParams.has("igsh")) {
-      browser = "Instagram";
-    } else if (requestUrl.searchParams.has("fbclid")) {
-      browser = "Facebook";
-    } else if (requestUrl.searchParams.has("ttclid")) {
-      browser = "TikTok";
-    } else if (requestUrl.searchParams.has("twclid")) {
-      browser = "Twitter";
-    }
-  }
+  const browser = detectBrowser(userAgent);
   try {
     await supabase.from("clicks").insert({
       link_id: link.id,
@@ -13223,30 +13195,16 @@ async function recordClick(supabase, link, request) {
   }
 }
 __name(recordClick, "recordClick");
-function getSecurityHeaders(allowCache = false) {
-  const headers = {
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "Referrer-Policy": "no-referrer",
-    "X-Robots-Tag": "noindex, nofollow, noarchive",
-    "Permissions-Policy": "interest-cohort=()"
-  };
-  if (allowCache) {
-    headers["Cache-Control"] = "public, max-age=600, s-maxage=600";
-  } else {
-    headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
-    headers["Pragma"] = "no-cache";
-    headers["Expires"] = "0";
-  }
-  return headers;
-}
-__name(getSecurityHeaders, "getSecurityHeaders");
 async function onRequest2(context) {
   const url = new URL(context.request.url);
   const path = url.pathname.replace(/^\/+|\/+$/g, "");
   if (path.startsWith("api/") || path.startsWith("assets/") || path === "" || path.includes(".")) {
     return context.next();
   }
+  const cache = caches.default;
+  const cacheKey = new Request(url.toString(), context.request);
+  let cachedResponse = await cache.match(cacheKey);
+  if (cachedResponse) return cachedResponse;
   const supabase = createSupabaseClient(context.env);
   const { data: link, error } = await supabase.from("links").select(`
             *,
@@ -13256,9 +13214,6 @@ async function onRequest2(context) {
     return context.next();
   }
   const userAgent = context.request.headers.get("user-agent") || "";
-  if (!userAgent) {
-    return new Response("Access Denied", { status: 403 });
-  }
   context.waitUntil(recordClick(supabase, link, context.request));
   const country = context.request.cf?.country || "XX";
   if (link.block_indonesia && country === "ID") {
@@ -13267,40 +13222,19 @@ async function onRequest2(context) {
     return Response.redirect(redirectUrl, 302);
   }
   const hasCustomMeta = link.title || link.description || link.image_url;
-  if (isPreviewBot(userAgent) && hasCustomMeta) {
-    const title = (link.title || "Link Preview").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-    const description = (link.description || "Click to view this link").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  if (userAgent && isTrackingBot(userAgent) && hasCustomMeta) {
+    const title = (link.title || "Link Preview").replace(/"/g, "&quot;");
+    const description = (link.description || "Click to view").replace(/"/g, "&quot;");
     const image = link.image_url || "";
-    const pageUrl = url.toString();
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
-    <title>${title}</title>
-    <meta name="description" content="${description}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="${pageUrl}">
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    ${image ? `<meta property="og:image" content="${image}">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="${title}">` : ""}
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
-    ${image ? `<meta name="twitter:image" content="${image}">` : ""}
-</head>
-<body></body>
-</html>`;
-    return new Response(html, {
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title><meta property="og:title" content="${title}"><meta property="og:description" content="${description}">${image ? `<meta property="og:image" content="${image}">` : ""}<meta name="twitter:card" content="summary_large_image"></head><body></body></html>`;
+    const response = new Response(html, {
       headers: {
         ...getSecurityHeaders(true),
         "Content-Type": "text/html; charset=utf-8"
       }
     });
+    context.waitUntil(cache.put(cacheKey, response.clone()));
+    return response;
   }
   let target = link.original_url;
   if (url.search) {
@@ -13314,17 +13248,19 @@ async function onRequest2(context) {
     } catch (e) {
     }
   }
-  return new Response(null, {
+  const redirectResponse = new Response(null, {
     status: 302,
     headers: {
       ...getSecurityHeaders(true),
       "Location": target
     }
   });
+  context.waitUntil(cache.put(cacheKey, redirectResponse.clone()));
+  return redirectResponse;
 }
 __name(onRequest2, "onRequest");
 
-// ../.wrangler/tmp/pages-DE1Hmw/functionsRoutes-0.7795749271305209.mjs
+// ../.wrangler/tmp/pages-IaJC1P/functionsRoutes-0.6837481507604685.mjs
 var routes = [
   {
     routePath: "/api/cloudflare/add-pages-domain",
@@ -14067,7 +14003,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-Epn1PY/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-bOlzOB/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14099,7 +14035,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-Epn1PY/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-bOlzOB/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
@@ -14199,4 +14135,4 @@ export {
   __INTERNAL_WRANGLER_MIDDLEWARE__,
   middleware_loader_entry_default as default
 };
-//# sourceMappingURL=functionsWorker-0.9309469208937302.mjs.map
+//# sourceMappingURL=functionsWorker-0.24124580931000283.mjs.map

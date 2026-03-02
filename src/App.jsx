@@ -7,14 +7,8 @@ import LiveTraffic from './components/LiveTraffic'
 import Reports from './components/Reports'
 import Admin from './components/Admin'
 
+
 function App() {
-  // Check if on admin page
-  const isAdminPage = window.location.pathname === '/admin';
-
-  if (isAdminPage) {
-    return <Admin />;
-  }
-
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
   const [selectedDomain, setSelectedDomain] = useState('__RANDOM__')
@@ -25,7 +19,6 @@ function App() {
   const [selectedShortener, setSelectedShortener] = useState('DEFAULT')
   const [ixSkApiKey, setIxSkApiKey] = useState(localStorage.getItem('ix_sk_api_key') || '')
 
-  // Consolidate App Initialization
   useEffect(() => {
     const initApp = async () => {
       const token = localStorage.getItem('auth_token');
@@ -35,14 +28,9 @@ function App() {
 
       let authenticated = !!token;
 
-      // Special Check for Team Routes (/t/...)
       if (segments[0] === 't' && segments.length === 2) {
         const userIdFromUrl = segments[1];
-
-        // CRITICAL: Always load team context/branding regardless of login status
         await loadTeamContext(userIdFromUrl);
-
-        // Deny access if not logged in OR mismatched user (and not admin)
         if (!token || !loggedUser || (loggedUser !== userIdFromUrl && loggedUser !== 'admin')) {
           authenticated = false;
         } else {
@@ -53,7 +41,6 @@ function App() {
       setIsLoggedIn(authenticated);
       setCheckingAuth(false);
     };
-
     initApp();
   }, []);
 
@@ -95,6 +82,14 @@ function App() {
 
   // History State
   const [history, setHistory] = useState([])
+
+  const getIsAdmin = () => {
+    const role = localStorage.getItem('auth_role');
+    const user = localStorage.getItem('auth_user');
+    return (role || '').toLowerCase().trim() === 'admin' ||
+      (user || '').toLowerCase().trim() === 'ngeteam' ||
+      (user || '').toLowerCase().trim() === 'admin';
+  };
 
 
   useEffect(() => {
@@ -175,7 +170,7 @@ function App() {
     const params = ['click_id', 'clickid', 'subid'];
     let updatedText = targetUrls;
     params.forEach(param => {
-      const regex = new RegExp(`(${param}=)([^&\\s]+)`, 'gi');
+      const regex = new RegExp(`(${param}=)([^&\\s]*)`, 'gi');
       updatedText = updatedText.replace(regex, `$1${val}`);
     });
     setTargetUrls(updatedText);
@@ -352,6 +347,25 @@ function App() {
     setIsLoggedIn(false)
   }
 
+  const rawPath = window.location.pathname.toLowerCase().trim();
+  const normalizedPath = rawPath.endsWith('/') && rawPath.length > 1 ? rawPath.slice(0, -1) : rawPath;
+  const isAdminPage = normalizedPath === '/admin';
+  const isAdmin = getIsAdmin();
+
+  // Intelligent Redirection (Hides Global Generator)
+  useEffect(() => {
+    if (!isLoggedIn || normalizedPath !== '/' || teamMode) return;
+
+    if (isAdmin) {
+      window.location.href = '/admin';
+    } else {
+      const loggedUser = localStorage.getItem('auth_user');
+      if (loggedUser) {
+        window.location.href = `/t/${loggedUser}`;
+      }
+    }
+  }, [isLoggedIn, isAdmin, normalizedPath, teamMode]);
+
   if (checkingAuth) {
     return (
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
@@ -360,43 +374,20 @@ function App() {
     )
   }
 
+  // If on admin page path, show Admin component (it has its own auth check inside)
+  if (isAdminPage) {
+    return <Admin />;
+  }
+
   if (!isLoggedIn) {
     return (
       <Login
         teamContext={teamMode}
-        onLogin={async () => {
+        onLogin={() => {
           setIsLoggedIn(true);
-          // Check if we are on a team path to load context immediately after login
-          const path = window.location.pathname;
-          const segments = path.split('/').filter(Boolean);
-          if (segments[0] === 't' && segments.length === 2) {
-            loadTeamContext(segments[1]);
-          } else {
-            // Let's redirect admins to the admin page immediately upon login
-            const loggedUser = localStorage.getItem('auth_user');
-            // We need to fetch the admin username from settings to check properly, 
-            // but since login just happened, checking against 'loggedUser' and potentially role is safer.
-            // Usually, only the admin user can access the admin panel. 
-            // To be 100% safe without an extra API call here, we check if they just logged in and want to go to admin.
-
-            // A better way: The login API returns the role, let's store it!
-          }
         }}
       />
     );
-  }
-
-  // If user is logged in, and they are an admin, redirect them to /admin 
-  // ONLY if they are currently on the root path '/' (so we don't trap them if they intentionally visit another route, though they really shouldn't)
-  if (isLoggedIn && window.location.pathname === '/') {
-    const userRole = localStorage.getItem('auth_role');
-    // For backwards compatibility, if role isn't set, we won't force redirect, but ideally login sets it.
-    // Let's also check if user is the default 'ngeteam'
-    const loggedUser = localStorage.getItem('auth_user');
-    if (userRole === 'admin' || loggedUser === 'ngeteam' || loggedUser === 'admin') {
-      window.location.href = '/admin';
-      return null; // Return null while redirecting
-    }
   }
 
   return (

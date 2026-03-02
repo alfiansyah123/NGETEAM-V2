@@ -4,7 +4,8 @@ export async function onRequestGet(context) {
     const supabase = createSupabaseClient(context.env);
     const headers = {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300, s-maxage=300' // Cache for 5 mins
     };
 
     try {
