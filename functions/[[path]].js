@@ -122,18 +122,39 @@ export async function onRequest(context) {
     if (cachedResponse) return cachedResponse;
 
     const supabase = createSupabaseClient(context.env);
+    const cache = caches.default;
 
-    const { data: link, error } = await supabase
-        .from('links')
-        .select(`
-            *,
-            domains ( url )
-        `)
-        .eq('slug', path)
-        .single();
+    // 1. Slug Meta Cache (Save Supabase API & Egress)
+    // We cache the link data for 10 minutes based ONLY on the slug.
+    const metaCacheKey = new Request(`http://meta.internal/${path}`, context.request);
+    let link;
+    const cachedMeta = await cache.match(metaCacheKey);
 
-    if (error || !link) {
-        return context.next();
+    if (cachedMeta) {
+        link = await cachedMeta.json();
+    } else {
+        const { data, error } = await supabase
+            .from('links')
+            .select(`
+                *,
+                domains ( url )
+            `)
+            .eq('slug', path)
+            .single();
+
+        if (error || !data) {
+            return context.next();
+        }
+        link = data;
+
+        // Cache the metadata for 10 minutes
+        const metaResponse = new Response(JSON.stringify(link), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'public, max-age=600, s-maxage=600'
+            }
+        });
+        context.waitUntil(cache.put(metaCacheKey, metaResponse));
     }
 
     const userAgent = context.request.headers.get('user-agent') || '';

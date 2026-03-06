@@ -11,7 +11,6 @@ export async function onRequestGet(context) {
     const period = url.searchParams.get('period') || 'today';
 
     try {
-        const { data: clicks, error } = await supabase
             .from('clicks')
             .select(`
                 id,
@@ -21,10 +20,7 @@ export async function onRequestGet(context) {
                 created_at,
                 click_id,
                 os,
-                browser,
-                referer,
-                user_agent,
-                links ( original_url, user_id )
+                browser
             `)
             .order('created_at', { ascending: false })
             .limit(500);
@@ -40,11 +36,7 @@ export async function onRequestGet(context) {
             time: row.created_at,
             clickId: row.click_id,
             os: row.os || 'Unknown',
-            browser: row.browser || 'Other',
-            referer: row.referer || null,
-            // Handle flattening joined data
-            originalUrl: row.links?.original_url || '-',
-            owner: row.links?.user_id || '-'
+            browser: row.browser || 'Other'
         }));
 
         return new Response(JSON.stringify({ clicks: mappedClicks }), { status: 200, headers });
