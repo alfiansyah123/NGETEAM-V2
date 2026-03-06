@@ -32,43 +32,14 @@ const LiveTraffic = () => {
         console.log('LiveTraffic mounted'); // DEBUG
         fetchClicks();
 
-        // Realtime Subscription
-        const channel = supabase
-            .channel('live-traffic')
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'clicks' },
-                async (payload) => {
-                    const newClick = payload.new;
-
-                    // Fetch link details because payload doesn't have joined data
-                    const { data: linkData } = await supabase
-                        .from('links')
-                        .select('original_url, title')
-                        .eq('id', newClick.link_id)
-                        .single();
-
-                    const formattedClick = {
-                        id: newClick.id,
-                        slug: newClick.slug,
-                        country: newClick.country,
-                        ip: newClick.ip_address,
-                        time: newClick.created_at,
-                        os: newClick.os,
-                        browser: newClick.browser,
-                        clickId: newClick.click_id,
-                        referer: newClick.referer,
-                        url: linkData?.original_url || '',
-                        title: linkData?.title || newClick.slug
-                    };
-
-                    setClicks(prev => [formattedClick, ...prev].slice(0, 20));
-                }
-            )
-            .subscribe();
+        // Polling Strategy (Save Supabase Realtime Quota)
+        // Fetches new clicks every 60 seconds instead of realtime broadcast.
+        const interval = setInterval(() => {
+            fetchClicks();
+        }, 60000);
 
         return () => {
-            supabase.removeChannel(channel);
+            clearInterval(interval);
         };
     }, []);
 

@@ -18,9 +18,7 @@ export async function onRequestGet(context) {
                 created_at,
                 click_id,
                 os,
-                browser,
-                referer,
-                links ( title, original_url )
+                browser
             `)
             .order('created_at', { ascending: false })
             .limit(20);
