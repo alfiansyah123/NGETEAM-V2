@@ -122,7 +122,6 @@ export async function onRequest(context) {
     if (cachedResponse) return cachedResponse;
 
     const supabase = createSupabaseClient(context.env);
-    const cache = caches.default;
 
     // 1. Slug Meta Cache (Save Supabase API & Egress)
     // We cache the link data for 10 minutes based ONLY on the slug.

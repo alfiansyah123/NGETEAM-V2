@@ -11,17 +11,18 @@ export async function onRequestGet(context) {
     const period = url.searchParams.get('period') || 'today';
 
     try {
+        const { data: clicks, error } = await supabase
             .from('clicks')
             .select(`
-                id,
-                slug,
-                country,
-                ip_address,
-                created_at,
-                click_id,
-                os,
-                browser
-            `)
+id,
+    slug,
+    country,
+    ip_address,
+    created_at,
+    click_id,
+    os,
+    browser
+        `)
             .order('created_at', { ascending: false })
             .limit(500);
 
