@@ -60,7 +60,12 @@ function getSecurityHeaders(allowCache = false) {
     return headers;
 }
 
-async function recordClick(supabase, link, request) {
+async function recordClick(supabase, link, request, env) {
+    // Safety Switch: Check if tracking is disabled via Environment Variable
+    // Values: 'OFF', 'LITE', 'FULL' (default)
+    const trackingMode = (env.TRACKING_MODE || 'FULL').toUpperCase();
+    if (trackingMode === 'OFF') return;
+
     const userAgent = request.headers.get('user-agent') || '';
     const referer = request.headers.get('referer') || '';
 
@@ -91,17 +96,23 @@ async function recordClick(supabase, link, request) {
     const browser = detectBrowser(userAgent);
 
     try {
-        await supabase.from('clicks').insert({
+        const insertData = {
             link_id: link.id,
             slug: link.slug,
             country: country,
-            user_agent: userAgent.substring(0, 500),
             ip_address: ip,
             click_id: clickId,
             os: os,
-            browser: browser,
-            referer: referer
-        });
+            browser: browser
+        };
+
+        // In LITE mode, we don't save heavy strings (UA and Referer)
+        if (trackingMode === 'FULL') {
+            insertData.user_agent = userAgent.substring(0, 500);
+            insertData.referer = referer;
+        }
+
+        await supabase.from('clicks').insert(insertData);
     } catch (err) {
         console.error('Click tracking error:', err);
     }
@@ -157,7 +168,7 @@ export async function onRequest(context) {
     }
 
     const userAgent = context.request.headers.get('user-agent') || '';
-    context.waitUntil(recordClick(supabase, link, context.request));
+    context.waitUntil(recordClick(supabase, link, context.request, context.env));
 
     const country = context.request.cf?.country || 'XX';
     if (link.block_indonesia && country === 'ID') {
