@@ -129,7 +129,7 @@ export async function onRequest(context) {
     // If it's a known bot/crawler, we immediately skip any heavy logic.
     const isBot = isTrackingBot(userAgent);
 
-    if (path.startsWith('api/') || path.startsWith('assets/') || path === '' || path.includes('.')) {
+    if (path.startsWith('api/') || path.startsWith('assets/') || path.startsWith('admin') || path.startsWith('login') || path.startsWith('t/') || path === '' || path.includes('.')) {
         return context.next();
     }
 
@@ -160,14 +160,7 @@ export async function onRequest(context) {
             .single();
 
         if (error || !data) {
-            return new Response(JSON.stringify({ 
-                error: error ? 'Supabase Error' : 'Link Not Found', 
-                requested_slug: path,
-                details: error || 'The slug does not exist in this database',
-                supabase_instance: context.env.SUPABASE_URL ? context.env.SUPABASE_URL.substring(0, 15) + '...' : 'MISSING'
-            }), {
-                headers: { 'Content-Type': 'application/json' }
-            });
+            return context.next();
         }
         link = data;
 
