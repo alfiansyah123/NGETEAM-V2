@@ -168,7 +168,7 @@ export async function onRequest(context) {
         const metaResponse = new Response(JSON.stringify(link), {
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'public, max-age=3600, s-maxage=3600'
+                'Cache-Control': 'public, max-age=60, s-maxage=60'
             }
         });
         context.waitUntil(cache.put(metaCacheKey, metaResponse));
