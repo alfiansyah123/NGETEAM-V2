@@ -159,13 +159,15 @@ export async function onRequest(context) {
             .eq('slug', path)
             .single();
 
-        if (error) {
-            return new Response(JSON.stringify({ error: 'Supabase Error', details: error, env: { hasUrl: !!context.env.SUPABASE_URL, hasKey: !!context.env.SUPABASE_KEY } }), {
+        if (error || !data) {
+            return new Response(JSON.stringify({ 
+                error: error ? 'Supabase Error' : 'Link Not Found', 
+                requested_slug: path,
+                details: error || 'The slug does not exist in this database',
+                supabase_instance: context.env.SUPABASE_URL ? context.env.SUPABASE_URL.substring(0, 15) + '...' : 'MISSING'
+            }), {
                 headers: { 'Content-Type': 'application/json' }
             });
-        }
-        if (!data) {
-            return context.next();
         }
         link = data;
 
