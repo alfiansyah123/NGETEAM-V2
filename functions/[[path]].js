@@ -159,7 +159,12 @@ export async function onRequest(context) {
             .eq('slug', path)
             .single();
 
-        if (error || !data) {
+        if (error) {
+            return new Response(JSON.stringify({ error: 'Supabase Error', details: error, env: { hasUrl: !!context.env.SUPABASE_URL, hasKey: !!context.env.SUPABASE_KEY } }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        if (!data) {
             return context.next();
         }
         link = data;
