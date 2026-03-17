@@ -153,7 +153,7 @@ export async function onRequest(context) {
         const { data, error } = await supabase
             .from('links')
             .select(`
-                *,
+                id, slug, original_url, title, description, image_url, block_indonesia,
                 domains ( url )
             `)
             .eq('slug', path)
@@ -168,7 +168,7 @@ export async function onRequest(context) {
         const metaResponse = new Response(JSON.stringify(link), {
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'public, max-age=600, s-maxage=600'
+                'Cache-Control': 'public, max-age=3600, s-maxage=3600'
             }
         });
         context.waitUntil(cache.put(metaCacheKey, metaResponse));
