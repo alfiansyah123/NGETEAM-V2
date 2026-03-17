@@ -173,8 +173,6 @@ export async function onRequest(context) {
         });
         context.waitUntil(cache.put(metaCacheKey, metaResponse));
     }
-
-    const userAgent = context.request.headers.get('user-agent') || '';
     context.waitUntil(recordClick(supabase, link, context.request, context.env));
 
     const country = context.request.cf?.country || 'XX';
