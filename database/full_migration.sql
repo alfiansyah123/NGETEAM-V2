@@ -30,6 +30,7 @@ CREATE TABLE public.links (
     image_url TEXT,
     domain_id BIGINT REFERENCES public.domains(id),
     user_id TEXT,
+    block_indonesia BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

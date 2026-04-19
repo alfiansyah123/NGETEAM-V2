@@ -457,8 +457,10 @@ function App() {
       {/* Content Area */}
       {
         activeTab === 'generator' ? (
-          <div className="admin-section fade-in">
+          <div className="generator-layout fade-in">
+            {/* LEFT COLUMN: LINK ENGINE */}
             <div className="admin-section">
+              <span className="section-label">⚡ LINK ENGINE</span>
 
               {/* Domain Selection */}
               <div className="section-header">
@@ -524,66 +526,25 @@ function App() {
                 </div>
               )}
 
-              <div className="mnx-grid grid-3-col">
-                <div className="form-group">
-                  <span className="section-title">CUSTOM SLUG</span>
-                  <div className="mnx-input-group">
-                    <input className="mnx-input" placeholder="slug-viral" value={customSlug} onChange={(e) => setCustomSlug(e.target.value)} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <span className="section-title">JUDUL META</span>
-                  <div className="mnx-input-group">
-                    <input className="mnx-input" placeholder="Input Judul Link..." value={judul} onChange={(e) => setJudul(e.target.value)} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <span className="section-title">JUMLAH</span>
-                  <div className="mnx-input-group">
-                    <input
-                      type="number"
-                      className="mnx-input"
-                      value={jumlah}
-                      onChange={(e) => setJumlah(parseInt(e.target.value) || 1)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mnx-grid">
-                <div className="form-group">
-                  <span className="section-title">IMAGE URL</span>
-                  <div className="mnx-input-group">
-                    <input className="mnx-input" placeholder="https://image.url/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <span className="section-title">DESKRIPSI META</span>
-                  <div className="mnx-input-group">
-                    <input className="mnx-input" placeholder="Deskripsi link..." value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mnx-grid mobile-col-1">
+              <div className="mnx-grid" style={{ marginTop: '20px' }}>
                 <button
                   className={`secondary-glass-btn ${useFSubdomain ? 'active' : ''}`}
                   onClick={() => setUseFSubdomain(!useFSubdomain)}
                 >
-                  F-SUBDOMAIN: {useFSubdomain ? 'ON' : 'OFF'}
+                  F-SUB: {useFSubdomain ? 'ON' : 'OFF'}
                 </button>
                 <button className="btn-mnx-main" onClick={generateLinks} disabled={loading}>
                   {loading ? 'GENERATING...' : (
                     <>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                      GENERATE LINK
+                      GENERATE
                     </>
                   )}
                 </button>
               </div>
 
               {/* Result Area */}
-              <div className="mnx-output-bar">
+              <div className="mnx-output-bar" style={{ marginTop: '30px' }}>
                 {output.length > 0 ? (
                   <div className="output-scroll">
                     {output.map((link, idx) => (
@@ -610,7 +571,7 @@ function App() {
 
               {/* Shortener Service Selection */}
               <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                <span className="section-title" style={{ marginBottom: '10px' }}>SHORTENER SERVICE</span>
+                <span className="section-label" style={{ marginBottom: '10px', display: 'block' }}>SHORTENER SERVICE</span>
                 <div className="mnx-compact-nav" style={{ marginBottom: selectedShortener === 'IX.SK' ? '15px' : '0' }}>
                   {['DEFAULT', 'IX.SK'].map(service => (
                     <button
@@ -642,11 +603,70 @@ function App() {
                   </div>
                 )}
               </div>
-
             </div>
 
-            <div className="mnx-footer">
-              ccpXengine &nbsp; V 1 . 0
+            {/* RIGHT COLUMN: METADATA & SOCIAL */}
+            <div className="admin-section">
+              <span className="section-label">⚙️ METADATA & SOCIAL</span>
+
+              <div className="mnx-grid">
+                <div>
+                  <span className="section-title">CUSTOM SLUG</span>
+                  <div className="mnx-input-group">
+                    <input className="mnx-input" placeholder="slug-viral" value={customSlug} onChange={(e) => setCustomSlug(e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <span className="section-title">JUMLAH</span>
+                  <div className="mnx-input-group">
+                    <input
+                      type="number"
+                      className="mnx-input"
+                      value={jumlah}
+                      onChange={(e) => setJumlah(parseInt(e.target.value) || 1)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <span className="section-title">JUDUL META</span>
+                <div className="mnx-input-group">
+                  <input className="mnx-input" placeholder="Input Judul Link..." value={judul} onChange={(e) => setJudul(e.target.value)} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <span className="section-title">IMAGE URL</span>
+                <div className="mnx-input-group">
+                  <input className="mnx-input" placeholder="https://image.url/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <span className="section-title">DESKRIPSI META</span>
+                <div className="mnx-input-group">
+                  <textarea
+                    className="mnx-textarea"
+                    style={{ minHeight: '80px' }}
+                    placeholder="Deskripsi link.."
+                    value={deskripsi}
+                    onChange={(e) => setDeskripsi(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="mnx-preview-card">
+                <div className="preview-label">LIVE PREVIEW</div>
+                <div className="preview-image-box">
+                  {imageUrl ? <img src={imageUrl} alt="preview" /> : <div className="preview-placeholder">IMAGE PREVIEW</div>}
+                </div>
+                <div className="preview-content">
+                  <small>YOUR DOMAIN</small>
+                  <strong>{judul || 'Untitled Link'}</strong>
+                  <p>{deskripsi || 'Provide a description to see it here...'}</p>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
@@ -664,6 +684,10 @@ function App() {
           </div>
         )
       }
+
+      <div className="mnx-footer">
+        ccpXengine &nbsp; V 2 . 0 &nbsp; AERO
+      </div>
 
     </div >
   )

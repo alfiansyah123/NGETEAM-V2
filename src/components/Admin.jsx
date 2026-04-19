@@ -27,6 +27,8 @@ const Admin = () => {
     const [oldSlug, setOldSlug] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [showSmartlinkForm, setShowSmartlinkForm] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
     const handleLogout = () => {
         localStorage.removeItem('auth_token');
@@ -373,10 +375,19 @@ const Admin = () => {
     };
 
     // Filtered Smartlinks
-    const filteredSmartlinks = smartlinks.filter(link =>
-    (link.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        link.user_id?.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredSmartlinks = smartlinks.filter(link => {
+        const nameMatch = (link.name || '').toLowerCase().includes((searchTerm || '').toLowerCase());
+        const idMatch = (link.user_id || '').toLowerCase().includes((searchTerm || '').toLowerCase());
+        return nameMatch || idMatch;
+    });
+
+    // Pagination Logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentSmartlinks = filteredSmartlinks.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredSmartlinks.length / itemsPerPage);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
@@ -390,7 +401,7 @@ const Admin = () => {
             <header className="admin-header">
                 <div>
                     <img src="/ngeteam-logo.png" alt="NGETEAM" className="admin-brand-logo" />
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>ADMIN PANEL V1.0</p>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', fontWeight: 800, marginTop: '4px', letterSpacing: '0.1em' }}>CCP X ENGINE V 2.0 AERO</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="sidebar-nav-item" style={{ padding: '10px 16px', border: '1px solid var(--accent-red)', color: 'var(--accent-red)' }} onClick={handleLogout}>LOGOUT</button>
@@ -498,7 +509,7 @@ const Admin = () => {
                                         ) : 'ADD'}
                                     </button>
                                 </div>
-                                <div className="output-scroll" style={{ maxHeight: '300px' }}>
+                                <div className="output-scroll" style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '5px' }}>
                                     {domains.map((d, i) => (
                                         <div key={i} className="mnx-output-item" style={{ marginBottom: '5px' }}>
                                             <span>{d}</span>
@@ -587,7 +598,7 @@ const Admin = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredSmartlinks.map(link => {
+                                            {currentSmartlinks.map(link => {
                                                 const genLink = `https://${window.location.host}/t/${link.user_id}`;
                                                 return (
                                                     <tr key={link.id} className="mnx-output-item-row" style={{ background: 'rgba(15, 23, 42, 0.4)' }}>
@@ -638,6 +649,29 @@ const Admin = () => {
                                         </tbody>
                                     </table>
                                 </div>
+                                {totalPages > 1 && (
+                                    <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '20px' }}>
+                                        <button
+                                            className="mnx-link-btn"
+                                            onClick={() => paginate(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            style={{ padding: '6px 12px', fontSize: '0.7rem', opacity: currentPage === 1 ? 0.5 : 1 }}
+                                        >
+                                            &laquo; PREV
+                                        </button>
+                                        <div style={{ display: 'flex', alignItems: 'center', color: 'var(--accent-cyan)', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                            PAGE {currentPage} OF {totalPages}
+                                        </div>
+                                        <button
+                                            className="mnx-link-btn"
+                                            onClick={() => paginate(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            style={{ padding: '6px 12px', fontSize: '0.7rem', opacity: currentPage === totalPages ? 0.5 : 1 }}
+                                        >
+                                            NEXT &raquo;
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
