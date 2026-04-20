@@ -79,6 +79,7 @@ function App() {
   const [imageError, setImageError] = useState(false)
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [uploadingImg, setUploadingImg] = useState(false)
 
   // History State
   const [history, setHistory] = useState([])
@@ -143,6 +144,33 @@ function App() {
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark')
   }
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImg(true);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        setImageUrl(data.data.url);
+      } else {
+        alert('Upload gagal: ' + (data.error || 'Server error. Pastikan bucket "images" di Supabase dibuat menjadi Public.'));
+      }
+    } catch (err) {
+      alert('Error uploading image. Cek koneksi jaringan.');
+    } finally {
+      setUploadingImg(false);
+      e.target.value = null;
+    }
+  };
 
   const handleAddDomain = async () => {
     const newDomain = prompt('Masukkan domain baru (contoh: mylink.com):')
@@ -316,6 +344,14 @@ function App() {
         setOutput(generatedLinks)
         addToHistory(generatedLinks)
         if (customSlug) setCustomSlug('')
+
+        // 🔥 PRE-WARM: Paksa Facebook & Edge cache langsung scrape thumbnail
+        // Ini berjalan di background, tidak menghambat UI
+        fetch('/api/warm-og-cache', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls: generatedLinks })
+        }).catch(() => {}); // Silent - jangan ganggu user kalau gagal
       }
     } catch (err) {
       console.error('Error generating links:', err)
@@ -638,8 +674,35 @@ function App() {
 
               <div style={{ marginBottom: '10px' }}>
                 <span className="section-title">IMAGE URL</span>
-                <div className="mnx-input-group">
-                  <input className="mnx-input" placeholder="https://image.url/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                <div className="mnx-input-group" style={{ display: 'flex', alignItems: 'center' }}>
+                  <input className="mnx-input" placeholder="https://image.url/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} style={{ flexGrow: 1 }} />
+                  <label 
+                    style={{ 
+                      cursor: 'pointer', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      opacity: uploadingImg ? 0.5 : 1,
+                      background: 'var(--surface-color)',
+                      border: '1px solid var(--accent-cyan)',
+                      borderRadius: '12px',
+                      width: '42px',
+                      height: '42px',
+                      marginLeft: '8px',
+                      flexShrink: 0,
+                      boxShadow: '0 0 10px rgba(6, 182, 212, 0.1)'
+                    }}
+                  >
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} disabled={uploadingImg} />
+                    {uploadingImg ? (
+                      <svg className="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="4.93" x2="19.07" y2="7.76"></line></svg>
+                    ) : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                      </svg>
+                    )}
+                  </label>
                 </div>
               </div>
 

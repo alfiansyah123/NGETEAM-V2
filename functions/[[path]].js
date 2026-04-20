@@ -134,8 +134,12 @@ export async function onRequest(context) {
     }
 
     // 1. Edge Caching Check (Save Worker Quota)
+    // CRITICAL: Bot and user responses MUST use SEPARATE cache keys!
+    // Otherwise a cached 302 redirect (for users) would be served to bots,
+    // preventing them from receiving the OG meta HTML for thumbnails.
     const cache = caches.default;
-    const cacheKey = new Request(url.toString(), context.request);
+    const cachePrefix = isBot ? 'bot' : 'user';
+    const cacheKey = new Request(`${url.origin}/__cache/${cachePrefix}/${path}`, context.request);
     let cachedResponse = await cache.match(cacheKey);
     if (cachedResponse) return cachedResponse;
 
@@ -168,7 +172,7 @@ export async function onRequest(context) {
         const metaResponse = new Response(JSON.stringify(link), {
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'public, max-age=60, s-maxage=60'
+                'Cache-Control': 'public, max-age=3600, s-maxage=3600'
             }
         });
         context.waitUntil(cache.put(metaCacheKey, metaResponse));
@@ -189,13 +193,29 @@ export async function onRequest(context) {
         const title = (link.title || 'Link Preview').replace(/"/g, '&quot;');
         const description = (link.description || 'Click to view').replace(/"/g, '&quot;');
         const image = link.image_url || '';
+        const fullUrl = url.toString();
 
-        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title><meta property="og:title" content="${title}"><meta property="og:description" content="${description}">${image ? `<meta property="og:image" content="${image}">` : ''}<meta name="twitter:card" content="summary_large_image"></head><body></body></html>`;
+        const html = `<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<meta property="og:type" content="website">
+<meta property="og:url" content="${fullUrl}">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${description}">
+${image ? `<meta property="og:image" content="${image}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">` : ''}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${title}">
+<meta name="twitter:description" content="${description}">
+${image ? `<meta name="twitter:image" content="${image}">` : ''}
+</head><body></body></html>`;
 
         const response = new Response(html, {
             headers: {
                 ...getSecurityHeaders(true),
-                'Content-Type': 'text/html; charset=utf-8'
+                'Content-Type': 'text/html; charset=utf-8',
+                'Cache-Control': 'public, max-age=3600, s-maxage=3600'
             }
         });
         context.waitUntil(cache.put(cacheKey, response.clone()));
