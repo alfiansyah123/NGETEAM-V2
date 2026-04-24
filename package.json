@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:wrangler": "wrangler pages dev ./dist --compatibility-flag=nodejs_compat --port 8788",
     "dev:netlify": "netlify dev",
     "build": "vite build",
     "lint": "eslint .",
