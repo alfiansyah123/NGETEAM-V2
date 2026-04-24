@@ -1,9 +1,8 @@
 import { createSupabaseClient } from './utils/supabase';
 
-
 // Comprehensive Bot detection for CLICK TRACKING exclusion & Limit Saving
 function isTrackingBot(userAgent) {
-    if (!userAgent) return true;
+    if (!userAgent || userAgent.length < 10) return true;
     const ua = userAgent.toLowerCase();
     const bots = [
         'facebookexternalhit', 'facebot', 'facebookbot', 'facebookcatalog',
@@ -14,9 +13,15 @@ function isTrackingBot(userAgent) {
         'go-http-client', 'javascript-fetch', 'axios', 'node-fetch',
         'ia_archiver', 'bot', 'crawler', 'spider', 'slurp', 'archiver',
         'headless', 'phantomjs', 'puppeteer', 'selenium', 'zgrab', 'censys',
-        'shodan', 'python', 'java', 'libwww-perl', 'lwp-trivial'
+        'shodan', 'python', 'java', 'libwww-perl', 'lwp-trivial',
+        'whatsapp', 'outbrain', 'pinterestsdk', 'vkshare', 'bingpreview',
+        'slack-imgproxy', 'tumblr', 'google-structured-data-testing-tool',
+        'redditbot', 'applebot', 'bitlybot', 'chrome-lighthouse', 'screaming frog',
+        'skypeuripreview', 'qwantify', 'bitrix link preview', 'metainspector',
+        'tiktokbot', 'google-link-preview', 'embedly'
     ];
-    return bots.some(bot => ua.includes(bot));
+    
+    return bots.some(bot => ua.includes(bot)) || (ua.includes('bot') && !ua.includes('chrome') && !ua.includes('android'));
 }
 
 // OS Detection
@@ -63,39 +68,18 @@ function getSecurityHeaders(allowCache = false) {
 }
 
 async function recordClick(supabase, link, request, env) {
-    // Safety Switch: Check if tracking is disabled via Environment Variable
-    // Values: 'OFF', 'LITE', 'FULL' (default)
     const trackingMode = (env.TRACKING_MODE || 'FULL').toUpperCase();
     if (trackingMode === 'OFF') return;
 
     const userAgent = request.headers.get('user-agent') || '';
-    const referer = request.headers.get('referer') || '';
-
     if (isTrackingBot(userAgent)) return;
 
-    const requestUrl = new URL(request.url);
-    let clickId = requestUrl.searchParams.get('click_id') ||
-        requestUrl.searchParams.get('clickid') ||
-        requestUrl.searchParams.get('subid');
-
-    if (!clickId && link.original_url) {
-        try {
-            const targetUrl = new URL(link.original_url);
-            clickId = targetUrl.searchParams.get('click_id') ||
-                targetUrl.searchParams.get('clickid') ||
-                targetUrl.searchParams.get('subid');
-        } catch (e) { /* ignore */ }
-    }
-
     const country = request.cf?.country || 'XX';
-    const getBestIP = () => {
-        const h = request.headers;
-        return h.get('cf-connecting-ip') || h.get('x-real-ip') || '0.0.0.0';
-    };
-
-    const ip = getBestIP();
+    const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-real-ip') || '0.0.0.0';
     const os = detectOS(userAgent);
     const browser = detectBrowser(userAgent);
+
+    if (os === 'Other' && browser === 'Other') return;
 
     try {
         const insertData = {
@@ -103,21 +87,11 @@ async function recordClick(supabase, link, request, env) {
             slug: link.slug,
             country: country,
             ip_address: ip,
-            click_id: clickId,
             os: os,
             browser: browser
         };
-
-        // In LITE mode, we don't save heavy strings (UA and Referer)
-        if (trackingMode === 'FULL') {
-            insertData.user_agent = userAgent.substring(0, 500);
-            insertData.referer = referer;
-        }
-
         await supabase.from('clicks').insert(insertData);
-    } catch (err) {
-        console.error('Click tracking error:', err);
-    }
+    } catch (err) {}
 }
 
 export async function onRequest(context) {
@@ -125,60 +99,56 @@ export async function onRequest(context) {
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
     const userAgent = context.request.headers.get('user-agent') || '';
 
-    // 0. Aggressive Bot Blocking (Save CPU & Resource)
-    // If it's a known bot/crawler, we immediately skip any heavy logic.
     const isBot = isTrackingBot(userAgent);
 
     if (path.startsWith('api/') || path.startsWith('assets/') || path.startsWith('admin') || path.startsWith('login') || path.startsWith('t/') || path === '' || path.includes('.')) {
         return context.next();
     }
 
-    // 1. Edge Caching Check (Save Worker Quota)
-    // CRITICAL: Bot and user responses MUST use SEPARATE cache keys!
-    // Otherwise a cached 302 redirect (for users) would be served to bots,
-    // preventing them from receiving the OG meta HTML for thumbnails.
+    // 1. Edge Caching Check (Simple logic)
     const cache = caches.default;
-    const cachePrefix = isBot ? 'bot' : 'user';
-    const cacheKey = new Request(`${url.origin}/__cache/${cachePrefix}/${path}`, context.request);
+    const cacheKey = new Request(context.request.url + (isBot ? '?bot=1' : '?user=1'), context.request);
     let cachedResponse = await cache.match(cacheKey);
     if (cachedResponse) return cachedResponse;
 
     const supabase = createSupabaseClient(context.env);
 
-    // 1. Slug Meta Cache (Save Supabase API & Egress)
-    // We cache the link data for 10 minutes based ONLY on the slug.
-    const metaCacheKey = new Request(`http://meta.internal/${path}`, context.request);
-    let link;
-    const cachedMeta = await cache.match(metaCacheKey);
+    // 2. Fetch Link Meta
+    const { data: link, error } = await supabase
+        .from('links')
+        .select('id, slug, original_url, title, description, image_url, block_indonesia, domains(url)')
+        .eq('slug', path)
+        .single();
 
-    if (cachedMeta) {
-        link = await cachedMeta.json();
-    } else {
-        const { data, error } = await supabase
-            .from('links')
-            .select(`
-                id, slug, original_url, title, description, image_url, block_indonesia,
-                domains ( url )
-            `)
-            .eq('slug', path)
-            .single();
+    if (error || !link) return context.next();
 
-        if (error || !data) {
-            return context.next();
-        }
-        link = data;
+    // 3. Bot Preview Serving
+    const hasCustomMeta = link.title || link.description || link.image_url;
+    if (isBot && hasCustomMeta) {
+        const title = (link.title || 'Link Preview').replace(/"/g, '&quot;');
+        const description = (link.description || 'Click to view').replace(/"/g, '&quot;');
+        const image = link.image_url || '';
+        const ogUrl = url.toString();
 
-        // Cache the metadata for 10 minutes
-        const metaResponse = new Response(JSON.stringify(link), {
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'public, max-age=3600, s-maxage=3600'
-            }
+        const html = `<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<meta property="og:type" content="website">
+<meta property="og:url" content="${ogUrl}">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${description}">
+${image ? `<meta property="og:image" content="${image}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : ''}
+<meta name="twitter:card" content="summary_large_image">
+</head><body></body></html>`;
+
+        const response = new Response(html, {
+            headers: { ...getSecurityHeaders(true), 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600, s-maxage=3600' }
         });
-        context.waitUntil(cache.put(metaCacheKey, metaResponse));
+        context.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
     }
-    context.waitUntil(recordClick(supabase, link, context.request, context.env));
 
+    // 4. Geo-Blocking
     const country = context.request.cf?.country || 'XX';
     if (link.block_indonesia && country === 'ID') {
         const domainUrl = link.domains?.url || 'https://google.com';
@@ -186,61 +156,23 @@ export async function onRequest(context) {
         return Response.redirect(redirectUrl, 302);
     }
 
-    // 2. Bot Preview Serving (Dangerous Site Prevention & Irit Limit)
-    // We serve a "safe" HTML page to known social crawlers to prevent target URL flagging.
-    const hasCustomMeta = link.title || link.description || link.image_url;
-    if (isBot && hasCustomMeta) {
-        const title = (link.title || 'Link Preview').replace(/"/g, '&quot;');
-        const description = (link.description || 'Click to view').replace(/"/g, '&quot;');
-        const image = link.image_url || '';
-        const fullUrl = url.toString();
-
-        const html = `<!DOCTYPE html><html><head>
-<meta charset="UTF-8">
-<title>${title}</title>
-<meta property="og:type" content="website">
-<meta property="og:url" content="${fullUrl}">
-<meta property="og:title" content="${title}">
-<meta property="og:description" content="${description}">
-${image ? `<meta property="og:image" content="${image}">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">` : ''}
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${title}">
-<meta name="twitter:description" content="${description}">
-${image ? `<meta name="twitter:image" content="${image}">` : ''}
-</head><body></body></html>`;
-
-        const response = new Response(html, {
-            headers: {
-                ...getSecurityHeaders(true),
-                'Content-Type': 'text/html; charset=utf-8',
-                'Cache-Control': 'public, max-age=3600, s-maxage=3600'
-            }
-        });
-        context.waitUntil(cache.put(cacheKey, response.clone()));
-        return response;
-    }
-
+    // 5. Target URL Reconstruction
     let target = link.original_url;
     if (url.search) {
         try {
             const targetUrl = new URL(target);
             const requestParams = new URL(context.request.url).searchParams;
-            requestParams.forEach((value, key) => {
-                targetUrl.searchParams.append(key, value);
-            });
+            requestParams.forEach((v, k) => targetUrl.searchParams.append(k, v));
             target = targetUrl.toString();
-        } catch (e) { /* ignore */ }
+        } catch (e) {}
     }
 
-    // 3. Fast 302 Redirect for Real Users (Cached for Irit Limit)
+    // 6. Record Click & Redirect (ONLY FOR REAL HUMANS)
+    context.waitUntil(recordClick(supabase, link, context.request, context.env));
+
     const redirectResponse = new Response(null, {
         status: 302,
-        headers: {
-            ...getSecurityHeaders(true),
-            'Location': target
-        }
+        headers: { ...getSecurityHeaders(true), 'Location': target }
     });
     context.waitUntil(cache.put(cacheKey, redirectResponse.clone()));
     return redirectResponse;
