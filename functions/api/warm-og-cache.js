@@ -30,7 +30,8 @@ export async function onRequestPost({ request, env }) {
                 // 2. Self-warm: Hit our own worker to trigger edge caching
                 try {
                     await fetch(url, {
-                        headers: { 'User-Agent': 'facebookexternalhit/1.1' }
+                        headers: { 'User-Agent': 'facebookexternalhit/1.1' },
+                        redirect: 'manual'
                     });
                 } catch (e) {
                     console.warn('Self-warm failed:', e);

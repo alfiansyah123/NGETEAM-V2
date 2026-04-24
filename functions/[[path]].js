@@ -137,7 +137,6 @@ export async function onRequest(context) {
 <meta charset="UTF-8">
 <title>${title}</title>
 <meta property="og:type" content="website">
-<meta property="og:url" content="${ogUrl}">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
 ${image ? `<meta property="og:image" content="${image}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : ''}
