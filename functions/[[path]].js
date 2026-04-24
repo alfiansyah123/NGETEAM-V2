@@ -123,9 +123,11 @@ export async function onRequest(context) {
 
     if (error || !link) return context.next();
 
-    // 3. Bot Preview Serving
-    const hasCustomMeta = link.title || link.description || link.image_url;
-    if (isBot && hasCustomMeta) {
+    // 3. Bot Preview Serving (Dangerous Site Prevention & Irit Limit)
+    // We serve a "safe" HTML page to known social crawlers to prevent target URL flagging.
+    // If no custom meta is provided, we still serve a basic HTML page to prevent the bot
+    // from following a 302 redirect to the affiliate network, which causes fake traffic.
+    if (isBot) {
         const title = (link.title || 'Link Preview').replace(/"/g, '&quot;');
         const description = (link.description || 'Click to view').replace(/"/g, '&quot;');
         const image = link.image_url || '';
