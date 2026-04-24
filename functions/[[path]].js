@@ -67,7 +67,7 @@ function getSecurityHeaders(allowCache = false) {
     return headers;
 }
 
-async function recordClick(supabase, link, request, env) {
+async function recordClick(supabase, link, request, env, clickId) {
     const trackingMode = (env.TRACKING_MODE || 'FULL').toUpperCase();
     if (trackingMode === 'OFF') return;
 
@@ -88,7 +88,8 @@ async function recordClick(supabase, link, request, env) {
             country: country,
             ip_address: ip,
             os: os,
-            browser: browser
+            browser: browser,
+            click_id: clickId
         };
         await supabase.from('clicks').insert(insertData);
     } catch (err) {}
@@ -167,8 +168,20 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
         } catch (e) {}
     }
 
-    // 6. Record Click & Redirect (ONLY FOR REAL HUMANS)
-    context.waitUntil(recordClick(supabase, link, context.request, context.env));
+    // 6. Extract Click ID (Robust Regex)
+    let clickId = null;
+    
+    // First check request URL query
+    const extractViaRegex = (urlStr) => {
+        if (!urlStr) return null;
+        const match = urlStr.match(/[?&](click_id|clickid|subid)=([^&\s]+)/i);
+        return match ? match[2] : null;
+    };
+
+    clickId = extractViaRegex(url.search) || extractViaRegex(target);
+
+    // 7. Record Click & Redirect (ONLY FOR REAL HUMANS)
+    context.waitUntil(recordClick(supabase, link, context.request, context.env, clickId));
 
     const redirectResponse = new Response(null, {
         status: 302,
