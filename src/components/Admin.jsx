@@ -610,12 +610,13 @@ const Admin = () => {
                                     <table className="mnx-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px', tableLayout: 'fixed' }}>
                                         <thead>
                                             <tr>
-                                                <th style={{ width: '12%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>NAMA</th>
+                                                <th style={{ width: '10%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>NAMA</th>
                                                 <th style={{ width: '10%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>SLUG</th>
-                                                <th style={{ width: '12%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>PASSWORD</th>
-                                                <th style={{ width: '38%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>LINK GEN</th>
-                                                <th style={{ width: '15%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>TARGET URL</th>
-                                                <th style={{ width: '13%', textAlign: 'center', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>AKSI</th>
+                                                <th style={{ width: '10%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>PASSWORD</th>
+                                                <th style={{ width: '30%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>LINK GEN</th>
+                                                <th style={{ width: '15%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>TARGET IMO</th>
+                                                <th style={{ width: '15%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>TARGET TRAFEE</th>
+                                                <th style={{ width: '10%', textAlign: 'center', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>AKSI</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -654,6 +655,7 @@ const Admin = () => {
                                                             </div>
                                                         </td>
                                                         <td style={{ padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link.links?.original_url?.replace('https://', '') || '-'}</td>
+                                                        <td style={{ padding: '10px 8px', color: '#06b6d4', fontSize: '0.65rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link.url_trafee?.replace('https://', '') || '-'}</td>
                                                         <td style={{ padding: '10px 8px', borderTopRightRadius: '12px', borderBottomRightRadius: '12px', textAlign: 'center', overflow: 'hidden' }}>
                                                             <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                                                                 <button className="mnx-power-btn" onClick={() => handleEditClick(link)} style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', padding: '5px' }}>

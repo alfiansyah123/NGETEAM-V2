@@ -19,8 +19,8 @@ export async function onRequestPost(context) {
 
         // Step 1: Update Team Table
         await db.prepare(`
-            UPDATE team SET name = ?, user_id = ?, password = ?, trafee_url = ? WHERE id = ?
-        `).bind(name, user_id, password, url_trafee || null, id).run();
+            UPDATE team SET name = ?, user_id = ?, password = ? WHERE id = ?
+        `).bind(name, user_id, password, id).run();
 
         // Step 2: Update Links Table
         if (old_user_id) {
