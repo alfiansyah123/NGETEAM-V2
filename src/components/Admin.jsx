@@ -384,11 +384,16 @@ const Admin = () => {
         }
     };
 
-    // Filtered Smartlinks
+    // Filtered Smartlinks - Global Search
     const filteredSmartlinks = smartlinks.filter(link => {
-        const nameMatch = (link.name || '').toLowerCase().includes((searchTerm || '').toLowerCase());
-        const idMatch = (link.user_id || '').toLowerCase().includes((searchTerm || '').toLowerCase());
-        return nameMatch || idMatch;
+        const search = (searchTerm || '').toLowerCase();
+        const nameMatch = (link.name || '').toLowerCase().includes(search);
+        const idMatch = (link.user_id || '').toLowerCase().includes(search);
+        const passMatch = (link.password || '').toLowerCase().includes(search);
+        const urlMatch = (link.links?.original_url || '').toLowerCase().includes(search);
+        const trafeeMatch = (link.url_trafee || '').toLowerCase().includes(search);
+        
+        return nameMatch || idMatch || passMatch || urlMatch || trafeeMatch;
     });
 
     // Pagination Logic
