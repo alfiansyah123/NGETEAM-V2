@@ -201,15 +201,23 @@ function App() {
   // Helper for Team Mode Sub-ID replacement
   const handleSubIdChange = (val) => {
     setSubId(val);
-    if (!targetUrls) return;
+    
+    // Update iMonetizeit (click_id=)
+    if (targetUrls) {
+      const params = ['click_id', 'clickid', 'subid'];
+      let updatedText = targetUrls;
+      params.forEach(param => {
+        const regex = new RegExp(`(${param}=)([^&\\s]*)`, 'gi');
+        updatedText = updatedText.replace(regex, `$1${val}`);
+      });
+      setTargetUrls(updatedText);
+    }
 
-    const params = ['click_id', 'clickid', 'subid'];
-    let updatedText = targetUrls;
-    params.forEach(param => {
-      const regex = new RegExp(`(${param}=)([^&\\s]*)`, 'gi');
-      updatedText = updatedText.replace(regex, `$1${val}`);
-    });
-    setTargetUrls(updatedText);
+    // Update Trafee (track=)
+    if (urlTrafee) {
+      const regex = new RegExp(`(track=)([^&\\s]*)`, 'gi');
+      setUrlTrafee(urlTrafee.replace(regex, `$1${val}`));
+    }
   };
 
   useEffect(() => {

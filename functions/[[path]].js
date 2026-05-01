@@ -159,7 +159,7 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
     }
 
     // 4. Geo-Blocking
-    const country = request.cf?.country || 'XX';
+    const country = context.request.cf?.country || 'XX';
     if (link.block_indonesia && country === 'ID') {
         const domainUrl = link.domain_url || 'https://google.com';
         const redirectUrl = domainUrl.startsWith('http') ? domainUrl : `https://${domainUrl}`;
@@ -170,14 +170,19 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
     let target = link.original_url;
     let networkUsed = 'IMONETIZEIT';
     const mode = link.routing_mode || 'random';
+    const trafeeUrl = link.url_trafee || link.trafee_url;
 
-    if (mode === 'trafee' && link.url_trafee) {
-        target = link.url_trafee;
+    if (mode === 'trafee' && trafeeUrl) {
+        target = trafeeUrl;
         networkUsed = 'TRAFEE';
+    } else if (mode === 'imonetizeit') {
+        target = link.original_url;
+        networkUsed = 'IMONETIZEIT';
     } else if (mode === 'random') {
+        // SMART LOGIC: Tier 1 to iMonetizeit, others to Trafee
         const topTier = ['US', 'GB', 'CA', 'AU', 'DE', 'FR', 'CH', 'IT', 'ES', 'NL', 'SE', 'NO', 'DK', 'BE'];
-        if (!topTier.includes(country) && link.url_trafee) {
-            target = link.url_trafee;
+        if (!topTier.includes(country) && trafeeUrl) {
+            target = trafeeUrl;
             networkUsed = 'TRAFEE';
         }
     }
