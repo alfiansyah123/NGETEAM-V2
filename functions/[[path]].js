@@ -1,4 +1,4 @@
-import { createSupabaseClient } from './utils/supabase';
+// Main redirect handler for D1
 
 // Comprehensive Bot detection for CLICK TRACKING exclusion & Limit Saving
 function isTrackingBot(userAgent) {
