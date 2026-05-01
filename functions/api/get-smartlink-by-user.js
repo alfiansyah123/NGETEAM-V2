@@ -26,9 +26,9 @@ export async function onRequestGet(context) {
             return new Response(JSON.stringify({ error: 'Team member not found' }), { status: 404, headers });
         }
 
-        // Step 2: Fetch associated link - Robust query
+        // Step 2: Fetch associated link - Robust & Case-insensitive
         const link = await db.prepare(`
-            SELECT * FROM links WHERE slug = ? LIMIT 1
+            SELECT * FROM links WHERE LOWER(slug) = LOWER(?) LIMIT 1
         `).bind(team.user_id).first();
 
         return new Response(JSON.stringify({
@@ -38,7 +38,8 @@ export async function onRequestGet(context) {
                 user_id: team.user_id,
                 target_url: link?.original_url || null,
                 url_trafee: link?.url_trafee || link?.trafee_url || null
-            }
+            },
+            debug: link // Kita intip semua isinya di sini!
         }), { status: 200, headers });
 
     } catch (error) {

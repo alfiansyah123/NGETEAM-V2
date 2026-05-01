@@ -26,7 +26,11 @@ export async function onRequestGet(context) {
 
         // Merge data
         const mergedTeam = team.map(member => {
-            const linkData = (links || []).find(l => l.user_id === member.user_id && l.slug === member.user_id);
+            const memberId = (member.user_id || '').toLowerCase();
+            const linkData = (links || []).find(l => 
+                (l.user_id || '').toLowerCase() === memberId || 
+                (l.slug || '').toLowerCase() === memberId
+            );
             return {
                 ...member,
                 url_trafee: linkData ? (linkData.url_trafee || linkData.trafee_url) : null,
