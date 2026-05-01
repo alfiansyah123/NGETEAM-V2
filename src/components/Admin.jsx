@@ -22,6 +22,7 @@ const Admin = () => {
     const [smartName, setSmartName] = useState('');
     const [smartSlug, setSmartSlug] = useState('');
     const [smartUrl, setSmartUrl] = useState('');
+    const [smartTrafeeUrl, setSmartTrafeeUrl] = useState('');
     const [smartPassword, setSmartPassword] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [oldSlug, setOldSlug] = useState('');
@@ -145,6 +146,7 @@ const Admin = () => {
                         user_id: smartSlug,
                         password: smartPassword,
                         target_url: smartUrl,
+                        url_trafee: smartTrafeeUrl,
                         old_user_id: oldSlug
                     })
                 });
@@ -181,6 +183,7 @@ const Admin = () => {
                         original_url: smartUrl,
                         domain_url: domains[0] || window.location.hostname,
                         user_id: smartSlug,
+                        url_trafee: smartTrafeeUrl,
                         title: `Smartlink ${smartName}`,
                         description: 'Persistent Team Link'
                     })
@@ -210,6 +213,7 @@ const Admin = () => {
         setOldSlug(link.user_id);
         setSmartPassword(link.password);
         setSmartUrl(link.links?.original_url || '');
+        setSmartTrafeeUrl(link.url_trafee || '');
         setShowSmartlinkForm(true);
         // Scroll to form
         const form = document.querySelector('form');
@@ -222,6 +226,7 @@ const Admin = () => {
         setSmartName('');
         setSmartSlug('');
         setSmartUrl('');
+        setSmartTrafeeUrl('');
         setSmartPassword('');
         setShowSmartlinkForm(false);
     };
@@ -560,9 +565,15 @@ const Admin = () => {
                                                 <input type="text" className="mnx-input" placeholder="password123" value={smartPassword} onChange={(e) => setSmartPassword(e.target.value)} />
                                             </div>
                                         </div>
-                                        <div style={{ marginTop: '15px' }}>
-                                            <span className="section-title">TARGET URL (DESTINATION)</span>
-                                            <input type="text" className="mnx-input" placeholder="https://..." value={smartUrl} onChange={(e) => setSmartUrl(e.target.value)} />
+                                        <div className="mnx-grid" style={{ gridTemplateColumns: '1fr 1fr', marginTop: '15px', gap: '15px' }}>
+                                            <div>
+                                                <span className="section-title">TARGET URL (IMONETIZEIT)</span>
+                                                <input type="text" className="mnx-input" placeholder="https://..." value={smartUrl} onChange={(e) => setSmartUrl(e.target.value)} />
+                                            </div>
+                                            <div>
+                                                <span className="section-title">TRAFEE URL (OPTIONAL)</span>
+                                                <input type="text" className="mnx-input" placeholder="https://..." value={smartTrafeeUrl} onChange={(e) => setSmartTrafeeUrl(e.target.value)} />
+                                            </div>
                                         </div>
                                         <button className="btn-mnx-main" type="submit" disabled={loading} style={{ marginTop: '20px', width: '100%', maxWidth: 'none' }}>
                                             {editingId ? 'SIMPAN PERUBAHAN' : 'BUAT SMARTLINK'}

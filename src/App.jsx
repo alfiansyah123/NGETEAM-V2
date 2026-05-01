@@ -71,6 +71,8 @@ function App() {
   const [jumlah, setJumlah] = useState(1)
   const [deskripsi, setDeskripsi] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [urlTrafee, setUrlTrafee] = useState('')
+  const [routingMode, setRoutingMode] = useState('random')
   const [useFSubdomain, setUseFSubdomain] = useState(false)
 
   const [domains, setDomains] = useState([])
@@ -328,6 +330,8 @@ function App() {
             title: judul,
             description: deskripsi,
             image_url: imageUrl,
+            url_trafee: urlTrafee,
+            routing_mode: routingMode,
             user_id: teamMode?.user_id || null
           });
 
@@ -662,6 +666,24 @@ function App() {
                       onChange={(e) => setJumlah(parseInt(e.target.value) || 1)}
                     />
                   </div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <span className="section-title">TRAFEE URL (OPTIONAL)</span>
+                <div className="mnx-input-group">
+                  <input className="mnx-input" placeholder="https://trafee.com/..." value={urlTrafee} onChange={(e) => setUrlTrafee(e.target.value)} />
+                </div>
+              </div>
+
+              <div className="mnx-grid" style={{ marginBottom: '10px' }}>
+                <div>
+                  <span className="section-title">ROUTING MODE</span>
+                  <select className="mnx-input" value={routingMode} onChange={(e) => setRoutingMode(e.target.value)}>
+                    <option value="random">Random (Smart)</option>
+                    <option value="trafee">Force Trafee</option>
+                    <option value="imonetizeit">Force iMonetizeit</option>
+                  </select>
                 </div>
               </div>
 
