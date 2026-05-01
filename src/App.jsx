@@ -46,13 +46,19 @@ function App() {
 
   const loadTeamContext = async (userId) => {
     try {
-      const res = await fetch(`/api/get-smartlink-by-user?user_id=${userId}`);
+      const res = await fetch(`/api/get-smartlink-by-user?user_id=${userId}&_t=${Date.now()}`);
       const data = await res.json();
       if (data.success && data.data) {
         setTeamMode(data.data);
         setSubId(data.data.user_id || '');
         if (data.data.target_url) {
           setTargetUrls(data.data.target_url);
+        }
+        if (data.data.url_trafee) {
+          setUrlTrafee(data.data.url_trafee);
+        }
+        if (data.data.routing_mode) {
+          setRoutingMode(data.data.routing_mode);
         }
       }
     } catch (err) {
