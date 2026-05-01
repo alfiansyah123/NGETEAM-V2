@@ -12,7 +12,7 @@ export async function onRequestGet(context) {
     try {
         // Step 1: Fetch all team members
         const { results: team } = await db.prepare(`
-            SELECT id, name, user_id, password, trafee_url FROM team ORDER BY name ASC
+            SELECT id, name, user_id, password FROM team ORDER BY name ASC
         `).all();
 
         if (!team || team.length === 0) {
@@ -21,7 +21,7 @@ export async function onRequestGet(context) {
 
         // Step 2: Fetch primary links (where slug = user_id)
         const { results: links } = await db.prepare(`
-            SELECT slug, original_url, user_id FROM links WHERE slug IN (SELECT user_id FROM team)
+            SELECT slug, original_url, url_trafee, user_id FROM links WHERE slug IN (SELECT user_id FROM team)
         `).all();
 
         // Merge data
@@ -29,6 +29,7 @@ export async function onRequestGet(context) {
             const linkData = (links || []).find(l => l.user_id === member.user_id && l.slug === member.user_id);
             return {
                 ...member,
+                url_trafee: linkData ? linkData.url_trafee : null,
                 links: linkData ? { original_url: linkData.original_url } : null
             };
         });

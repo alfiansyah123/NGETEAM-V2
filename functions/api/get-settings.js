@@ -21,7 +21,18 @@ export async function onRequestGet(context) {
         }
 
         const { results } = await db.prepare(query).bind(...params).all();
-        return new Response(JSON.stringify({ settings: results }), { status: 200, headers });
+        
+        if (key) {
+            return new Response(JSON.stringify({ 
+                success: true, 
+                data: results[0] || null 
+            }), { status: 200, headers });
+        }
+
+        return new Response(JSON.stringify({ 
+            success: true, 
+            settings: results 
+        }), { status: 200, headers });
 
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
