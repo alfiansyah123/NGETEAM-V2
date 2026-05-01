@@ -26,9 +26,9 @@ export async function onRequestGet(context) {
             return new Response(JSON.stringify({ error: 'Team member not found' }), { status: 404, headers });
         }
 
-        // Step 2: Fetch associated link
+        // Step 2: Fetch associated link - Robust query
         const link = await db.prepare(`
-            SELECT original_url, url_trafee FROM links WHERE slug = ? LIMIT 1
+            SELECT * FROM links WHERE slug = ? LIMIT 1
         `).bind(team.user_id).first();
 
         return new Response(JSON.stringify({
@@ -37,7 +37,7 @@ export async function onRequestGet(context) {
                 name: team.name,
                 user_id: team.user_id,
                 target_url: link?.original_url || null,
-                url_trafee: link?.url_trafee || null
+                url_trafee: link?.url_trafee || link?.trafee_url || null
             }
         }), { status: 200, headers });
 

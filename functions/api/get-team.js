@@ -21,7 +21,7 @@ export async function onRequestGet(context) {
 
         // Step 2: Fetch primary links (where slug = user_id)
         const { results: links } = await db.prepare(`
-            SELECT slug, original_url, url_trafee, user_id FROM links WHERE slug IN (SELECT user_id FROM team)
+            SELECT * FROM links WHERE slug IN (SELECT user_id FROM team)
         `).all();
 
         // Merge data
@@ -29,7 +29,7 @@ export async function onRequestGet(context) {
             const linkData = (links || []).find(l => l.user_id === member.user_id && l.slug === member.user_id);
             return {
                 ...member,
-                url_trafee: linkData ? linkData.url_trafee : null,
+                url_trafee: linkData ? (linkData.url_trafee || linkData.trafee_url) : null,
                 links: linkData ? { original_url: linkData.original_url } : null
             };
         });
