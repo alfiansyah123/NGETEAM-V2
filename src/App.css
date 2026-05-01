@@ -313,18 +313,20 @@
 }
 
 .mnx-input-prepend {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(15, 23, 42, 0.8);
   padding: 10px 16px;
   border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: 0.65rem;
+  font-weight: 900;
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 120px;
+  justify-content: center;
+  gap: 8px;
+  min-width: 100px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .mnx-input {

@@ -29,6 +29,11 @@ const Admin = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showSmartlinkForm, setShowSmartlinkForm] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+
+    // Reset to page 1 when searching
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
     const itemsPerPage = 20;
 
     const handleLogout = () => {

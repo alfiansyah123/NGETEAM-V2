@@ -28,7 +28,7 @@ export async function onRequestGet(context) {
 
         // Step 2: Fetch associated link
         const link = await db.prepare(`
-            SELECT original_url FROM links WHERE slug = ? LIMIT 1
+            SELECT original_url, url_trafee FROM links WHERE slug = ? LIMIT 1
         `).bind(team.user_id).first();
 
         return new Response(JSON.stringify({
@@ -36,7 +36,8 @@ export async function onRequestGet(context) {
             data: {
                 name: team.name,
                 user_id: team.user_id,
-                target_url: link?.original_url || null
+                target_url: link?.original_url || null,
+                url_trafee: link?.url_trafee || null
             }
         }), { status: 200, headers });
 
