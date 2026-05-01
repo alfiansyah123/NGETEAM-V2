@@ -1,11 +1,13 @@
-import { createSupabaseClient } from '../utils/supabase';
-
 export async function onRequestGet(context) {
-    const supabase = createSupabaseClient(context.env);
+    const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
     };
+
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
+    }
 
     const url = new URL(context.request.url);
     const userId = url.searchParams.get('user_id');
@@ -15,25 +17,19 @@ export async function onRequestGet(context) {
     }
 
     try {
-        // Step 1: Fetch team member - using ILIKE for case-insensitivity
-        const { data: team, error: teamError } = await supabase
-            .from('team')
-            .select('*')
-            .ilike('user_id', userId)
-            .maybeSingle();
-
-        if (teamError) throw teamError;
+        // Step 1: Fetch team member
+        const team = await db.prepare(`
+            SELECT * FROM team WHERE user_id LIKE ? LIMIT 1
+        `).bind(userId).first();
 
         if (!team) {
             return new Response(JSON.stringify({ error: 'Team member not found' }), { status: 404, headers });
         }
 
-        // Step 2: Fetch associated link for this team member
-        const { data: link, error: linkError } = await supabase
-            .from('links')
-            .select('original_url')
-            .eq('slug', team.user_id)
-            .maybeSingle();
+        // Step 2: Fetch associated link
+        const link = await db.prepare(`
+            SELECT original_url FROM links WHERE slug = ? LIMIT 1
+        `).bind(team.user_id).first();
 
         return new Response(JSON.stringify({
             success: true,

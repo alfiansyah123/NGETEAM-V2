@@ -1,12 +1,14 @@
-import { createSupabaseClient } from '../utils/supabase';
-
 export async function onRequestPost(context) {
-    const supabase = createSupabaseClient(context.env);
+    const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Content-Type': 'application/json'
     };
+
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
+    }
 
     try {
         const { id } = await context.request.json();
@@ -15,12 +17,7 @@ export async function onRequestPost(context) {
             return new Response(JSON.stringify({ error: 'Member ID is required' }), { status: 400, headers });
         }
 
-        const { error } = await supabase
-            .from('team')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
+        await db.prepare('DELETE FROM team WHERE id = ?').bind(id).run();
 
         return new Response(JSON.stringify({ success: true }), { status: 200, headers });
 

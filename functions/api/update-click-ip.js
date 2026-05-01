@@ -1,7 +1,10 @@
-import { createSupabaseClient } from '../utils/supabase';
-
 export async function onRequestPost(context) {
-    const supabase = createSupabaseClient(context.env);
+    const db = context.env.DB;
+    const headers = { 'Content-Type': 'application/json' };
+
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
+    }
 
     try {
         const { click_id, ip_address } = await context.request.json();
@@ -10,22 +13,11 @@ export async function onRequestPost(context) {
             return new Response('Missing parameters', { status: 400 });
         }
 
-        // Update the click record with the true client IP provided by the frontend
-        const { error } = await supabase
-            .from('clicks')
-            .update({ ip_address: ip_address })
-            .eq('id', click_id);
+        await db.prepare('UPDATE clicks SET ip_address = ? WHERE id = ?').bind(ip_address, click_id).run();
 
-        if (error) throw error;
-
-        return new Response(JSON.stringify({ success: true }), {
-            headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(JSON.stringify({ success: true }), { headers });
     } catch (err) {
         console.error('IP Update error:', err);
-        return new Response(JSON.stringify({ error: err.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers });
     }
 }

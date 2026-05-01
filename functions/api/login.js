@@ -1,33 +1,25 @@
-// Simple authentication - change these credentials!
-// ideally move to env vars, but keeping as is for direct port
-const VALID_USERS = {
-    'ngeteam': 'NGEteam25!',
-    'nge': 'supersecret123'
-};
-
-import { createSupabaseClient } from '../utils/supabase';
-
-// Generate simple token
 function generateToken(username) {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2);
     const str = `${username}:${timestamp}:${random}`;
-    // Cloudflare Workers support btoa
     try {
         return btoa(str);
     } catch (e) {
-        // Fallback for non-latin characters (though unlikely here)
         return btoa(unescape(encodeURIComponent(str)));
     }
 }
 
 export async function onRequestPost(context) {
-    const supabase = createSupabaseClient(context.env);
+    const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Content-Type': 'application/json'
     };
+
+    if (!db) {
+        return new Response(JSON.stringify({ success: false, error: 'Database connection error' }), { status: 500, headers });
+    }
 
     try {
         const { username, password } = await context.request.json();
@@ -41,38 +33,34 @@ export async function onRequestPost(context) {
         let adminPass = 'NGEteam25!';
 
         try {
-            // Try to get custom admin credentials from settings
-            const { data } = await supabase.from('settings').select('key, value').in('key', ['admin_username', 'admin_password']);
-            if (data && data.length > 0) {
-                const usernameSetting = data.find(s => s.key === 'admin_username');
-                const passwordSetting = data.find(s => s.key === 'admin_password');
+            const { results: settings } = await db.prepare(`
+                SELECT "key", "value" FROM settings WHERE "key" IN ('admin_username', 'admin_password')
+            `).all();
 
-                if (usernameSetting?.value) adminUser = usernameSetting.value;
-                if (passwordSetting?.value) adminPass = passwordSetting.value;
+            if (settings && settings.length > 0) {
+                const u = settings.find(s => s.key === 'admin_username');
+                const p = settings.find(s => s.key === 'admin_password');
+                if (u?.value) adminUser = u.value;
+                if (p?.value) adminPass = p.value;
             }
         } catch (e) {
-            console.warn('Could not fetch custom admin credentials from settings', e);
+            console.warn('Could not fetch admin settings', e);
         }
 
-        if (username === adminUser) {
-            if (password === adminPass) {
-                const token = generateToken(username);
-                return new Response(JSON.stringify({
-                    success: true,
-                    role: 'admin',
-                    token,
-                    message: 'Admin login successful'
-                }), { status: 200, headers });
-            }
+        if (username === adminUser && password === adminPass) {
+            const token = generateToken(username);
+            return new Response(JSON.stringify({
+                success: true,
+                role: 'admin',
+                token,
+                message: 'Admin login successful'
+            }), { status: 200, headers });
         }
 
         // 2. Check Team Member Credentials
-        const { data: teamMember, error: teamError } = await supabase
-            .from('team')
-            .select('*')
-            .eq('user_id', username)
-            .eq('password', password)
-            .maybeSingle();
+        const teamMember = await db.prepare(`
+            SELECT * FROM team WHERE user_id = ? AND password = ?
+        `).bind(username, password).first();
 
         if (teamMember) {
             const token = generateToken(username);
@@ -91,7 +79,6 @@ export async function onRequestPost(context) {
     }
 }
 
-// Handle OPTIONS
 export async function onRequestOptions() {
     return new Response(null, {
         headers: {

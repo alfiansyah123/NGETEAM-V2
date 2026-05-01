@@ -67,7 +67,8 @@ function getSecurityHeaders(allowCache = false) {
     return headers;
 }
 
-async function recordClick(supabase, link, request, env, clickId) {
+// 70. Record Click Logic using D1
+async function recordClick(db, link, request, env, clickId, networkName) {
     const trackingMode = (env.TRACKING_MODE || 'FULL').toUpperCase();
     if (trackingMode === 'OFF') return;
 
@@ -82,17 +83,24 @@ async function recordClick(supabase, link, request, env, clickId) {
     if (os === 'Other' && browser === 'Other') return;
 
     try {
-        const insertData = {
-            link_id: link.id,
-            slug: link.slug,
-            country: country,
-            ip_address: ip,
-            os: os,
-            browser: browser,
-            click_id: clickId
-        };
-        await supabase.from('clicks').insert(insertData);
-    } catch (err) {}
+        await db.prepare(`
+            INSERT INTO clicks (link_id, slug, country, ip_address, os, browser, click_id, user_agent, referer, s3)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+            link.id,
+            link.slug,
+            country,
+            ip,
+            os,
+            browser,
+            clickId,
+            userAgent,
+            request.headers.get('referer') || null,
+            (networkName || 'UNKNOWN').toUpperCase()
+        ).run();
+    } catch (err) {
+        console.error('Record Click Error:', err);
+    }
 }
 
 export async function onRequest(context) {
@@ -106,32 +114,32 @@ export async function onRequest(context) {
         return context.next();
     }
 
-    // 1. Edge Caching Check (Simple logic)
+    // 1. Edge Caching Check
     const cache = caches.default;
     const cacheKey = new Request(context.request.url + (isBot ? '?bot=1' : '?user=1'), context.request);
     let cachedResponse = await cache.match(cacheKey);
     if (cachedResponse) return cachedResponse;
 
-    const supabase = createSupabaseClient(context.env);
+    const db = context.env.DB;
+    if (!db) {
+        return new Response('Database connection error', { status: 500 });
+    }
 
-    // 2. Fetch Link Meta
-    const { data: link, error } = await supabase
-        .from('links')
-        .select('id, slug, original_url, title, description, image_url, block_indonesia, domains(url)')
-        .eq('slug', path)
-        .single();
+    // 2. Fetch Link Meta from D1
+    const link = await db.prepare(`
+        SELECT l.*, d.url as domain_url 
+        FROM links l 
+        LEFT JOIN domains d ON l.domain_id = d.id 
+        WHERE l.slug = ?
+    `).bind(path).first();
 
-    if (error || !link) return context.next();
+    if (!link) return context.next();
 
-    // 3. Bot Preview Serving (Dangerous Site Prevention & Irit Limit)
-    // We serve a "safe" HTML page to known social crawlers to prevent target URL flagging.
-    // If no custom meta is provided, we still serve a basic HTML page to prevent the bot
-    // from following a 302 redirect to the affiliate network, which causes fake traffic.
+    // 3. Bot Preview Serving
     if (isBot) {
         const title = (link.title || 'Link Preview').replace(/"/g, '&quot;');
         const description = (link.description || 'Click to view').replace(/"/g, '&quot;');
         const image = link.image_url || '';
-        const ogUrl = url.toString();
 
         const html = `<!DOCTYPE html><html><head>
 <meta charset="UTF-8">
@@ -151,15 +159,29 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
     }
 
     // 4. Geo-Blocking
-    const country = context.request.cf?.country || 'XX';
+    const country = request.cf?.country || 'XX';
     if (link.block_indonesia && country === 'ID') {
-        const domainUrl = link.domains?.url || 'https://google.com';
+        const domainUrl = link.domain_url || 'https://google.com';
         const redirectUrl = domainUrl.startsWith('http') ? domainUrl : `https://${domainUrl}`;
         return Response.redirect(redirectUrl, 302);
     }
 
-    // 5. Target URL Reconstruction
+    // 5. Target URL Selection
     let target = link.original_url;
+    let networkUsed = 'IMONETIZEIT';
+    const mode = link.routing_mode || 'random';
+
+    if (mode === 'trafee' && link.url_trafee) {
+        target = link.url_trafee;
+        networkUsed = 'TRAFEE';
+    } else if (mode === 'random') {
+        const topTier = ['US', 'GB', 'CA', 'AU', 'DE', 'FR', 'CH', 'IT', 'ES', 'NL', 'SE', 'NO', 'DK', 'BE'];
+        if (!topTier.includes(country) && link.url_trafee) {
+            target = link.url_trafee;
+            networkUsed = 'TRAFEE';
+        }
+    }
+
     if (url.search) {
         try {
             const targetUrl = new URL(target);
@@ -169,20 +191,17 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
         } catch (e) {}
     }
 
-    // 6. Extract Click ID (Robust Regex)
+    // 6. Extract Click ID
     let clickId = null;
-    
-    // First check request URL query
     const extractViaRegex = (urlStr) => {
         if (!urlStr) return null;
-        const match = urlStr.match(/[?&](click_id|clickid|subid)=([^&\s]+)/i);
+        const match = urlStr.match(/[?&](click_id|clickid|subid|track)=([^&\s]+)/i);
         return match ? match[2] : null;
     };
-
     clickId = extractViaRegex(url.search) || extractViaRegex(target);
 
-    // 7. Record Click & Redirect (ONLY FOR REAL HUMANS)
-    context.waitUntil(recordClick(supabase, link, context.request, context.env, clickId));
+    // 7. Record Click & Redirect
+    context.waitUntil(recordClick(db, link, context.request, context.env, clickId, networkUsed));
 
     const redirectResponse = new Response(null, {
         status: 302,

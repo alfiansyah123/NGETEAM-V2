@@ -1,12 +1,14 @@
-import { createSupabaseClient } from '../utils/supabase';
-
 export async function onRequestPost(context) {
-    const supabase = createSupabaseClient(context.env);
+    const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Content-Type': 'application/json'
     };
+
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
+    }
 
     try {
         const data = await context.request.json();
@@ -16,37 +18,23 @@ export async function onRequestPost(context) {
             return new Response(JSON.stringify({ error: 'Domain URL is required' }), { status: 400, headers });
         }
 
-        // Clean URL
         url = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-        // Check if exists (including inactive)
-        const { data: existing, error: checkError } = await supabase
-            .from('domains')
-            .select('id, active')
-            .eq('url', url);
+        // Check if exists
+        const existing = await db.prepare(`
+            SELECT id, active FROM domains WHERE url = ?
+        `).bind(url).first();
 
-        if (existing && existing.length > 0) {
-            // If exists but inactive, reactivate it
-            if (!existing[0].active) {
-                const { error: activateError } = await supabase
-                    .from('domains')
-                    .update({ active: true })
-                    .eq('id', existing[0].id);
-
-                if (activateError) throw activateError;
-
+        if (existing) {
+            if (!existing.active) {
+                await db.prepare(`UPDATE domains SET active = 1 WHERE id = ?`).bind(existing.id).run();
                 return new Response(JSON.stringify({ success: true, message: 'Domain reactivated', domain: url }), { status: 200, headers });
             }
-
             return new Response(JSON.stringify({ success: true, message: 'Domain already exists', domain: url }), { status: 200, headers });
         }
 
-        // Insert new domain
-        const { error: insertError } = await supabase
-            .from('domains')
-            .insert({ url, active: true });
-
-        if (insertError) throw insertError;
+        // Insert new
+        await db.prepare(`INSERT INTO domains (url, active) VALUES (?, 1)`).bind(url).run();
 
         return new Response(JSON.stringify({ success: true, domain: url }), { status: 200, headers });
 

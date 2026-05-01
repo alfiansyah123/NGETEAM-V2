@@ -1,20 +1,21 @@
-import { createSupabaseClient } from '../utils/supabase';
-
 // Soft Delete domain (Hide from UI, keep in DB)
 export async function onRequest(context) {
-    // Handle DELETE method (or POST with action)
     if (context.request.method !== 'DELETE' && context.request.method !== 'POST') {
         return new Response('Method Not Allowed', { status: 405 });
     }
 
+    const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Content-Type': 'application/json'
     };
 
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
+    }
+
     try {
-        const supabase = createSupabaseClient(context.env);
         const reqData = await context.request.json().catch(() => ({}));
         const domain = reqData.domain || reqData.url;
 
@@ -22,24 +23,17 @@ export async function onRequest(context) {
             return new Response(JSON.stringify({ error: 'Domain is required' }), { status: 400, headers });
         }
 
-        // Clean URL
         const cleanDomain = (domain || '').replace(/^https?:\/\//, '').replace(/\/$/, '').trim();
 
         if (!cleanDomain) {
             return new Response(JSON.stringify({ error: 'Valid domain is required' }), { status: 400, headers });
         }
 
-        // Perform Soft Delete (Set active = false)
-        const { data, error } = await supabase
-            .from('domains')
-            .update({ active: false })
-            .eq('url', cleanDomain)
-            .select();
+        const { success, meta } = await db.prepare(`
+            UPDATE domains SET active = 0 WHERE url = ?
+        `).bind(cleanDomain).run();
 
-        if (error) throw error;
-
-        // Check if anything was updated
-        const numUpdated = data ? data.length : 0;
+        const numUpdated = meta.changes;
 
         if (numUpdated === 0) {
             return new Response(JSON.stringify({

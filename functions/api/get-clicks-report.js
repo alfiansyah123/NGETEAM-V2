@@ -1,35 +1,23 @@
-import { createSupabaseClient } from '../utils/supabase';
-
 export async function onRequestGet(context) {
-    const supabase = createSupabaseClient(context.env);
+    const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
     };
 
-    const url = new URL(context.request.url);
-    const period = url.searchParams.get('period') || 'today';
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
+    }
 
     try {
-        const { data: clicks, error } = await supabase
-            .from('clicks')
-            .select(`
-id,
-    slug,
-    country,
-    ip_address,
-    created_at,
-    click_id,
-    os,
-    browser
-        `)
-            .order('created_at', { ascending: false })
-            .limit(500);
+        const { results: clicks } = await db.prepare(`
+            SELECT id, slug, country, ip_address, created_at, click_id, os, browser
+            FROM clicks
+            ORDER BY created_at DESC
+            LIMIT 500
+        `).all();
 
-        if (error) throw error;
-
-        // Map response to match expected frontend format
-        const mappedClicks = clicks.map(row => ({
+        const mappedClicks = (clicks || []).map(row => ({
             id: row.id,
             slug: row.slug,
             country: row.country || 'XX',

@@ -1,29 +1,29 @@
-
-import { createSupabaseClient } from '../utils/supabase';
-
 export async function onRequestGet(context) {
-    const { request, env } = context;
-    const url = new URL(request.url);
-    const key = url.searchParams.get('key');
+    const db = context.env.DB;
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+    };
 
-    const supabase = createSupabaseClient(env);
-    let query = supabase.from('settings').select('key, value');
-
-    if (key) {
-        query = query.eq('key', key).single();
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
     }
 
-    const { data, error } = await query;
+    try {
+        const url = new URL(context.request.url);
+        const key = url.searchParams.get('key');
 
-    if (error && error.code !== 'PGRST116') {
-        return new Response(JSON.stringify({ error: error.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        let query = 'SELECT "key", "value" FROM settings';
+        let params = [];
+        if (key) {
+            query += ' WHERE "key" = ?';
+            params.push(key);
+        }
+
+        const { results } = await db.prepare(query).bind(...params).all();
+        return new Response(JSON.stringify({ settings: results }), { status: 200, headers });
+
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
     }
-
-    return new Response(JSON.stringify({ success: true, data }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-    });
 }

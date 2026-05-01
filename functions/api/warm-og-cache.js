@@ -1,5 +1,3 @@
-import { createSupabaseClient } from '../utils/supabase';
-
 // Pre-warm social media caches so thumbnails appear INSTANTLY when shared
 export async function onRequestPost({ request, env }) {
     const headers = {

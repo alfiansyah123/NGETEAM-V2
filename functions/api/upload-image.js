@@ -1,11 +1,18 @@
-import { createSupabaseClient } from '../utils/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export async function onRequestPost({ request, env }) {
-    const supabase = createSupabaseClient(env);
+    const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+    const supabaseKey = env.SUPABASE_KEY || env.VITE_SUPABASE_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
     };
+
+    if (!supabaseUrl || !supabaseKey) {
+        return new Response(JSON.stringify({ success: false, error: 'Supabase credentials missing' }), { status: 500, headers });
+    }
 
     try {
         const formData = await request.formData();
@@ -15,13 +22,10 @@ export async function onRequestPost({ request, env }) {
             return new Response(JSON.stringify({ success: false, error: 'No image uploaded' }), { status: 400, headers });
         }
 
-        // Clean filename and make it unique
         const timestamp = Date.now();
-        // Remove spaces and special characters for safe URL
         const safeOriginalName = file.name ? file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_') : 'image.png';
         const fileName = `${timestamp}_${safeOriginalName}`;
 
-        // Upload to Supabase Storage bucket named 'images'
         let { data, error } = await supabase
             .storage
             .from('images')
@@ -30,12 +34,8 @@ export async function onRequestPost({ request, env }) {
                 upsert: false
             });
 
-        // AUTO-CREATE BUCKET IF MISSING!
         if (error && error.message && error.message.toLowerCase().includes('bucket not found')) {
-            console.log('Bucket "images" not found. Auto-creating public bucket...');
             await supabase.storage.createBucket('images', { public: true });
-            
-            // Retry upload
             const retry = await supabase
                 .storage
                 .from('images')
@@ -49,7 +49,6 @@ export async function onRequestPost({ request, env }) {
 
         if (error) throw error;
 
-        // Construct the public URL
         const { data: publicUrlData } = supabase
             .storage
             .from('images')

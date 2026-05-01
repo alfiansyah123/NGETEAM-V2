@@ -1,23 +1,21 @@
-import { createSupabaseClient } from '../utils/supabase';
-
 export async function onRequestGet(context) {
-    const supabase = createSupabaseClient(context.env);
+    const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300, s-maxage=300' // Cache for 5 mins
+        'Cache-Control': 'public, max-age=300, s-maxage=300'
     };
 
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
+    }
+
     try {
-        const { data: domainsData, error } = await supabase
-            .from('domains')
-            .select('url')
-            .eq('active', true)
-            .order('url', { ascending: true });
+        const { results: domainsData } = await db.prepare(`
+            SELECT url FROM domains WHERE active = 1 ORDER BY url ASC
+        `).all();
 
-        if (error) throw error;
-
-        const domains = domainsData.map(d => d.url);
+        const domains = (domainsData || []).map(d => d.url);
 
         return new Response(JSON.stringify({ domains }), { status: 200, headers });
 

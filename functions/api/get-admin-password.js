@@ -1,25 +1,21 @@
-import { createSupabaseClient } from '../utils/supabase';
-
-// Get current admin password
 export async function onRequestGet(context) {
+    const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
     };
 
+    if (!db) {
+        return new Response(JSON.stringify({ error: 'Database connection error' }), { status: 500, headers });
+    }
+
     try {
-        const supabase = createSupabaseClient(context.env);
         let password = 'NGEteam25!';
 
         try {
-            const { data, error } = await supabase
-                .from('settings')
-                .select('value')
-                .eq('key', 'admin_password')
-                .single();
-
-            if (!error && data?.value) {
-                password = data.value;
+            const result = await db.prepare('SELECT value FROM settings WHERE "key" = ?').bind('admin_password').first();
+            if (result?.value) {
+                password = result.value;
             }
         } catch (dbError) {
             console.warn('Could not fetch admin password from DB, using default.', dbError);
