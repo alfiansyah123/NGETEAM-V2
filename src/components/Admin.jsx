@@ -23,6 +23,7 @@ const Admin = () => {
     const [smartSlug, setSmartSlug] = useState('');
     const [smartUrl, setSmartUrl] = useState('');
     const [smartTrafeeUrl, setSmartTrafeeUrl] = useState('');
+    const [smartRouting, setSmartRouting] = useState('random');
     const [smartPassword, setSmartPassword] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [oldSlug, setOldSlug] = useState('');
@@ -152,7 +153,8 @@ const Admin = () => {
                         password: smartPassword,
                         target_url: smartUrl,
                         url_trafee: smartTrafeeUrl,
-                        old_user_id: oldSlug
+                        old_user_id: oldSlug,
+                        routing_mode: smartRouting
                     })
                 });
 
@@ -219,6 +221,7 @@ const Admin = () => {
         setSmartPassword(link.password);
         setSmartUrl(link.links?.original_url || '');
         setSmartTrafeeUrl(link.url_trafee || '');
+        setSmartRouting(link.routing_mode || 'random');
         setShowSmartlinkForm(true);
         // Scroll to form
         const form = document.querySelector('form');
@@ -233,6 +236,7 @@ const Admin = () => {
         setSmartUrl('');
         setSmartTrafeeUrl('');
         setSmartPassword('');
+        setSmartRouting('random');
         setShowSmartlinkForm(false);
     };
 

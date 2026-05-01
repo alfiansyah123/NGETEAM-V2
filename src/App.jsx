@@ -79,6 +79,31 @@ function App() {
   const [imageUrl, setImageUrl] = useState('')
   const [urlTrafee, setUrlTrafee] = useState('')
   const [routingMode, setRoutingMode] = useState('random')
+    
+  // Auto-save Routing Mode when changed by user
+  const handleRoutingChange = async (newMode) => {
+      setRoutingMode(newMode);
+      if (teamMode) {
+          try {
+              await fetch('/api/update-team-member', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      id: teamMode.id,
+                      name: teamMode.name,
+                      user_id: teamMode.user_id,
+                      password: teamMode.password,
+                      target_url: targetUrls,
+                      url_trafee: urlTrafee,
+                      old_user_id: teamMode.user_id,
+                      routing_mode: newMode
+                  })
+              });
+          } catch (err) {
+              console.error('Failed to auto-save routing mode:', err);
+          }
+      }
+  };
   const [useFSubdomain, setUseFSubdomain] = useState(false)
 
   const [domains, setDomains] = useState([])
@@ -523,7 +548,7 @@ function App() {
                     className="mnx-input" 
                     style={{ background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(0, 242, 255, 0.2)', color: 'var(--accent-cyan)', fontWeight: 800, textAlign: 'center' }}
                     value={routingMode}
-                    onChange={(e) => setRoutingMode(e.target.value)}
+                    onChange={(e) => handleRoutingChange(e.target.value)}
                   >
                     <option value="random">RANDOM SMART</option>
                     <option value="trafee">FORCE TRAFEE</option>
