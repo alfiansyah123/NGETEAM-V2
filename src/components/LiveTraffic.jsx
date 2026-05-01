@@ -3,7 +3,7 @@ import './LiveTraffic.css';
 import androidIcon from '../assets/android-icon.png';
 import appleIcon from '../assets/apple-icon.png';
 import windowsIcon from '../assets/windows-icon.png';
-import { supabase } from '../supabaseClient';
+// Live traffic component using API
 
 const LiveTraffic = () => {
     const [clicks, setClicks] = useState([]);
