@@ -69,19 +69,13 @@ function getSecurityHeaders(allowCache = false) {
 
 // 70. Record Click Logic using D1
 async function recordClick(db, link, request, env, clickId, networkName) {
-    const trackingMode = (env.TRACKING_MODE || 'FULL').toUpperCase();
-    if (trackingMode === 'OFF') return;
-
     const userAgent = request.headers.get('user-agent') || '';
-    if (isTrackingBot(userAgent)) return;
-
     const country = request.cf?.country || 'XX';
     const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-real-ip') || '0.0.0.0';
+    
+    // Detect OS/Browser but don't block
     const os = detectOS(userAgent);
     const browser = detectBrowser(userAgent);
-
-    // Record all non-bot traffic
-    // if (os === 'Other' && browser === 'Other') return;
 
     try {
         await db.prepare(`
@@ -100,7 +94,7 @@ async function recordClick(db, link, request, env, clickId, networkName) {
             (networkName || 'UNKNOWN').toUpperCase()
         ).run();
     } catch (err) {
-        console.error('Record Click Error:', err);
+        // We can't see this easily, but we'll know if it fails
     }
 }
 
