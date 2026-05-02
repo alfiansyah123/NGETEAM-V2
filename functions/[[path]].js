@@ -67,11 +67,10 @@ function getSecurityHeaders(allowCache = false) {
     return headers;
 }
 
-// 70. Record Click Logic using D1
+// Record Click Logic using D1
 async function recordClick(db, link, visitorData, env, clickId, networkName) {
     const { userAgent, country, ip, referer } = visitorData;
     
-    // Detect OS/Browser but don't block
     const os = detectOS(userAgent);
     const browser = detectBrowser(userAgent);
 
@@ -93,7 +92,7 @@ async function recordClick(db, link, visitorData, env, clickId, networkName) {
             link.user_id || null
         ).run();
     } catch (err) {
-        // We can't see this easily, but we'll know if it fails
+        // Silent fail - don't block the redirect
     }
 }
 
@@ -123,15 +122,46 @@ export async function onRequest(context) {
 
     if (!link) return context.next();
 
-    // 3. Bot Preview Serving
+    // 3. Bot Preview Serving - AUTO FETCH dari website tujuan kalau kosong
     if (isBot) {
-        const title = (link.title || 'Link Preview').replace(/"/g, '&quot;');
-        const description = (link.description || 'Click to view').replace(/"/g, '&quot;');
-        const image = link.image_url || '';
+        let title = link.title || '';
+        let description = link.description || '';
+        let image = link.image_url || '';
 
-        const html = `<!DOCTYPE html><html><head>
-<meta charset="UTF-8">
-<title>${title}</title>
+        // Kalau title dan image kosong, ambil dari website tujuan
+        if (!title && !image) {
+            try {
+                const metaResp = await fetch(link.original_url, {
+                    headers: { 'User-Agent': 'facebookexternalhit/1.1' },
+                    redirect: 'follow',
+                    cf: { cacheTtl: 86400 }
+                });
+                const rawHtml = await metaResp.text();
+
+                // Helper untuk ambil OG tag
+                const getOg = (prop) => {
+                    const m = rawHtml.match(new RegExp('<meta[^>]+property=["\']' + prop + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
+                        || rawHtml.match(new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']' + prop + '["\']', 'i'));
+                    return m ? m[1] : '';
+                };
+
+                title = getOg('og:title') || (rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || '';
+                description = getOg('og:description') || '';
+                if (!description) {
+                    const descMatch = rawHtml.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i);
+                    if (descMatch) description = descMatch[1];
+                }
+                image = getOg('og:image');
+            } catch (e) {
+                // Gagal fetch, pake default
+            }
+        }
+
+        title = (title || 'Link Preview').replace(/"/g, '&quot;');
+        description = (description || 'Click to view').replace(/"/g, '&quot;');
+
+        const previewHtml = `<!DOCTYPE html><html><head>
+<meta charset="UTF-8"><title>${title}</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
@@ -139,10 +169,9 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
 <meta name="twitter:card" content="summary_large_image">
 </head><body></body></html>`;
 
-        const response = new Response(html, {
+        return new Response(previewHtml, {
             headers: { ...getSecurityHeaders(false), 'Content-Type': 'text/html; charset=utf-8' }
         });
-        return response;
     }
 
     // 4. Geo-Blocking
