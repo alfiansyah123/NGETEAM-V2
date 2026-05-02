@@ -4,8 +4,10 @@ export async function onRequest(context) {
     const startDate = url.searchParams.get('startDate') || new Date().toISOString().split('T')[0];
     const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
     
+    // Comprehensive CORS Headers
     const headers = {
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Content-Type': 'application/json'
     };
@@ -13,7 +15,7 @@ export async function onRequest(context) {
     if (!db) return new Response(JSON.stringify({ error: 'DB connection failed', data: [] }), { status: 500, headers });
 
     try {
-        // 1. Fetch Click Stats from D1 'clicks' table JOINed with 'team' to get real member names
+        // 1. Fetch Click Stats Joined with Team
         const localClicksPromise = db.prepare(`
             SELECT 
                 COALESCE(t.name, c.slug) as smartlink_name,
@@ -26,7 +28,7 @@ export async function onRequest(context) {
             GROUP BY raw_slug, smartlink_name
         `).bind(startDate, endDate).all();
 
-        // 2. Fetch Lead Stats from D1 'daily_reports' (Postbacks)
+        // 2. Fetch Lead Stats from daily_reports
         const localLeadsPromise = db.prepare(`
             SELECT smartlink, network, SUM(leads) as leads, SUM(payout) as payouts
             FROM daily_reports
@@ -43,16 +45,15 @@ export async function onRequest(context) {
 
         const finalMap = {};
 
-        // Process Local Leads (Trafee, etc.)
+        // Process Leads
         for (const row of localLeads) {
-            const name = row.smartlink;
+            const slug = row.smartlink;
             const network = (row.network || 'TRAFEE').toUpperCase();
-            
-            const key = `${name}_${network}`;
+            const key = `${slug}_${network}`;
             if (!finalMap[key]) {
                 finalMap[key] = {
-                    smartlink: name,
-                    slug: name, // RAW SLUG from daily_reports
+                    smartlink: slug,
+                    slug: slug,
                     smartlink_id: null,
                     network: network,
                     visits: 0, unique: 0, clicks: 0, leads: 0, payouts: 0.0
@@ -62,22 +63,20 @@ export async function onRequest(context) {
             finalMap[key].payouts += row.payouts || 0.0;
         }
 
-        // Process Local Clicks
+        // Process Clicks
         for (const row of localClicks) {
             const displayName = row.smartlink_name;
             const slug = row.raw_slug;
-            
             let found = false;
             for (const key in finalMap) {
-                // Match based on slug (which is what leads use)
                 if (finalMap[key].slug === slug || finalMap[key].smartlink === slug) {
-                    finalMap[key].smartlink = displayName; // Set display name
+                    finalMap[key].smartlink = displayName;
                     finalMap[key].clicks = (finalMap[key].clicks || 0) + row.total_clicks;
                     finalMap[key].unique = (finalMap[key].unique || 0) + row.unique_clicks;
+                    finalMap[key].visits = (finalMap[key].visits || 0) + row.total_clicks;
                     found = true;
                 }
             }
-            
             if (!found) {
                 finalMap[slug] = {
                     smartlink: displayName,
