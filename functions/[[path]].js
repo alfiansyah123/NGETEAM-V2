@@ -68,10 +68,8 @@ function getSecurityHeaders(allowCache = false) {
 }
 
 // 70. Record Click Logic using D1
-async function recordClick(db, link, request, env, clickId, networkName) {
-    const userAgent = request.headers.get('user-agent') || '';
-    const country = request.cf?.country || 'XX';
-    const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-real-ip') || '0.0.0.0';
+async function recordClick(db, link, visitorData, env, clickId, networkName) {
+    const { userAgent, country, ip, referer } = visitorData;
     
     // Detect OS/Browser but don't block
     const os = detectOS(userAgent);
@@ -90,7 +88,7 @@ async function recordClick(db, link, request, env, clickId, networkName) {
             browser,
             clickId,
             userAgent,
-            request.headers.get('referer') || null,
+            referer || null,
             (networkName || 'UNKNOWN').toUpperCase()
         ).run();
     } catch (err) {
@@ -194,7 +192,13 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
     clickId = extractViaRegex(url.search) || extractViaRegex(target);
 
     // 7. Record Click & Redirect
-    context.waitUntil(recordClick(db, link, context.request, context.env, clickId, networkUsed));
+    const visitorData = {
+        userAgent,
+        country,
+        ip: context.request.headers.get('cf-connecting-ip') || context.request.headers.get('x-real-ip') || '0.0.0.0',
+        referer: context.request.headers.get('referer')
+    };
+    context.waitUntil(recordClick(db, link, visitorData, context.env, clickId, networkUsed));
 
     const redirectResponse = new Response(null, {
         status: 302,
