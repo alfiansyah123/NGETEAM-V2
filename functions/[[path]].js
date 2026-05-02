@@ -141,9 +141,8 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
 </head><body></body></html>`;
 
         const response = new Response(html, {
-            headers: { ...getSecurityHeaders(true), 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600, s-maxage=3600' }
+            headers: { ...getSecurityHeaders(false), 'Content-Type': 'text/html; charset=utf-8' }
         });
-        context.waitUntil(cache.put(cacheKey, response.clone()));
         return response;
     }
 
@@ -199,8 +198,7 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
 
     const redirectResponse = new Response(null, {
         status: 302,
-        headers: { ...getSecurityHeaders(true), 'Location': target }
+        headers: { ...getSecurityHeaders(false), 'Location': target }
     });
-    context.waitUntil(cache.put(cacheKey, redirectResponse.clone()));
     return redirectResponse;
 }
