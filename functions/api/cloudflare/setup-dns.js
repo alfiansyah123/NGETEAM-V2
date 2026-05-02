@@ -16,7 +16,7 @@ export async function onRequestPost(context) {
         }
 
         // Get the pages.dev target from environment or use default
-        const pagesTarget = context.env.PAGES_DOMAIN || 'ngeteam-gen.pages.dev';
+        const pagesTarget = context.env.PAGES_DOMAIN || 'ngeteam-v2.pages.dev';
 
         // DNS records to create
         const records = [

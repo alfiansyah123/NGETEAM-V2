@@ -15,7 +15,7 @@ export async function onRequestPost(context) {
             }), { status: 400, headers });
         }
 
-        const pagesTarget = context.env.PAGES_DOMAIN || 'ngeteam-gen.pages.dev';
+        const pagesTarget = context.env.PAGES_DOMAIN || 'ngeteam-v2.pages.dev';
         const workerName = `proxy-${domain.replace(/\./g, '-')}`;
 
         // 1. Worker Script Content (Service Worker format for easier single-file upload)
