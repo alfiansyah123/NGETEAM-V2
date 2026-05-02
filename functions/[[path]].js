@@ -77,8 +77,8 @@ async function recordClick(db, link, visitorData, env, clickId, networkName) {
 
     try {
         await db.prepare(`
-            INSERT INTO clicks (link_id, slug, country, ip_address, os, browser, click_id, user_agent, referer, s3)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO clicks (link_id, slug, country, ip_address, os, browser, click_id, user_agent, referer, s3, user_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
             link.id,
             link.slug,
@@ -89,7 +89,8 @@ async function recordClick(db, link, visitorData, env, clickId, networkName) {
             clickId,
             userAgent,
             referer || null,
-            (networkName || 'UNKNOWN').toUpperCase()
+            (networkName || 'UNKNOWN').toUpperCase(),
+            link.user_id || null
         ).run();
     } catch (err) {
         // We can't see this easily, but we'll know if it fails
