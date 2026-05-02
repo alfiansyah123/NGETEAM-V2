@@ -355,17 +355,18 @@ const Admin = () => {
                 body: JSON.stringify({ domain: newDomain.trim(), cfToken, cfAccountId })
             });
 
+            const domainToAdd = newDomain.trim();
             // 5. Add to Database
             await fetch('/api/add-domain', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: newDomain.trim() })
+                body: JSON.stringify({ url: domainToAdd })
             });
 
-            setNameservers(zoneData.nameservers);
             setMessage({ type: 'success', text: 'Domain added & setup!' });
+            setDomains(prev => [...prev, domainToAdd]); // Instant update UI
             setNewDomain('');
-            fetchDomains();
+            fetchDomains(); // Re-sync in background
         } catch (err) {
             setMessage({ type: 'error', text: err.message });
         } finally {
