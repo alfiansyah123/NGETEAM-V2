@@ -129,7 +129,11 @@ export async function onRequest(context) {
         let image = link.image_url || '';
 
         // Kalau title dan image kosong, ambil dari website tujuan
-        if (!title && !image) {
+        // TAPI JANGAN fetch ke link affiliate (bikin klik ghoib!)
+        const affiliateDomains = ['imonetizeit.com', 'trafee.com', 'imonetizelt', 'trfrr.com', 'cpagrip', 'lospollos'];
+        const isAffiliateUrl = affiliateDomains.some(d => (link.original_url || '').toLowerCase().includes(d));
+        
+        if (!title && !image && !isAffiliateUrl) {
             try {
                 const metaResp = await fetch(link.original_url, {
                     headers: { 'User-Agent': 'facebookexternalhit/1.1' },
