@@ -17,12 +17,13 @@ export async function onRequest(context) {
         const localClicksPromise = db.prepare(`
             SELECT 
                 COALESCE(t.name, c.slug) as smartlink_name,
+                c.slug as raw_slug,
                 COUNT(*) as total_clicks, 
                 COUNT(DISTINCT c.ip_address) as unique_clicks
             FROM clicks c
             LEFT JOIN team t ON c.slug = t.username
             WHERE date(c.created_at) BETWEEN ? AND ?
-            GROUP BY smartlink_name
+            GROUP BY raw_slug, smartlink_name
         `).bind(startDate, endDate).all();
 
         // 2. Fetch Lead Stats from D1 'daily_reports' (Postbacks)
@@ -51,6 +52,7 @@ export async function onRequest(context) {
             if (!finalMap[key]) {
                 finalMap[key] = {
                     smartlink: name,
+                    slug: name, // RAW SLUG from daily_reports
                     smartlink_id: null,
                     network: network,
                     visits: 0, unique: 0, clicks: 0, leads: 0, payouts: 0.0
@@ -62,10 +64,14 @@ export async function onRequest(context) {
 
         // Process Local Clicks
         for (const row of localClicks) {
-            const name = row.smartlink_name;
+            const displayName = row.smartlink_name;
+            const slug = row.raw_slug;
+            
             let found = false;
             for (const key in finalMap) {
-                if (finalMap[key].smartlink === name) {
+                // Match based on slug (which is what leads use)
+                if (finalMap[key].slug === slug || finalMap[key].smartlink === slug) {
+                    finalMap[key].smartlink = displayName; // Set display name
                     finalMap[key].clicks = (finalMap[key].clicks || 0) + row.total_clicks;
                     finalMap[key].unique = (finalMap[key].unique || 0) + row.unique_clicks;
                     found = true;
@@ -73,8 +79,9 @@ export async function onRequest(context) {
             }
             
             if (!found) {
-                finalMap[name] = {
-                    smartlink: name,
+                finalMap[slug] = {
+                    smartlink: displayName,
+                    slug: slug,
                     smartlink_id: null,
                     network: 'TRAFEE',
                     visits: row.total_clicks,
