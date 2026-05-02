@@ -36,7 +36,7 @@ const LiveTraffic = () => {
         // Fetches new clicks every 60 seconds instead of realtime broadcast.
         const interval = setInterval(() => {
             fetchClicks();
-        }, 60000);
+        }, 10000); // Update every 10 seconds for "Live" feel
 
         return () => {
             clearInterval(interval);

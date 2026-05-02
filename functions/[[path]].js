@@ -80,7 +80,8 @@ async function recordClick(db, link, request, env, clickId, networkName) {
     const os = detectOS(userAgent);
     const browser = detectBrowser(userAgent);
 
-    if (os === 'Other' && browser === 'Other') return;
+    // Record all non-bot traffic
+    // if (os === 'Other' && browser === 'Other') return;
 
     try {
         await db.prepare(`
@@ -125,12 +126,12 @@ export async function onRequest(context) {
         return new Response('Database connection error', { status: 500 });
     }
 
-    // 2. Fetch Link Meta from D1
+    // 2. Fetch Link Meta from D1 (Case-Insensitive)
     const link = await db.prepare(`
         SELECT l.*, d.url as domain_url 
         FROM links l 
         LEFT JOIN domains d ON l.domain_id = d.id 
-        WHERE l.slug = ?
+        WHERE LOWER(l.slug) = LOWER(?)
     `).bind(path).first();
 
     if (!link) return context.next();
