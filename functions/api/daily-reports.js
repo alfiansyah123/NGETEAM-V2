@@ -13,12 +13,16 @@ export async function onRequest(context) {
     if (!db) return new Response(JSON.stringify({ error: 'DB connection failed', data: [] }), { status: 500, headers });
 
     try {
-        // 1. Fetch Click Stats from D1 'clicks' table (Realtime Traffic)
+        // 1. Fetch Click Stats from D1 'clicks' table JOINed with 'team' to get real member names
         const localClicksPromise = db.prepare(`
-            SELECT slug, COUNT(*) as total_clicks, COUNT(DISTINCT ip_address) as unique_clicks
-            FROM clicks
-            WHERE date(created_at) BETWEEN ? AND ?
-            GROUP BY slug
+            SELECT 
+                COALESCE(t.name, c.slug) as smartlink_name,
+                COUNT(*) as total_clicks, 
+                COUNT(DISTINCT c.ip_address) as unique_clicks
+            FROM clicks c
+            LEFT JOIN team t ON c.slug = t.username
+            WHERE date(c.created_at) BETWEEN ? AND ?
+            GROUP BY smartlink_name
         `).bind(startDate, endDate).all();
 
         // 2. Fetch Lead Stats from D1 'daily_reports' (Postbacks)
@@ -43,7 +47,6 @@ export async function onRequest(context) {
             const name = row.smartlink;
             const network = (row.network || 'TRAFEE').toUpperCase();
             
-            // For Trafee view, we prioritize Trafee network
             const key = `${name}_${network}`;
             if (!finalMap[key]) {
                 finalMap[key] = {
@@ -59,7 +62,7 @@ export async function onRequest(context) {
 
         // Process Local Clicks
         for (const row of localClicks) {
-            const name = row.slug;
+            const name = row.smartlink_name;
             let found = false;
             for (const key in finalMap) {
                 if (finalMap[key].smartlink === name) {
