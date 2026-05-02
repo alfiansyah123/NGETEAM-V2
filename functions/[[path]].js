@@ -109,12 +109,6 @@ export async function onRequest(context) {
         return context.next();
     }
 
-    // 1. Edge Caching Check
-    const cache = caches.default;
-    const cacheKey = new Request(context.request.url + (isBot ? '?bot=1' : '?user=1'), context.request);
-    let cachedResponse = await cache.match(cacheKey);
-    if (cachedResponse) return cachedResponse;
-
     const db = context.env.DB;
     if (!db) {
         return new Response('Database connection error', { status: 500 });
