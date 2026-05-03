@@ -23,6 +23,40 @@ export async function onRequestPost(context) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers });
         }
 
+        // AUTO-FETCH: Kalau user gak isi title/image, ambil dari website tujuan SEKARANG
+        // Ini cuma jalan 1x pas bikin link, BUKAN pas bot dateng = 0 KLIK GHOIB
+        if (!title && !image_url) {
+            try {
+                const metaResp = await fetch(original_url, {
+                    headers: { 'User-Agent': 'facebookexternalhit/1.1' },
+                    redirect: 'follow'
+                });
+                const rawHtml = await metaResp.text();
+
+                const getOg = (prop) => {
+                    const m = rawHtml.match(new RegExp('<meta[^>]+property=["\']' + prop + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
+                        || rawHtml.match(new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']' + prop + '["\']', 'i'));
+                    return m ? m[1] : '';
+                };
+
+                if (!title) {
+                    title = getOg('og:title') || (rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || '';
+                }
+                if (!description) {
+                    description = getOg('og:description') || '';
+                    if (!description) {
+                        const descMatch = rawHtml.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i);
+                        if (descMatch) description = descMatch[1];
+                    }
+                }
+                if (!image_url) {
+                    image_url = getOg('og:image') || '';
+                }
+            } catch (e) {
+                // Gagal fetch, lanjut tanpa preview
+            }
+        }
+
         // 1. Get Domain ID
         const domain = await db.prepare(`
             SELECT id FROM domains WHERE url LIKE ? AND active = 1 LIMIT 1
@@ -34,7 +68,7 @@ export async function onRequestPost(context) {
 
         const domainId = domain.id;
 
-        // 2. Insert Link
+        // 2. Insert Link (sekarang title/description/image_url sudah terisi otomatis)
         try {
             await db.prepare(`
                 INSERT INTO links (slug, original_url, domain_id, user_id, title, description, image_url, url_trafee, routing_mode)

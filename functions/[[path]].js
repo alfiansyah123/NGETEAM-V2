@@ -128,38 +128,8 @@ export async function onRequest(context) {
         let description = link.description || '';
         let image = link.image_url || '';
 
-        // Kalau title dan image kosong, ambil dari website tujuan
-        // TAPI JANGAN fetch ke link affiliate (bikin klik ghoib!)
-        const affiliateDomains = ['imonetizeit.com', 'trafee.com', 'imonetizelt', 'trfrr.com', 'cpagrip', 'lospollos'];
-        const isAffiliateUrl = affiliateDomains.some(d => (link.original_url || '').toLowerCase().includes(d));
-        
-        if (!title && !image && !isAffiliateUrl) {
-            try {
-                const metaResp = await fetch(link.original_url, {
-                    headers: { 'User-Agent': 'facebookexternalhit/1.1' },
-                    redirect: 'follow',
-                    cf: { cacheTtl: 86400 }
-                });
-                const rawHtml = await metaResp.text();
-
-                // Helper untuk ambil OG tag
-                const getOg = (prop) => {
-                    const m = rawHtml.match(new RegExp('<meta[^>]+property=["\']' + prop + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
-                        || rawHtml.match(new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']' + prop + '["\']', 'i'));
-                    return m ? m[1] : '';
-                };
-
-                title = getOg('og:title') || (rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || '';
-                description = getOg('og:description') || '';
-                if (!description) {
-                    const descMatch = rawHtml.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i);
-                    if (descMatch) description = descMatch[1];
-                }
-                image = getOg('og:image');
-            } catch (e) {
-                // Gagal fetch, pake default
-            }
-        }
+        // Preview data sudah di-fetch otomatis pas bikin link (di save-link.js)
+        // Jadi di sini tinggal serve aja, GAK PERLU fetch = 0 KLIK GHOIB
 
         title = (title || 'Link Preview').replace(/"/g, '&quot;');
         description = (description || 'Click to view').replace(/"/g, '&quot;');
