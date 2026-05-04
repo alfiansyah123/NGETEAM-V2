@@ -76,8 +76,8 @@ async function recordClick(db, link, visitorData, env, clickId, networkName) {
 
     try {
         await db.prepare(`
-            INSERT INTO clicks (link_id, slug, country, ip_address, os, browser, click_id, user_agent, referer, s3, user_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO clicks (link_id, slug, country, ip_address, os, browser, click_id, user_agent, referer, s3, network, user_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
             link.id,
             link.slug,
@@ -88,6 +88,7 @@ async function recordClick(db, link, visitorData, env, clickId, networkName) {
             clickId,
             userAgent,
             referer || null,
+            (networkName || 'UNKNOWN').toUpperCase(),
             (networkName || 'UNKNOWN').toUpperCase(),
             link.user_id || null
         ).run();
@@ -159,7 +160,7 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
     // 5. Target URL Selection
     let target = link.original_url;
     let networkUsed = 'IMONETIZEIT';
-    const mode = link.routing_mode || 'random';
+    const mode = (link.routing_mode || 'random').toLowerCase();
     const trafeeUrl = link.url_trafee || link.trafee_url;
 
     if (mode === 'trafee' && trafeeUrl) {
@@ -168,12 +169,23 @@ ${image ? `<meta property="og:image" content="${image}"><meta property="og:image
     } else if (mode === 'imonetizeit') {
         target = link.original_url;
         networkUsed = 'IMONETIZEIT';
-    } else if (mode === 'random') {
-        // SMART LOGIC: Tier 1 to iMonetizeit, others to Trafee
-        const topTier = ['US', 'GB', 'CA', 'AU', 'DE', 'FR', 'CH', 'IT', 'ES', 'NL', 'SE', 'NO', 'DK', 'BE'];
-        if (!topTier.includes(country) && trafeeUrl) {
+    } else {
+        // mode 'random' or default: SMART LOGIC
+        // Tier 1 countries that generally perform better on iMonetizeIt
+        const iMonetizeItTiers = [
+            'US', 'GB', 'CA', 'AU', 'NZ', // Anglosphere
+            'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'CH', 'AT', // Western Europe
+            'SE', 'NO', 'DK', 'FI', // Nordics
+            'JP', 'KR', 'SG', // Top Asia
+            'MX' // Mexico request
+        ];
+        
+        if (trafeeUrl && !iMonetizeItTiers.includes(country)) {
             target = trafeeUrl;
             networkUsed = 'TRAFEE';
+        } else {
+            target = link.original_url;
+            networkUsed = 'IMONETIZEIT';
         }
     }
 

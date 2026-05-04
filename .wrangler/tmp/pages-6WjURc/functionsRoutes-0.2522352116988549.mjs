@@ -1,0 +1,347 @@
+import { onRequestOptions as __api_cloudflare_add_pages_domain_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\add-pages-domain.js"
+import { onRequestPost as __api_cloudflare_add_pages_domain_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\add-pages-domain.js"
+import { onRequestOptions as __api_cloudflare_add_zone_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\add-zone.js"
+import { onRequestPost as __api_cloudflare_add_zone_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\add-zone.js"
+import { onRequestOptions as __api_cloudflare_delete_zone_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\delete-zone.js"
+import { onRequestPost as __api_cloudflare_delete_zone_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\delete-zone.js"
+import { onRequestOptions as __api_cloudflare_setup_dns_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\setup-dns.js"
+import { onRequestPost as __api_cloudflare_setup_dns_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\setup-dns.js"
+import { onRequestOptions as __api_cloudflare_setup_worker_proxy_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\setup-worker-proxy.js"
+import { onRequestPost as __api_cloudflare_setup_worker_proxy_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\cloudflare\\setup-worker-proxy.js"
+import { onRequestOptions as __api_add_domain_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\add-domain.js"
+import { onRequestPost as __api_add_domain_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\add-domain.js"
+import { onRequestPost as __api_add_team_member_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\add-team-member.js"
+import { onRequestOptions as __api_batch_save_links_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\batch-save-links.js"
+import { onRequestPost as __api_batch_save_links_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\batch-save-links.js"
+import { onRequestPost as __api_bulk_import_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\bulk-import.js"
+import { onRequestOptions as __api_change_password_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\change-password.js"
+import { onRequestPost as __api_change_password_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\change-password.js"
+import { onRequestOptions as __api_delete_domain_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\delete-domain.js"
+import { onRequestPost as __api_delete_team_member_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\delete-team-member.js"
+import { onRequestGet as __api_get_admin_password_js_onRequestGet } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\get-admin-password.js"
+import { onRequestGet as __api_get_clicks_report_js_onRequestGet } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\get-clicks-report.js"
+import { onRequestGet as __api_get_domains_js_onRequestGet } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\get-domains.js"
+import { onRequestOptions as __api_get_recent_clicks_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\get-recent-clicks.js"
+import { onRequestGet as __api_get_settings_js_onRequestGet } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\get-settings.js"
+import { onRequestGet as __api_get_smartlink_by_user_js_onRequestGet } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\get-smartlink-by-user.js"
+import { onRequestGet as __api_get_team_js_onRequestGet } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\get-team.js"
+import { onRequestOptions as __api_login_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\login.js"
+import { onRequestPost as __api_login_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\login.js"
+import { onRequestOptions as __api_save_link_js_onRequestOptions } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\save-link.js"
+import { onRequestPost as __api_save_link_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\save-link.js"
+import { onRequestPost as __api_save_settings_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\save-settings.js"
+import { onRequestPost as __api_shorten_link_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\shorten-link.js"
+import { onRequestPost as __api_update_click_ip_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\update-click-ip.js"
+import { onRequestPost as __api_update_team_member_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\update-team-member.js"
+import { onRequestPost as __api_upload_image_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\upload-image.js"
+import { onRequestPost as __api_warm_og_cache_js_onRequestPost } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\warm-og-cache.js"
+import { onRequest as __api_daily_reports_js_onRequest } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\daily-reports.js"
+import { onRequest as __api_debug_db_js_onRequest } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\debug-db.js"
+import { onRequest as __api_delete_domain_js_onRequest } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\delete-domain.js"
+import { onRequest as __api_get_recent_clicks_js_onRequest } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\get-recent-clicks.js"
+import { onRequest as __api_init_db_js_onRequest } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\api\\init-db.js"
+import { onRequest as ____path___js_onRequest } from "C:\\NGETEAM-UBED\\NGETEAM-GEN\\functions\\[[path]].js"
+
+export const routes = [
+    {
+      routePath: "/api/cloudflare/add-pages-domain",
+      mountPath: "/api/cloudflare",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_cloudflare_add_pages_domain_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/cloudflare/add-pages-domain",
+      mountPath: "/api/cloudflare",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_cloudflare_add_pages_domain_js_onRequestPost],
+    },
+  {
+      routePath: "/api/cloudflare/add-zone",
+      mountPath: "/api/cloudflare",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_cloudflare_add_zone_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/cloudflare/add-zone",
+      mountPath: "/api/cloudflare",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_cloudflare_add_zone_js_onRequestPost],
+    },
+  {
+      routePath: "/api/cloudflare/delete-zone",
+      mountPath: "/api/cloudflare",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_cloudflare_delete_zone_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/cloudflare/delete-zone",
+      mountPath: "/api/cloudflare",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_cloudflare_delete_zone_js_onRequestPost],
+    },
+  {
+      routePath: "/api/cloudflare/setup-dns",
+      mountPath: "/api/cloudflare",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_cloudflare_setup_dns_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/cloudflare/setup-dns",
+      mountPath: "/api/cloudflare",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_cloudflare_setup_dns_js_onRequestPost],
+    },
+  {
+      routePath: "/api/cloudflare/setup-worker-proxy",
+      mountPath: "/api/cloudflare",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_cloudflare_setup_worker_proxy_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/cloudflare/setup-worker-proxy",
+      mountPath: "/api/cloudflare",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_cloudflare_setup_worker_proxy_js_onRequestPost],
+    },
+  {
+      routePath: "/api/add-domain",
+      mountPath: "/api",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_add_domain_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/add-domain",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_add_domain_js_onRequestPost],
+    },
+  {
+      routePath: "/api/add-team-member",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_add_team_member_js_onRequestPost],
+    },
+  {
+      routePath: "/api/batch-save-links",
+      mountPath: "/api",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_batch_save_links_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/batch-save-links",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_batch_save_links_js_onRequestPost],
+    },
+  {
+      routePath: "/api/bulk-import",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_bulk_import_js_onRequestPost],
+    },
+  {
+      routePath: "/api/change-password",
+      mountPath: "/api",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_change_password_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/change-password",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_change_password_js_onRequestPost],
+    },
+  {
+      routePath: "/api/delete-domain",
+      mountPath: "/api",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_delete_domain_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/delete-team-member",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_delete_team_member_js_onRequestPost],
+    },
+  {
+      routePath: "/api/get-admin-password",
+      mountPath: "/api",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_get_admin_password_js_onRequestGet],
+    },
+  {
+      routePath: "/api/get-clicks-report",
+      mountPath: "/api",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_get_clicks_report_js_onRequestGet],
+    },
+  {
+      routePath: "/api/get-domains",
+      mountPath: "/api",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_get_domains_js_onRequestGet],
+    },
+  {
+      routePath: "/api/get-recent-clicks",
+      mountPath: "/api",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_get_recent_clicks_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/get-settings",
+      mountPath: "/api",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_get_settings_js_onRequestGet],
+    },
+  {
+      routePath: "/api/get-smartlink-by-user",
+      mountPath: "/api",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_get_smartlink_by_user_js_onRequestGet],
+    },
+  {
+      routePath: "/api/get-team",
+      mountPath: "/api",
+      method: "GET",
+      middlewares: [],
+      modules: [__api_get_team_js_onRequestGet],
+    },
+  {
+      routePath: "/api/login",
+      mountPath: "/api",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_login_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/login",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_login_js_onRequestPost],
+    },
+  {
+      routePath: "/api/save-link",
+      mountPath: "/api",
+      method: "OPTIONS",
+      middlewares: [],
+      modules: [__api_save_link_js_onRequestOptions],
+    },
+  {
+      routePath: "/api/save-link",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_save_link_js_onRequestPost],
+    },
+  {
+      routePath: "/api/save-settings",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_save_settings_js_onRequestPost],
+    },
+  {
+      routePath: "/api/shorten-link",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_shorten_link_js_onRequestPost],
+    },
+  {
+      routePath: "/api/update-click-ip",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_update_click_ip_js_onRequestPost],
+    },
+  {
+      routePath: "/api/update-team-member",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_update_team_member_js_onRequestPost],
+    },
+  {
+      routePath: "/api/upload-image",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_upload_image_js_onRequestPost],
+    },
+  {
+      routePath: "/api/warm-og-cache",
+      mountPath: "/api",
+      method: "POST",
+      middlewares: [],
+      modules: [__api_warm_og_cache_js_onRequestPost],
+    },
+  {
+      routePath: "/api/daily-reports",
+      mountPath: "/api",
+      method: "",
+      middlewares: [],
+      modules: [__api_daily_reports_js_onRequest],
+    },
+  {
+      routePath: "/api/debug-db",
+      mountPath: "/api",
+      method: "",
+      middlewares: [],
+      modules: [__api_debug_db_js_onRequest],
+    },
+  {
+      routePath: "/api/delete-domain",
+      mountPath: "/api",
+      method: "",
+      middlewares: [],
+      modules: [__api_delete_domain_js_onRequest],
+    },
+  {
+      routePath: "/api/get-recent-clicks",
+      mountPath: "/api",
+      method: "",
+      middlewares: [],
+      modules: [__api_get_recent_clicks_js_onRequest],
+    },
+  {
+      routePath: "/api/init-db",
+      mountPath: "/api",
+      method: "",
+      middlewares: [],
+      modules: [__api_init_db_js_onRequest],
+    },
+  {
+      routePath: "/:path*",
+      mountPath: "/",
+      method: "",
+      middlewares: [],
+      modules: [____path___js_onRequest],
+    },
+  ]
