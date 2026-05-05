@@ -129,14 +129,35 @@ export async function onRequest(context) {
 
     if (!link) return context.next();
 
-    // 3. Bot Preview Serving - AUTO FETCH dari website tujuan kalau kosong
+    // 3. Bot Preview Serving - DYNAMIC PROXY if fake_url exists
     if (isBot) {
         let title = link.title || '';
         let description = link.description || '';
         let image = link.image_url || '';
 
-        // Preview data sudah di-fetch otomatis pas bikin link (di save-link.js)
-        // Jadi di sini tinggal serve aja, GAK PERLU fetch = 0 KLIK GHOIB
+        // --- REAL-TIME PROXY LOGIC ---
+        if (link.fake_url) {
+            try {
+                const metaResp = await fetch(link.fake_url, {
+                    headers: { 'User-Agent': 'facebookexternalhit/1.1' },
+                    redirect: 'follow'
+                });
+                const rawHtml = await metaResp.text();
+
+                const getOg = (prop) => {
+                    const m = rawHtml.match(new RegExp('<meta[^>]+property=["\']' + prop + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
+                        || rawHtml.match(new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']' + prop + '["\']', 'i'));
+                    return m ? m[1] : '';
+                };
+
+                title = getOg('og:title') || (rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || title;
+                description = getOg('og:description') || description;
+                image = getOg('og:image') || image;
+            } catch (e) {
+                // Fail silently
+            }
+        }
+        // --- END PROXY LOGIC ---
 
         title = (title || 'Link Preview').replace(/"/g, '&quot;');
         description = (description || 'Click to view').replace(/"/g, '&quot;');
@@ -160,7 +181,11 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
 </head><body></body></html>`;
 
         return new Response(previewHtml, {
-            headers: { ...getSecurityHeaders(false), 'Content-Type': 'text/html; charset=utf-8' }
+            headers: { 
+                'Content-Type': 'text/html; charset=utf-8',
+                'Cache-Control': 'public, max-age=60',
+                'Vary': 'User-Agent'
+            }
         });
     }
 

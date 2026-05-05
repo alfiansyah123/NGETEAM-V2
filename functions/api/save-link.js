@@ -12,7 +12,7 @@ export async function onRequestPost(context) {
 
     try {
         const body = await context.request.json();
-        let { slug, original_url, domain_url, title, description, image_url, user_id, url_trafee, routing_mode } = body;
+        let { slug, original_url, domain_url, title, description, image_url, user_id, url_trafee, routing_mode, fake_url } = body;
 
         domain_url = (domain_url || body.domain || '').trim();
         if (domain_url) {
@@ -71,8 +71,8 @@ export async function onRequestPost(context) {
         // 2. Insert Link (sekarang title/description/image_url sudah terisi otomatis)
         try {
             await db.prepare(`
-                INSERT INTO links (slug, original_url, domain_id, user_id, title, description, image_url, url_trafee, routing_mode)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO links (slug, original_url, domain_id, user_id, title, description, image_url, url_trafee, routing_mode, fake_url)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).bind(
                 slug,
                 original_url,
@@ -82,7 +82,8 @@ export async function onRequestPost(context) {
                 description || null,
                 image_url || null,
                 url_trafee || null,
-                routing_mode || 'random'
+                routing_mode || 'random',
+                fake_url || null
             ).run();
 
             return new Response(JSON.stringify({ success: true, slug }), { status: 200, headers });

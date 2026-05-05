@@ -77,6 +77,7 @@ function App() {
   const [jumlah, setJumlah] = useState(1)
   const [deskripsi, setDeskripsi] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [fakeUrl, setFakeUrl] = useState('')
   const [urlTrafee, setUrlTrafee] = useState('')
   const [routingMode, setRoutingMode] = useState('random')
     
@@ -369,6 +370,7 @@ function App() {
             title: judul,
             description: deskripsi,
             image_url: imageUrl,
+            fake_url: fakeUrl,
             url_trafee: urlTrafee,
             routing_mode: routingMode,
             user_id: teamMode?.user_id || null
@@ -725,6 +727,18 @@ function App() {
                 <span className="section-title">JUDUL META</span>
                 <div className="mnx-input-group">
                   <input className="mnx-input" placeholder="Input Judul Link..." value={judul} onChange={(e) => setJudul(e.target.value)} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <span className="section-title">CLONE URL (YOUTUBE/NEWS)</span>
+                <div className="mnx-input-group">
+                  <input 
+                    className="mnx-input" 
+                    placeholder="Tempel link yang mau dicontek..." 
+                    value={fakeUrl} 
+                    onChange={(e) => setFakeUrl(e.target.value)} 
+                  />
                 </div>
               </div>
 
