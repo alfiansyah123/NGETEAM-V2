@@ -881,6 +881,8 @@ async function onRequest2(context) {
                 c.click_id,
                 c.os,
                 c.browser,
+                c.network,
+                c.s3,
                 l.title as link_title,
                 l.original_url
             FROM clicks c
@@ -897,6 +899,8 @@ async function onRequest2(context) {
       click_id: row.click_id || null,
       os: row.os || "Unknown",
       browser: row.browser || "Other",
+      network: row.network || null,
+      s3: row.s3 || null,
       link_title: row.link_title || row.slug,
       original_url: row.original_url || ""
     }));

@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-ofX2LH/checked-fetch.js
+// ../.wrangler/tmp/bundle-9TJSXv/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -859,6 +859,8 @@ async function onRequest2(context) {
                 c.click_id,
                 c.os,
                 c.browser,
+                c.network,
+                c.s3,
                 l.title as link_title,
                 l.original_url
             FROM clicks c
@@ -875,6 +877,8 @@ async function onRequest2(context) {
       click_id: row.click_id || null,
       os: row.os || "Unknown",
       browser: row.browser || "Other",
+      network: row.network || null,
+      s3: row.s3 || null,
       link_title: row.link_title || row.slug,
       original_url: row.original_url || ""
     }));
@@ -14479,7 +14483,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-ofX2LH/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-9TJSXv/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14511,7 +14515,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-ofX2LH/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-9TJSXv/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
