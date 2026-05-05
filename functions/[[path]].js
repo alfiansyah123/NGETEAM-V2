@@ -142,6 +142,11 @@ export async function onRequest(context) {
 <meta property="og:description" content="${description}">
 ${image ? `<meta property="og:image" content="${image}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : ''}
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${title}">
+<meta name="twitter:description" content="${description}">
+${image ? `<meta name="twitter:image" content="${image}">` : ''}
+<meta property="og:updated_time" content="${new Date().getTime()}">
+<meta property="fb:app_id" content="966242223397117">
 </head><body></body></html>`;
 
         return new Response(previewHtml, {
