@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-mOkIVa/checked-fetch.js
+// ../.wrangler/tmp/bundle-tAv42t/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -13602,15 +13602,20 @@ async function onRequest6(context) {
     let image = link.image_url || "";
     title = (title || "Link Preview").replace(/"/g, "&quot;");
     description = (description || "Click to view").replace(/"/g, "&quot;");
+    let finalImageUrl = image;
+    if (image && !image.startsWith("http")) {
+      const domain = link.domain_url || url.hostname;
+      finalImageUrl = `https://${domain}${image.startsWith("/") ? "" : "/"}${image}`;
+    }
     const previewHtml = `<!DOCTYPE html><html><head>
 <meta charset="UTF-8"><title>${title}</title>
 <meta property="og:type" content="website">
 <meta property="og:url" content="${context.request.url}">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
-${image ? `<meta property="og:image" content="${image}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : ""}
+${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : ""}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="${image}">
+<meta name="twitter:image" content="${finalImageUrl}">
 </head><body></body></html>`;
     return new Response(previewHtml, {
       headers: { ...getSecurityHeaders(false), "Content-Type": "text/html; charset=utf-8" }
@@ -14485,7 +14490,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-mOkIVa/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-tAv42t/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14517,7 +14522,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-mOkIVa/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-tAv42t/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

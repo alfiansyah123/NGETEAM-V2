@@ -135,15 +135,22 @@ export async function onRequest(context) {
         title = (title || 'Link Preview').replace(/"/g, '&quot;');
         description = (description || 'Click to view').replace(/"/g, '&quot;');
 
+        // Pastikan image URL adalah absolute (pakai https://)
+        let finalImageUrl = image;
+        if (image && !image.startsWith('http')) {
+            const domain = link.domain_url || url.hostname;
+            finalImageUrl = `https://${domain}${image.startsWith('/') ? '' : '/'}${image}`;
+        }
+
         const previewHtml = `<!DOCTYPE html><html><head>
 <meta charset="UTF-8"><title>${title}</title>
 <meta property="og:type" content="website">
 <meta property="og:url" content="${context.request.url}">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
-${image ? `<meta property="og:image" content="${image}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : ''}
+${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : ''}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="${image}">
+<meta name="twitter:image" content="${finalImageUrl}">
 </head><body></body></html>`;
 
         return new Response(previewHtml, {
