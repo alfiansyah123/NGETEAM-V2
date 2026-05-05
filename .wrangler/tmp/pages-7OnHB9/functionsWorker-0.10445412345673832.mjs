@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-NriUyc/checked-fetch.js
+// ../.wrangler/tmp/bundle-BMf9Cg/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -13605,15 +13605,12 @@ async function onRequest6(context) {
     const previewHtml = `<!DOCTYPE html><html><head>
 <meta charset="UTF-8"><title>${title}</title>
 <meta property="og:type" content="website">
+<meta property="og:url" content="${context.request.url}">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
 ${image ? `<meta property="og:image" content="${image}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : ""}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${title}">
-<meta name="twitter:description" content="${description}">
-${image ? `<meta name="twitter:image" content="${image}">` : ""}
-<meta property="og:updated_time" content="${(/* @__PURE__ */ new Date()).getTime()}">
-<meta property="fb:app_id" content="966242223397117">
+<meta name="twitter:image" content="${image}">
 </head><body></body></html>`;
     return new Response(previewHtml, {
       headers: { ...getSecurityHeaders(false), "Content-Type": "text/html; charset=utf-8" }
@@ -14488,7 +14485,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-NriUyc/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-BMf9Cg/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14520,7 +14517,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-NriUyc/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-BMf9Cg/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
