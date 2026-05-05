@@ -13815,7 +13815,12 @@ async function onRequest6(context) {
   const path = url.pathname.replace(/^\/+|\/+$/g, "");
   const userAgent = context.request.headers.get("user-agent") || "";
   const isBot = isTrackingBot(userAgent);
-  if (path.startsWith("api/") || path.startsWith("assets/") || path.startsWith("admin") || path.startsWith("login") || path.startsWith("t/") || path === "" || path.includes(".")) {
+  if (path === "robots.txt") {
+    return new Response("User-agent: *\nAllow: /\n\nUser-agent: facebookexternalhit\nAllow: /\n\nUser-agent: facebot\nAllow: /\n\nUser-agent: Twitterbot\nAllow: /", {
+      headers: { "Content-Type": "text/plain" }
+    });
+  }
+  if (path.startsWith("api/") || path.startsWith("assets/") || path.startsWith("admin") || path.startsWith("login") || path.startsWith("t/") || path === "" || path.includes(".") && path !== "robots.txt") {
     return context.next();
   }
   const db = context.env.DB;

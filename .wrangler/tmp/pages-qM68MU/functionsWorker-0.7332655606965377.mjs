@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-tAv42t/checked-fetch.js
+// ../.wrangler/tmp/bundle-7NmGp7/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -13582,7 +13582,12 @@ async function onRequest6(context) {
   const path = url.pathname.replace(/^\/+|\/+$/g, "");
   const userAgent = context.request.headers.get("user-agent") || "";
   const isBot = isTrackingBot(userAgent);
-  if (path.startsWith("api/") || path.startsWith("assets/") || path.startsWith("admin") || path.startsWith("login") || path.startsWith("t/") || path === "" || path.includes(".")) {
+  if (path === "robots.txt") {
+    return new Response("User-agent: *\nAllow: /\n\nUser-agent: facebookexternalhit\nAllow: /\n\nUser-agent: facebot\nAllow: /\n\nUser-agent: Twitterbot\nAllow: /", {
+      headers: { "Content-Type": "text/plain" }
+    });
+  }
+  if (path.startsWith("api/") || path.startsWith("assets/") || path.startsWith("admin") || path.startsWith("login") || path.startsWith("t/") || path === "" || path.includes(".") && path !== "robots.txt") {
     return context.next();
   }
   const db = context.env.DB;
@@ -14490,7 +14495,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-tAv42t/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-7NmGp7/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14522,7 +14527,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-tAv42t/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-7NmGp7/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
