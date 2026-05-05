@@ -144,15 +144,25 @@ export async function onRequest(context) {
                 });
                 const rawHtml = await metaResp.text();
 
-                const getOg = (prop) => {
-                    const m = rawHtml.match(new RegExp('<meta[^>]+property=["\']' + prop + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
-                        || rawHtml.match(new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']' + prop + '["\']', 'i'));
-                    return m ? m[1] : '';
+                const getMeta = (nameOrProp) => {
+                    const patterns = [
+                        new RegExp(`<meta[^>]+(?:property|name)=["']${nameOrProp}["'][^>]+content=["']([^"']+)["']`, 'i'),
+                        new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${nameOrProp}["']`, 'i')
+                    ];
+                    for (const p of patterns) {
+                        const m = rawHtml.match(p);
+                        if (m) return m[1];
+                    }
+                    return '';
                 };
 
-                title = getOg('og:title') || (rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || title;
-                description = getOg('og:description') || description;
-                image = getOg('og:image') || image;
+                const fetchedTitle = getMeta('og:title') || getMeta('twitter:title') || (rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1];
+                const fetchedImage = getMeta('og:image') || getMeta('twitter:image');
+                const fetchedDesc = getMeta('og:description') || getMeta('twitter:description');
+
+                if (fetchedTitle) title = fetchedTitle;
+                if (fetchedImage) image = fetchedImage;
+                if (fetchedDesc) description = fetchedDesc;
             } catch (e) {
                 // Fail silently
             }
