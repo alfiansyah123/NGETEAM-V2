@@ -20,7 +20,7 @@ function isTrackingBot(userAgent) {
         'skypeuripreview', 'qwantify', 'bitrix link preview', 'metainspector',
         'tiktokbot', 'google-link-preview', 'embedly'
     ];
-    
+
     return bots.some(bot => ua.includes(bot)) || (ua.includes('bot') && !ua.includes('chrome') && !ua.includes('android'));
 }
 
@@ -70,7 +70,7 @@ function getSecurityHeaders(allowCache = false) {
 // Record Click Logic using D1
 async function recordClick(db, link, visitorData, env, clickId, networkName) {
     const { userAgent, country, ip, referer } = visitorData;
-    
+
     const os = detectOS(userAgent);
     const browser = detectBrowser(userAgent);
 
@@ -129,45 +129,14 @@ export async function onRequest(context) {
 
     if (!link) return context.next();
 
-    // 3. Bot Preview Serving - DYNAMIC PROXY if fake_url exists
+    // 3. Bot Preview Serving - AUTO FETCH dari website tujuan kalau kosong
     if (isBot) {
         let title = link.title || '';
         let description = link.description || '';
         let image = link.image_url || '';
 
-        // --- REAL-TIME PROXY LOGIC ---
-        if (link.fake_url) {
-            try {
-                const metaResp = await fetch(link.fake_url, {
-                    headers: { 'User-Agent': 'facebookexternalhit/1.1' },
-                    redirect: 'follow'
-                });
-                const rawHtml = await metaResp.text();
-
-                const getMeta = (nameOrProp) => {
-                    const patterns = [
-                        new RegExp(`<meta[^>]+(?:property|name)=["']${nameOrProp}["'][^>]+content=["']([^"']+)["']`, 'i'),
-                        new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${nameOrProp}["']`, 'i')
-                    ];
-                    for (const p of patterns) {
-                        const m = rawHtml.match(p);
-                        if (m) return m[1];
-                    }
-                    return '';
-                };
-
-                const fetchedTitle = getMeta('og:title') || getMeta('twitter:title') || (rawHtml.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1];
-                const fetchedImage = getMeta('og:image') || getMeta('twitter:image');
-                const fetchedDesc = getMeta('og:description') || getMeta('twitter:description');
-
-                if (fetchedTitle) title = fetchedTitle;
-                if (fetchedImage) image = fetchedImage;
-                if (fetchedDesc) description = fetchedDesc;
-            } catch (e) {
-                // Fail silently
-            }
-        }
-        // --- END PROXY LOGIC ---
+        // Preview data sudah di-fetch otomatis pas bikin link (di save-link.js)
+        // Jadi di sini tinggal serve aja, GAK PERLU fetch = 0 KLIK GHOIB
 
         title = (title || 'Link Preview').replace(/"/g, '&quot;');
         description = (description || 'Click to view').replace(/"/g, '&quot;');
@@ -191,11 +160,7 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
 </head><body></body></html>`;
 
         return new Response(previewHtml, {
-            headers: { 
-                'Content-Type': 'text/html; charset=utf-8',
-                'Cache-Control': 'public, max-age=60',
-                'Vary': 'User-Agent'
-            }
+            headers: { ...getSecurityHeaders(false), 'Content-Type': 'text/html; charset=utf-8' }
         });
     }
 
@@ -229,7 +194,7 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
             'JP', 'KR', 'SG', // Top Asia
             'MX' // Mexico request
         ];
-        
+
         if (trafeeUrl && !iMonetizeItTiers.includes(country)) {
             target = trafeeUrl;
             networkUsed = 'TRAFEE';
@@ -245,7 +210,7 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
             const requestParams = new URL(context.request.url).searchParams;
             requestParams.forEach((v, k) => targetUrl.searchParams.append(k, v));
             target = targetUrl.toString();
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // 6. Extract Click ID

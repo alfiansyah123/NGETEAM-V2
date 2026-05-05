@@ -1,17 +1,15 @@
-import { createClient } from '@supabase/supabase-js';
-
 export async function onRequestPost({ request, env }) {
-    const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
-    const supabaseKey = env.SUPABASE_KEY || env.VITE_SUPABASE_KEY;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
+    const bucket = env.IMAGES; // Binding name di wrangler.toml
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
     };
 
-    if (!supabaseUrl || !supabaseKey) {
-        return new Response(JSON.stringify({ success: false, error: 'Supabase credentials missing' }), { status: 500, headers });
+    if (!bucket) {
+        return new Response(JSON.stringify({ 
+            success: false, 
+            error: 'R2 Bucket "IMAGES" not bound. Silakan tambah binding R2 di Cloudflare Pages Dashboard.' 
+        }), { status: 500, headers });
     }
 
     try {
@@ -26,41 +24,28 @@ export async function onRequestPost({ request, env }) {
         const safeOriginalName = file.name ? file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_') : 'image.png';
         const fileName = `${timestamp}_${safeOriginalName}`;
 
-        let { data, error } = await supabase
-            .storage
-            .from('images')
-            .upload(fileName, file, {
-                cacheControl: '3600',
-                upsert: false
-            });
+        // Upload ke R2
+        await bucket.put(fileName, file.stream(), {
+            httpMetadata: {
+                contentType: file.type || 'image/png',
+                cacheControl: 'public, max-age=604800',
+            }
+        });
 
-        if (error && error.message && error.message.toLowerCase().includes('bucket not found')) {
-            await supabase.storage.createBucket('images', { public: true });
-            const retry = await supabase
-                .storage
-                .from('images')
-                .upload(fileName, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
-            data = retry.data;
-            error = retry.error;
-        }
-
-        if (error) throw error;
-
-        const { data: publicUrlData } = supabase
-            .storage
-            .from('images')
-            .getPublicUrl(fileName);
+        // Catatan: Untuk mendapatkan URL publik, antum harus menghubungkan Domain atau 
+        // mengaktifkan Managed Subdomain di Dashboard R2 Cloudflare untuk bucket ini.
+        // Kita asumsikan antum menggunakan path /images/filename atau subdomain r2.
+        
+        // Sebagai fallback sementara agar dashboard tidak error:
+        const publicUrl = `/api/view-image?name=${fileName}`;
 
         return new Response(JSON.stringify({ 
             success: true, 
-            data: { url: publicUrlData.publicUrl } 
+            data: { url: publicUrl, name: fileName } 
         }), { status: 200, headers });
 
     } catch (error) {
-        console.error('Upload error:', error);
+        console.error('R2 Upload error:', error);
         return new Response(JSON.stringify({ success: false, error: 'Upload Failed: ' + error.message }), { status: 500, headers });
     }
 }

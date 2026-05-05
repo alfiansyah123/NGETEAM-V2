@@ -77,33 +77,32 @@ function App() {
   const [jumlah, setJumlah] = useState(1)
   const [deskripsi, setDeskripsi] = useState('')
   const [imageUrl, setImageUrl] = useState('')
-  const [fakeUrl, setFakeUrl] = useState('')
   const [urlTrafee, setUrlTrafee] = useState('')
   const [routingMode, setRoutingMode] = useState('random')
-    
+
   // Auto-save Routing Mode when changed by user
   const handleRoutingChange = async (newMode) => {
-      setRoutingMode(newMode);
-      if (teamMode) {
-          try {
-              await fetch('/api/update-team-member', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                      id: teamMode.id,
-                      name: teamMode.name,
-                      user_id: teamMode.user_id,
-                      password: teamMode.password,
-                      target_url: targetUrls,
-                      url_trafee: urlTrafee,
-                      old_user_id: teamMode.user_id,
-                      routing_mode: newMode
-                  })
-              });
-          } catch (err) {
-              console.error('Failed to auto-save routing mode:', err);
-          }
+    setRoutingMode(newMode);
+    if (teamMode) {
+      try {
+        await fetch('/api/update-team-member', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: teamMode.id,
+            name: teamMode.name,
+            user_id: teamMode.user_id,
+            password: teamMode.password,
+            target_url: targetUrls,
+            url_trafee: urlTrafee,
+            old_user_id: teamMode.user_id,
+            routing_mode: newMode
+          })
+        });
+      } catch (err) {
+        console.error('Failed to auto-save routing mode:', err);
       }
+    }
   };
   const [useFSubdomain, setUseFSubdomain] = useState(false)
 
@@ -199,7 +198,8 @@ function App() {
         alert('Upload gagal: ' + (data.error || 'Server error. Pastikan bucket "images" di Supabase dibuat menjadi Public.'));
       }
     } catch (err) {
-      alert('Error uploading image. Cek koneksi jaringan.');
+      console.error('Frontend Upload Error:', err);
+      alert('Error uploading image: ' + err.message + '. Cek console log atau koneksi jaringan.');
     } finally {
       setUploadingImg(false);
       e.target.value = null;
@@ -227,7 +227,7 @@ function App() {
   // Helper for Team Mode Sub-ID replacement
   const handleSubIdChange = (val) => {
     setSubId(val);
-    
+
     // Update iMonetizeit (click_id=)
     if (targetUrls) {
       const params = ['click_id', 'clickid', 'subid'];
@@ -370,7 +370,6 @@ function App() {
             title: judul,
             description: deskripsi,
             image_url: imageUrl,
-            fake_url: fakeUrl,
             url_trafee: urlTrafee,
             routing_mode: routingMode,
             user_id: teamMode?.user_id || null
@@ -396,7 +395,7 @@ function App() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ urls: generatedLinks })
-        }).catch(() => {}); // Silent - jangan ganggu user kalau gagal
+        }).catch(() => { }); // Silent - jangan ganggu user kalau gagal
       }
     } catch (err) {
       console.error('Error generating links:', err)
@@ -546,8 +545,8 @@ function App() {
               <div style={{ marginBottom: '20px' }}>
                 <span className="section-title">ROUTING ENGINE</span>
                 <div className="mnx-compact-nav">
-                  <select 
-                    className="mnx-input" 
+                  <select
+                    className="mnx-input"
                     style={{ background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(0, 242, 255, 0.2)', color: 'var(--accent-cyan)', fontWeight: 800, textAlign: 'center' }}
                     value={routingMode}
                     onChange={(e) => handleRoutingChange(e.target.value)}
@@ -731,26 +730,14 @@ function App() {
               </div>
 
               <div style={{ marginBottom: '10px' }}>
-                <span className="section-title">CLONE URL (YOUTUBE/NEWS)</span>
-                <div className="mnx-input-group">
-                  <input 
-                    className="mnx-input" 
-                    placeholder="Tempel link yang mau dicontek..." 
-                    value={fakeUrl} 
-                    onChange={(e) => setFakeUrl(e.target.value)} 
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '10px' }}>
                 <span className="section-title">IMAGE URL</span>
                 <div className="mnx-input-group" style={{ display: 'flex', alignItems: 'center' }}>
                   <input className="mnx-input" placeholder="https://image.url/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} style={{ flexGrow: 1 }} />
-                  <label 
-                    style={{ 
-                      cursor: 'pointer', 
-                      display: 'flex', 
-                      alignItems: 'center', 
+                  <label
+                    style={{
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
                       justifyContent: 'center',
                       opacity: uploadingImg ? 0.5 : 1,
                       background: 'var(--surface-color)',

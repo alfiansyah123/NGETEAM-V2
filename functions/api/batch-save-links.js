@@ -19,11 +19,11 @@ export async function onRequestPost(context) {
 
         // 1. Get Domain IDs
         const domainUrls = [...new Set(links.map(l => l.domain_url.replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase()))];
-        
+
         // SQLite doesn't support complex IN with multiple values as easily in a single prepare,
         // so we'll fetch all active domains and filter in memory since the list is usually small
         const { results: domainList } = await db.prepare(`SELECT id, url FROM domains WHERE active = 1`).all();
-        
+
         const domainMap = {};
         (domainList || []).forEach(d => {
             domainMap[d.url.toLowerCase()] = d.id;
@@ -39,8 +39,8 @@ export async function onRequestPost(context) {
 
             if (domainId) {
                 statements.push(db.prepare(`
-                    INSERT INTO links (slug, original_url, domain_id, user_id, title, description, image_url, url_trafee, routing_mode, fake_url)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO links (slug, original_url, domain_id, user_id, title, description, image_url, url_trafee, routing_mode)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `).bind(
                     link.slug,
                     link.original_url,
@@ -50,8 +50,7 @@ export async function onRequestPost(context) {
                     link.description || null,
                     link.image_url || null,
                     link.url_trafee || null,
-                    link.routing_mode || 'random',
-                    link.fake_url || null
+                    link.routing_mode || 'random'
                 ));
                 validLinks.push(link);
             }
