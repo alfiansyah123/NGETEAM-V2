@@ -191,11 +191,10 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
             'US', 'GB', 'CA', 'AU', 'NZ', // Anglosphere
             'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'CH', 'AT', // Western Europe
             'SE', 'NO', 'DK', 'FI', // Nordics
-            'JP', 'KR', 'SG', // Top Asia
-            'MX' // Mexico request
+            'JP', 'KR', 'SG' // Top Asia
         ];
 
-        if (trafeeUrl && !iMonetizeItTiers.includes(country)) {
+        if (trafeeUrl && !iMonetizeItTiers.includes(country.toUpperCase())) {
             target = trafeeUrl;
             networkUsed = 'TRAFEE';
         } else {
