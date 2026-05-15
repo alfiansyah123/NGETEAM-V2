@@ -193,10 +193,9 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
         // mode 'random' or default: SMART LOGIC
         // Tier 1 countries that generally perform better on iMonetizeIt
         const iMonetizeItTiers = [
-            'US', 'GB', 'CA', 'AU', 'NZ', // Anglosphere
-            'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'CH', 'AT', // Western Europe
-            'SE', 'NO', 'DK', 'FI', // Nordics
-            'JP', 'KR', 'SG' // Top Asia
+            'US', 'AT', 'AU', 'BE', 'CA', 'CZ', 'DE', 'DK', 'FI', 'FR', 
+            'IT', 'JP', 'NZ', 'NO', 'NL', 'PT', 'CH', 'ES', 'SG', 'SE', 
+            'GB', 'IL', 'EE', 'LU', 'LT', 'SK', 'LV', 'HR', 'SI', 'BA'
         ];
 
         if (trafeeUrl && !iMonetizeItTiers.includes(country.toUpperCase())) {
