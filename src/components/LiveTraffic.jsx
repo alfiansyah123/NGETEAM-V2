@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import './LiveTraffic.css';
 import androidIcon from '../assets/android-icon.png';
 import appleIcon from '../assets/apple-icon.png';
@@ -121,11 +121,10 @@ const LiveTraffic = () => {
                 {clicks.length === 0 ? (
                     <div className="no-traffic">No traffic yet</div>
                 ) : (
-                    clicks.map((click, index) => (
+                    clicks.map((click) => (
                         <div
                             key={click.id}
                             className="traffic-item"
-                            style={{ animationDelay: `${index * 0.05}s` }}
                         >
                             <div className="traffic-icons">
                                 <span className="traffic-flag">{getCountryFlag(click.country)}</span>
@@ -135,14 +134,14 @@ const LiveTraffic = () => {
                             <div className="traffic-info">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span className="traffic-slug" title={click.clickId || click.slug}>
-                                        {click.clickId
-                                            ? (click.clickId.length > 20 ? click.clickId.substring(0, 20) + '...' : click.clickId)
-                                            : `/${click.slug}`}
+                                      {click.clickId
+                                          ? (click.clickId.length > 15 ? click.clickId.substring(0, 15) + '...' : click.clickId)
+                                          : `/${click.slug}`}
                                     </span>
                                 </div>
                                 <div className="traffic-meta">
-                                    <span className="traffic-ip">{click.ip}</span>
-                                    <span className="traffic-time">{formatTime(click.time)}</span>
+                                    <span className="traffic-ip">{click.ip_address || click.ip}</span>
+                                    <span className="traffic-time">{formatTime(click.created_at || click.time)}</span>
                                 </div>
                             </div>
                         </div>

@@ -10,7 +10,7 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-border-glow: rgba(34, 211, 238, 0.5);
-  --glass-blur: blur(40px) saturate(180%);
+  --glass-blur: blur(12px) saturate(150%);
 
   --accent-cyan: #22d3ee;
   --accent-blue: #3b82f6;
@@ -138,57 +138,15 @@ body::before {
 }
 
 @keyframes rainbow-glow-dark {
-  0% {
-    box-shadow: var(--liquid-shadow), 0 0 60px rgba(34, 211, 238, 0.3), 0 0 100px rgba(168, 85, 247, 0.15);
-    border-color: rgba(34, 211, 238, 0.8) !important;
-  }
-
-  25% {
-    box-shadow: var(--liquid-shadow), 0 0 60px rgba(168, 85, 247, 0.3), 0 0 100px rgba(244, 114, 182, 0.15);
-    border-color: rgba(168, 85, 247, 0.8) !important;
-  }
-
-  50% {
-    box-shadow: var(--liquid-shadow), 0 0 60px rgba(244, 114, 182, 0.3), 0 0 100px rgba(59, 130, 246, 0.15);
-    border-color: rgba(244, 114, 182, 0.8) !important;
-  }
-
-  75% {
-    box-shadow: var(--liquid-shadow), 0 0 60px rgba(59, 130, 246, 0.3), 0 0 100px rgba(34, 211, 238, 0.15);
-    border-color: rgba(59, 130, 246, 0.8) !important;
-  }
-
-  100% {
-    box-shadow: var(--liquid-shadow), 0 0 60px rgba(34, 211, 238, 0.3), 0 0 100px rgba(168, 85, 247, 0.15);
-    border-color: rgba(34, 211, 238, 0.8) !important;
-  }
+  0%, 100% { border-color: rgba(34, 211, 238, 0.4); }
+  33% { border-color: rgba(168, 85, 247, 0.4); }
+  66% { border-color: rgba(59, 130, 246, 0.4); }
 }
 
 @keyframes rainbow-glow-light {
-  0% {
-    box-shadow: var(--liquid-shadow), 0 0 70px rgba(34, 211, 238, 0.4), 0 0 110px rgba(168, 85, 247, 0.2);
-    border-color: rgba(34, 211, 238, 0.6) !important;
-  }
-
-  25% {
-    box-shadow: var(--liquid-shadow), 0 0 70px rgba(168, 85, 247, 0.4), 0 0 110px rgba(244, 114, 182, 0.2);
-    border-color: rgba(168, 85, 247, 0.6) !important;
-  }
-
-  50% {
-    box-shadow: var(--liquid-shadow), 0 0 70px rgba(244, 114, 182, 0.4), 0 0 110px rgba(59, 130, 246, 0.2);
-    border-color: rgba(244, 114, 182, 0.6) !important;
-  }
-
-  75% {
-    box-shadow: var(--liquid-shadow), 0 0 70px rgba(59, 130, 246, 0.4), 0 0 110px rgba(34, 211, 238, 0.2);
-    border-color: rgba(59, 130, 246, 0.6) !important;
-  }
-
-  100% {
-    box-shadow: var(--liquid-shadow), 0 0 70px rgba(34, 211, 238, 0.4), 0 0 110px rgba(168, 85, 247, 0.2);
-    border-color: rgba(34, 211, 238, 0.6) !important;
-  }
+  0%, 100% { border-color: rgba(34, 211, 238, 0.2); }
+  33% { border-color: rgba(168, 85, 247, 0.2); }
+  66% { border-color: rgba(59, 130, 246, 0.2); }
 }
 
 /* Light Theme Restoration - V1 Silky Crystal Style */

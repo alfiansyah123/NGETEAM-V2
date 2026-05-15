@@ -99,7 +99,12 @@ async function recordClick(db, link, visitorData, env, clickId, networkName) {
 
 export async function onRequest(context) {
     const url = new URL(context.request.url);
-    const path = url.pathname.replace(/^\/+|\/+$/g, '');
+    let path = url.pathname.replace(/^\/+|\/+$/g, '');
+    
+    // Support legacy /l/slug prefix
+    if (path.startsWith('l/')) {
+        path = path.substring(2);
+    }
     const userAgent = context.request.headers.get('user-agent') || '';
 
     const isBot = isTrackingBot(userAgent);

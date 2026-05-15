@@ -1,4 +1,4 @@
-export async function onRequestGet(context) {
+export async function onRequest(context) {
     const db = context.env.DB;
     const headers = {
         'Access-Control-Allow-Origin': '*',

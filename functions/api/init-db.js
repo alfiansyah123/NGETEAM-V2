@@ -24,6 +24,8 @@ export async function onRequest(context) {
             domain_id INTEGER,
             user_id TEXT,
             block_indonesia BOOLEAN DEFAULT 0,
+            url_trafee TEXT,
+            routing_mode TEXT DEFAULT 'random',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         CREATE TABLE IF NOT EXISTS clicks (
