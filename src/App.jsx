@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import { fetchDomains, saveLink, batchSaveLinks, addDomain } from './services/api'
 import Login from './components/Login'
-import LiveTraffic from './components/LiveTraffic'
+
 import Reports from './components/Reports'
 import Admin from './components/Admin'
 
@@ -535,7 +535,7 @@ function App() {
             <div className="mnx-compact-nav">
               <select
                 className="mnx-input"
-                style={{ background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(0, 242, 255, 0.2)', color: 'var(--accent-cyan)', fontWeight: 800, textAlign: 'center' }}
+                style={{ fontWeight: 800, textAlign: 'center' }}
                 value={routingMode}
                 onChange={(e) => handleRoutingChange(e.target.value)}
               >
@@ -564,7 +564,7 @@ function App() {
 
           <span className="section-title">URL IMONETIZEIT (LOCKED)</span>
           <div className="mnx-input-group target-url-group">
-            <div className="mnx-input-prepend" style={{ height: 'auto', alignSelf: 'stretch', display: 'flex', alignItems: 'center', background: 'rgba(15, 23, 42, 0.6)' }}>
+            <div className="mnx-input-prepend" style={{ height: 'auto', alignSelf: 'stretch', display: 'flex', alignItems: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
               LOCKED
             </div>
@@ -579,7 +579,7 @@ function App() {
 
           <span className="section-title">URL TRAFEE (LOCKED)</span>
           <div className="mnx-input-group target-url-group">
-            <div className="mnx-input-prepend" style={{ height: 'auto', alignSelf: 'stretch', display: 'flex', alignItems: 'center', background: 'rgba(15, 23, 42, 0.6)' }}>
+            <div className="mnx-input-prepend" style={{ height: 'auto', alignSelf: 'stretch', display: 'flex', alignItems: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
               LOCKED
             </div>
@@ -616,7 +616,7 @@ function App() {
             >
               F-SUB: {useFSubdomain ? 'ON' : 'OFF'}
             </button>
-            <button className="btn-mnx-main" onClick={generateLinks} disabled={loading} style={{ height: '50px', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' }}>
+            <button className="btn-mnx-main" onClick={generateLinks} disabled={loading} style={{ height: '50px' }}>
               {loading ? 'GENERATING...' : (
                 <>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
@@ -631,13 +631,13 @@ function App() {
             {output.length > 0 ? (
               <div className="output-scroll">
                 {output.map((link, idx) => (
-                  <div key={idx} className="mnx-output-item" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div key={idx} className="mnx-output-item">
                     <span style={{ fontSize: '0.85rem' }}>{link}</span>
                     <svg onClick={() => { navigator.clipboard.writeText(link); alert('Copied!'); }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ cursor: 'pointer' }}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </div>
                 ))}
                 <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                  <button className="btn-mnx-main" style={{ flexGrow: 1, height: '40px', background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)' }} onClick={copyAll}>
+                  <button className="btn-mnx-main" style={{ flexGrow: 1, height: '40px' }} onClick={copyAll}>
                     {copied ? 'COPIED!' : 'COPY ALL'}
                   </button>
                   <button className="secondary-glass-btn" style={{ height: '40px' }} onClick={clearOutput}>
@@ -728,21 +728,21 @@ function App() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   opacity: uploadingImg ? 0.5 : 1,
-                  background: 'var(--surface-color)',
-                  border: '1px solid var(--accent-cyan)',
-                  borderRadius: '12px',
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-base)',
+                  borderRadius: '10px',
                   width: '42px',
                   height: '42px',
                   marginLeft: '8px',
                   flexShrink: 0,
-                  boxShadow: '0 0 10px rgba(6, 182, 212, 0.1)'
+                  transition: 'border-color 0.15s ease'
                 }}
               >
                 <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} disabled={uploadingImg} />
                 {uploadingImg ? (
-                  <svg className="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="4.93" x2="19.07" y2="7.76"></line></svg>
+                  <svg className="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="4.93" x2="19.07" y2="7.76"></line></svg>
                 ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                     <circle cx="12" cy="13" r="4"></circle>
                   </svg>
@@ -778,14 +778,6 @@ function App() {
         </div>
       </div>
 
-      {/* Floating Traffic Sidebar if in Generator */}
-      {
-        activeTab === 'generator' && (
-          <div style={{ marginTop: '40px' }} className="fade-in">
-            <LiveTraffic />
-          </div>
-        )
-      }
 
       <div className="mnx-footer">
         ccpXengine &nbsp; V 2 . 0 &nbsp; AERO

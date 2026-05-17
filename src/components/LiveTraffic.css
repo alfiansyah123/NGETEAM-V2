@@ -1,165 +1,100 @@
-.live-traffic {
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border-radius: 24px;
-    padding: 24px;
-    border: 1px solid var(--border-glass);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
-}
+/* ═══════════════════════════════════════════
+   SCATTER DARK — Live Traffic
+   ═══════════════════════════════════════════ */
 
-.live-traffic:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+.live-traffic {
+  background: var(--bg-surface);
+  border-radius: 6px;
+  padding: 16px;
+  border: 1px dashed var(--border-base);
 }
 
 .live-traffic-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-base);
 }
-
 .live-traffic-header h3 {
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: var(--accent-blue);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    flex: 1;
+  margin: 0;
+  font-size: 0.75rem; font-weight: 900;
+  color: var(--accent-cyan);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .live-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--accent-cyan);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-    box-shadow: 0 0 10px var(--accent-cyan);
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.5;
-        transform: scale(0.85);
-    }
+  width: 7px; height: 7px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 6px var(--accent-green);
 }
 
 .traffic-count {
-    font-size: 0.7rem;
-    color: var(--accent-cyan);
-    background: rgba(34, 211, 238, 0.1);
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-weight: 700;
+  font-size: 0.6rem;
+  color: var(--accent-cyan);
+  background: rgba(0,242,255,0.06);
+  padding: 3px 8px; border-radius: 3px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .traffic-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 400px;
-    overflow-y: auto;
+  display: flex; flex-direction: column;
+  gap: 4px;
+  max-height: 400px;
+  overflow-y: auto;
 }
-
-.traffic-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-.traffic-list::-webkit-scrollbar-thumb {
-    background: var(--border-glass);
-    border-radius: 4px;
-}
+.traffic-list::-webkit-scrollbar { width: 3px; }
+.traffic-list::-webkit-scrollbar-thumb { background: var(--border-base); border-radius: 2px; }
 
 .traffic-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: var(--bg-input);
-    border: 1px solid var(--border-glass);
-    border-radius: 12px;
-    transition: background 0.2s;
+  display: flex; align-items: center;
+  gap: 10px; padding: 8px 10px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-base);
+  border-radius: 3px;
+  transition: border-color 0.15s ease;
 }
-
-.traffic-item:hover {
-    background: var(--bg-surface);
-    border-color: var(--accent-blue);
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+.traffic-item:hover { border-color: var(--accent-cyan); border-left: 2px solid var(--accent-cyan); }
 
 .traffic-icons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
 }
-
 .flag-img {
-    width: 20px;
-    height: 14px;
-    object-fit: cover;
-    border-radius: 2px;
-    opacity: 0.9;
+  width: 18px; height: 13px;
+  object-fit: cover; border-radius: 1px;
 }
 
 .traffic-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  flex: 1; display: flex;
+  flex-direction: column; gap: 2px;
 }
-
 .traffic-slug {
-    font-size: 0.85rem;
-    color: var(--text-primary);
-    font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; color: var(--text-primary);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
 }
-
 .traffic-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex; justify-content: space-between; align-items: center;
 }
-
 .traffic-ip {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem; color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
 }
-
 .traffic-time {
-    font-size: 0.65rem;
-    color: var(--text-dim);
+  font-size: 0.55rem; color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.no-traffic,
-.traffic-loading {
-    text-align: center;
-    padding: 40px;
-    color: var(--text-dim);
-    font-size: 0.85rem;
+.no-traffic, .traffic-loading {
+  text-align: center; padding: 28px;
+  color: var(--text-muted); font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
 }
