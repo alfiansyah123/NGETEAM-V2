@@ -1,0 +1,49 @@
+export function getLp2Html(targetUrl) {
+    return `<!DOCTYPE html><html data-scrapbook-source="https://moonlit-semifreddo-1beae2.netlify.app/" data-scrapbook-create="20221107205226771" data-scrapbook-title="MyDates | Find your flirt or chat partner!" lang="en"><head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="https://wondrous-platypus-a34276.netlify.app/mydates.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>MyDates | Find your flirt or chat partner!</title>
+    <link rel="stylesheet" href="https://wondrous-platypus-a34276.netlify.app/bootstrap.min.css">
+    <link href="https://wondrous-platypus-a34276.netlify.app/app-style.css" rel="stylesheet">
+  </head>
+  <body>
+<header>
+  <div class="overlay"></div>
+  <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop">
+    <source src="https://wondrous-platypus-a34276.netlify.app/girl-dancing.mp4" type="video/mp4">
+  </video>
+ 
+  <div class="container h-100">
+    <div class="d-flex h-100 text-center align-items-center">
+      <div class="w-100 text-white">
+        <h1><span id="njeblit"> WARNING ! </span></h1>
+        <p class="lead mb-0">You will see nude photos and videos. <br> Please be discreet. <br><strong> Click continue if you are 18 years old or older </strong></p>
+        <p>
+            <a href="\${targetUrl}" class="btn btn-danger btn-lg mt-5 win">CONTINUE</a>
+        </p>
+        <hr style="margin: 3px;padding: 3px;border-radius: 3px;border: 3px;">
+        <p><img src="https://wondrous-platypus-a34276.netlify.app/secure-png-4.png" style="width: 50px;"> This program is verified and secure.</p>
+      </div>
+	  
+    </div>
+  </div>
+  
+</header>
+
+
+
+  <!-- Yandex.Metrika counter -->
+
+<noscript>
+    <div>
+        <img src="https://wondrous-platypus-a34276.netlify.app/1.gif" style="position:absolute; left:-9999px;" alt="">
+    </div>
+</noscript>
+<!-- /Yandex.Metrika counter -->
+
+  
+
+
+</body></html>`;
+}

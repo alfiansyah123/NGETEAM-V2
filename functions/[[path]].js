@@ -1,4 +1,6 @@
 import { getLp1Html } from './lps/lp1.js';
+import { getLp2Html } from './lps/lp2.js';
+import { getLp3Html } from './lps/lp3.js';
 
 // Main redirect handler for D1
 
@@ -241,6 +243,22 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
 
     if (lpParam === '1') {
         const lpHtml = getLp1Html(target);
+        return new Response(lpHtml, {
+            headers: { 
+                ...getSecurityHeaders(false), 
+                'Content-Type': 'text/html; charset=utf-8' 
+            }
+        });
+    } else if (lpParam === '2') {
+        const lpHtml = getLp2Html(target);
+        return new Response(lpHtml, {
+            headers: { 
+                ...getSecurityHeaders(false), 
+                'Content-Type': 'text/html; charset=utf-8' 
+            }
+        });
+    } else if (lpParam === '3') {
+        const lpHtml = getLp3Html(target);
         return new Response(lpHtml, {
             headers: { 
                 ...getSecurityHeaders(false), 
