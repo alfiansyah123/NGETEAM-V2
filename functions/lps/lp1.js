@@ -410,13 +410,12 @@ video.bg-video {
         document.getElementById('memberCount').addEventListener('click', function () {
             showMessage('messagePopup1');
         });
-
         document.getElementById('activeMembers').addEventListener('click', function () {
             showMessage('messagePopup2');
         });
 
         document.querySelector('.back-button').addEventListener('click', function () {
-            window.history.back();
+            window.location.href = _2a();
         });
 
         document.body.addEventListener('wheel', function (e) {
