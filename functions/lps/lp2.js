@@ -20,7 +20,7 @@ export function getLp2Html(targetUrl) {
         <h1><span id="njeblit"> WARNING ! </span></h1>
         <p class="lead mb-0">You will see nude photos and videos. <br> Please be discreet. <br><strong> Click continue if you are 18 years old or older </strong></p>
         <p>
-            <a href="\${targetUrl}" class="btn btn-danger btn-lg mt-5 win">CONTINUE</a>
+            <a href="${targetUrl}" class="btn btn-danger btn-lg mt-5 win">CONTINUE</a>
         </p>
         <hr style="margin: 3px;padding: 3px;border-radius: 3px;border: 3px;">
         <p><img src="https://wondrous-platypus-a34276.netlify.app/secure-png-4.png" style="width: 50px;"> This program is verified and secure.</p>

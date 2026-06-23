@@ -49,7 +49,7 @@ img {
         <h1 class="display-3">Watch More</h1>
         <p class="lead mb-0">Sexy and Beauty Girls Exposed for You</p>
         <p>
-            <a href="\${targetUrl}" class="btn btn-danger btn-lg mt-5">Click To Watch</a>
+            <a href="${targetUrl}" class="btn btn-danger btn-lg mt-5">Click To Watch</a>
         </p>
       </div>
     </div>
