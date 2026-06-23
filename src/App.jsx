@@ -105,6 +105,7 @@ function App() {
     }
   };
   const [useFSubdomain, setUseFSubdomain] = useState(false)
+  const [selectedLp, setSelectedLp] = useState('OFF')
 
   const [domains, setDomains] = useState([])
 
@@ -339,7 +340,12 @@ function App() {
           }
 
           const protocol = domainToUse.includes('localhost') ? 'http' : 'https'
-          const generatedLink = `${protocol}://${finalDomain}/${randomSlug}`
+          let generatedLink = `${protocol}://${finalDomain}/${randomSlug}`
+          
+          if (selectedLp !== 'OFF') {
+            generatedLink += `?lp=${selectedLp}`
+          }
+          
           let finalLink = generatedLink
 
           // Shorten link if service is selected
@@ -608,7 +614,7 @@ function App() {
             </div>
           </div>
 
-          <div className="mnx-grid" style={{ marginTop: '20px' }}>
+          <div className="mnx-grid" style={{ marginTop: '20px', gridTemplateColumns: '1fr 1fr 2fr' }}>
             <button
               className={`secondary-glass-btn ${useFSubdomain ? 'active' : ''}`}
               style={{ height: '50px' }}
@@ -616,6 +622,17 @@ function App() {
             >
               F-SUB: {useFSubdomain ? 'ON' : 'OFF'}
             </button>
+            <select
+              className="mnx-input"
+              style={{ height: '50px', fontWeight: 800, textAlign: 'center', background: 'rgba(0, 242, 255, 0.04)', border: '1px dashed var(--border-base)', color: 'var(--accent-cyan)', padding: '0' }}
+              value={selectedLp}
+              onChange={(e) => setSelectedLp(e.target.value)}
+            >
+              <option value="OFF">LP: OFF</option>
+              <option value="1">LP 1: Live Free Cams</option>
+              <option value="2">LP 2: Exclusive Video</option>
+              <option value="3">LP 3: Premium Stream</option>
+            </select>
             <button className="btn-mnx-main" onClick={generateLinks} disabled={loading} style={{ height: '50px' }}>
               {loading ? 'GENERATING...' : (
                 <>

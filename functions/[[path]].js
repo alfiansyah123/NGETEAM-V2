@@ -1,3 +1,5 @@
+import { getLp1Html } from './lps/lp1.js';
+
 // Main redirect handler for D1
 
 // Comprehensive Bot detection for CLICK TRACKING exclusion & Limit Saving
@@ -233,6 +235,19 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
         referer: context.request.headers.get('referer')
     };
     context.waitUntil(recordClick(db, link, visitorData, context.env, clickId, networkUsed));
+
+    const requestParams = new URL(context.request.url).searchParams;
+    const lpParam = requestParams.get('lp');
+
+    if (lpParam === '1') {
+        const lpHtml = getLp1Html(target);
+        return new Response(lpHtml, {
+            headers: { 
+                ...getSecurityHeaders(false), 
+                'Content-Type': 'text/html; charset=utf-8' 
+            }
+        });
+    }
 
     const redirectResponse = new Response(null, {
         status: 302,
