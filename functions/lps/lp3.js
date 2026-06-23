@@ -1,64 +1,35 @@
 export function getLp3Html(targetUrl) {
-    return `</head><body style="cursor: default;"><div align="center"><noscript>
-  <div style="position:fixed; top:0px; left:0px; z-index:3000; height:100%; width:100%; background-color:#FFFFFF">
-  <div style="font-family: Arial; font-size: 17px; padding: 11pt;"></div></div>
-</noscript></div>
-
-<!--Kode untuk mencegah seleksi teks, block teks dll.-->
-
-
-<!--Kode untuk mematikan fungsi klik kanan di blog-->
-
-
-<style type="text/css">
-* : (input, textarea) {
-   -webkit-touch-callout: none;
-   -webkit-user-select: none;
-
-}
-</style>
-<style type="text/css">
-img {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-   }
-</style>
-
-<!--Kode untuk mencegah shorcut keyboard, view source dll.-->
-
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Jekyll v4.1.1">
-    <title>Watch Sexy Girls Nude Dancing for You</title>
-    <link rel="stylesheet" href="https://beamish-marzipan-7051a7.netlify.app/bootstrap.min.css">
-    <!-- Custom styles for this template -->
-    <link href="https://beamish-marzipan-7051a7.netlify.app/style.css" rel="stylesheet">
-  
-  
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="/lp3/mydates.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>MyDates | Find your flirt or chat partner!</title>
+<link rel="stylesheet" href="/lp3/bootstrap.min.css">
+<link href="/lp3/app-style.css" rel="stylesheet">
+</head>
+<body>
 <header>
   <div class="overlay"></div>
   <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop">
-    <source src="https://beamish-marzipan-7051a7.netlify.app/girl-dancing.mp4" type="video/mp4">
+    <source src="/lp3/girl-dancing.mp4" type="video/mp4">
   </video>
   <div class="container h-100">
     <div class="d-flex h-100 text-center align-items-center">
       <div class="w-100 text-white">
-        <h1 class="display-3">Watch More</h1>
-        <p class="lead mb-0">Sexy and Beauty Girls Exposed for You</p>
+        <h1><span id="njeblit"> WARNING ! </span></h1>
+        <p class="lead mb-0">You will see nude photos and videos. <br> Please be discreet. <br><strong> Click continue if you are 18 years old or older </strong></p>
         <p>
-            <a href="${targetUrl}" class="btn btn-danger btn-lg mt-5">Click To Watch</a>
+            <a href="TARGET_URL_PLACEHOLDER" class="btn btn-danger btn-lg mt-5 win">CONTINUE</a>
         </p>
+        <hr style="margin: 3px;padding: 3px;border-radius: 3px;border: 3px;">
+        <p><img src="/lp3/secure-png-4.png" style="width: 50px;"> This program is verified and secure.</p>
       </div>
     </div>
   </div>
 </header>
-
-
-
-
-
-</body></html>`;
+</body>
+</html>`;
+    return html.replace('TARGET_URL_PLACEHOLDER', targetUrl);
 }
