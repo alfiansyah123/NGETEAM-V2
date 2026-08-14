@@ -13,6 +13,7 @@ const Admin = () => {
     const [newPassword, setNewPassword] = useState('');
     const [currentPassword, setCurrentPassword] = useState('...');
     const [newGencrotPass, setNewGencrotPass] = useState('');
+    const [currentGencrotPass, setCurrentGencrotPass] = useState('...');
     const [gencrotMsg, setGencrotMsg] = useState('');
 
     // Appearance Settings
@@ -88,6 +89,14 @@ const Admin = () => {
             const badgeRes = await fetch('/api/get-settings?key=brand_badge');
             const badgeData = await badgeRes.json();
             if (badgeData.success && badgeData.data) setBrandBadge(badgeData.data.value);
+
+            const gcRes = await fetch('/api/get-settings?key=gencrot_password');
+            const gcData = await gcRes.json();
+            if (gcData.success && gcData.data?.value) {
+                setCurrentGencrotPass(gcData.data.value);
+            } else {
+                setCurrentGencrotPass('gencrot123');
+            }
         } catch (err) {
             console.error('Failed to fetch settings:', err);
         }
@@ -292,6 +301,7 @@ const Admin = () => {
             const data = await res.json();
             if (data.success) {
                 setGencrotMsg('✅ Password /gencrot berhasil diubah!');
+                setCurrentGencrotPass(newGencrotPass);
                 setNewGencrotPass('');
             } else {
                 setGencrotMsg('❌ ' + (data.error || 'Gagal'));
@@ -531,12 +541,9 @@ const Admin = () => {
 
                             {/* Gencrot Password */}
                             <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--border-base)' }}>
-                                <span className="section-label" style={{ marginBottom: '6px', display: 'block' }}>
-                                    🔑 PASSWORD HALAMAN <span style={{ color: 'var(--accent-cyan)' }}>/gencrot</span>
+                                <span className="section-label" style={{ marginBottom: '15px', display: 'block' }}>
+                                    CURRENT GENCROT PASSWORD: <span style={{ color: 'var(--accent-cyan)' }}>{currentGencrotPass}</span>
                                 </span>
-                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                                    Password ini terpisah dari password admin. Siapapun yang tahu password ini bisa akses generator publik.
-                                </p>
                                 <div className="mnx-input-group">
                                     <input
                                         type="password"
