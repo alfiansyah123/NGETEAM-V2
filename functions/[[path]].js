@@ -98,6 +98,11 @@ async function recordClick(db, link, visitorData, env, clickId, networkName) {
             (networkName || 'UNKNOWN').toUpperCase(),
             link.user_id || null
         ).run();
+
+        // Auto purge clicks older than 7 days (probabilistically to optimize DB I/O)
+        if (Math.random() < 0.2) {
+            await db.prepare(`DELETE FROM clicks WHERE created_at < datetime('now', '-7 days')`).run();
+        }
     } catch (err) {
         // Silent fail - don't block the redirect
     }
