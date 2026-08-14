@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import { fetchDomains, saveLink, batchSaveLinks, addDomain } from './services/api'
 import Login from './components/Login'
-
 import Reports from './components/Reports'
 import Admin from './components/Admin'
+import GencrotPage from './components/GencrotPage'
 
 
 function App() {
@@ -54,12 +54,6 @@ function App() {
         if (data.data.target_url) {
           setTargetUrls(data.data.target_url);
         }
-        if (data.data.url_trafee) {
-          setUrlTrafee(data.data.url_trafee);
-        }
-        if (data.data.routing_mode) {
-          setRoutingMode(data.data.routing_mode);
-        }
       }
     } catch (err) {
       console.error('Failed to load team context:', err);
@@ -77,33 +71,9 @@ function App() {
   const [jumlah, setJumlah] = useState(1)
   const [deskripsi, setDeskripsi] = useState('')
   const [imageUrl, setImageUrl] = useState('')
-  const [urlTrafee, setUrlTrafee] = useState('')
-  const [routingMode, setRoutingMode] = useState('random')
 
-  // Auto-save Routing Mode when changed by user
-  const handleRoutingChange = async (newMode) => {
-    setRoutingMode(newMode);
-    if (teamMode) {
-      try {
-        await fetch('/api/update-team-member', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: teamMode.id,
-            name: teamMode.name,
-            user_id: teamMode.user_id,
-            password: teamMode.password,
-            target_url: targetUrls,
-            url_trafee: urlTrafee,
-            old_user_id: teamMode.user_id,
-            routing_mode: newMode
-          })
-        });
-      } catch (err) {
-        console.error('Failed to auto-save routing mode:', err);
-      }
-    }
-  };
+
+
   const [useFSubdomain, setUseFSubdomain] = useState(false)
   const [selectedLp, setSelectedLp] = useState('OFF')
 
@@ -239,12 +209,6 @@ function App() {
       });
       setTargetUrls(updatedText);
     }
-
-    // Update Trafee (track=)
-    if (urlTrafee) {
-      const regex = new RegExp(`(track=)([^&\\s]*)`, 'gi');
-      setUrlTrafee(urlTrafee.replace(regex, `$1${val}`));
-    }
   };
 
   useEffect(() => {
@@ -376,8 +340,6 @@ function App() {
             title: judul,
             description: deskripsi,
             image_url: imageUrl,
-            url_trafee: urlTrafee,
-            routing_mode: routingMode,
             user_id: teamMode?.user_id || null
           });
 
@@ -436,6 +398,7 @@ function App() {
   const rawPath = window.location.pathname.toLowerCase().trim();
   const normalizedPath = rawPath.endsWith('/') && rawPath.length > 1 ? rawPath.slice(0, -1) : rawPath;
   const isAdminPage = normalizedPath === '/admin';
+  const isGencrotPage = normalizedPath === '/gencrot';
   const isAdmin = getIsAdmin();
 
   // Intelligent Redirection (Hides Global Generator)
@@ -463,6 +426,11 @@ function App() {
   // If on admin page path, show Admin component (it has its own auth check inside)
   if (isAdminPage) {
     return <Admin />;
+  }
+
+  // /gencrot — public generator with its own password
+  if (isGencrotPage) {
+    return <GencrotPage />;
   }
 
   if (!isLoggedIn) {
@@ -536,21 +504,6 @@ function App() {
         <div className="admin-section">
           <span className="section-label">⚡ LINK ENGINE</span>
 
-          <div style={{ marginBottom: '20px' }}>
-            <span className="section-title">ROUTING ENGINE</span>
-            <div className="mnx-compact-nav">
-              <select
-                className="mnx-input"
-                style={{ fontWeight: 800, textAlign: 'center' }}
-                value={routingMode}
-                onChange={(e) => handleRoutingChange(e.target.value)}
-              >
-                <option value="random">RANDOM SMART</option>
-                <option value="trafee">FORCE TRAFEE</option>
-                <option value="imonetizeit">FORCE IMONETIZEIT</option>
-              </select>
-            </div>
-          </div>
 
           {/* Domain Selection */}
           <div className="mnx-input-group" style={{ marginBottom: '20px' }}>
@@ -583,20 +536,7 @@ function App() {
             />
           </div>
 
-          <span className="section-title">URL TRAFEE (LOCKED)</span>
-          <div className="mnx-input-group target-url-group">
-            <div className="mnx-input-prepend" style={{ height: 'auto', alignSelf: 'stretch', display: 'flex', alignItems: 'center' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              LOCKED
-            </div>
-            <textarea
-              className="mnx-input"
-              style={{ minHeight: '80px', background: 'transparent' }}
-              value={urlTrafee}
-              onChange={(e) => !teamMode && setUrlTrafee(e.target.value)}
-              readOnly={!!teamMode}
-            />
-          </div>
+
 
           <div className="fade-in form-group">
             <span className="section-title">CUSTOMIZE CLICK ID</span>

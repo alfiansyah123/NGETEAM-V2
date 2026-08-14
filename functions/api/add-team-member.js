@@ -11,7 +11,7 @@ export async function onRequestPost(context) {
     }
 
     try {
-        const { name, user_id, password, trafee_url } = await context.request.json();
+        const { name, user_id, password } = await context.request.json();
 
         if (!name || !user_id || !password) {
             return new Response(JSON.stringify({ error: 'Name, User ID, and Password are required' }), { status: 400, headers });
@@ -19,10 +19,10 @@ export async function onRequestPost(context) {
 
         try {
             const { results } = await db.prepare(`
-                INSERT INTO team (name, user_id, password, trafee_url)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO team (name, user_id, password)
+                VALUES (?, ?, ?)
                 RETURNING *
-            `).bind(name, user_id, password, trafee_url || null).all();
+            `).bind(name, user_id, password).all();
 
             return new Response(JSON.stringify({ success: true, data: results[0] }), { status: 200, headers });
         } catch (insertError) {

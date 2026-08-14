@@ -45,6 +45,7 @@ function detectBrowser(userAgent) {
     if (!userAgent) return 'Other';
     const ua = userAgent.toLowerCase();
     if (ua.includes('fbav') || ua.includes('fban') || ua.includes('fbiab')) return 'Facebook';
+    if (ua.includes('threads') || ua.includes('barcelona')) return 'Threads';
     if (ua.includes('instagram')) return 'Instagram';
     if (ua.includes('tiktok')) return 'TikTok';
     if (ua.includes('whatsapp')) return 'WhatsApp';
@@ -104,7 +105,7 @@ async function recordClick(db, link, visitorData, env, clickId, networkName) {
 export async function onRequest(context) {
     const url = new URL(context.request.url);
     let path = url.pathname.replace(/^\/+|\/+$/g, '');
-    
+
     // Support legacy /l/slug prefix
     if (path.startsWith('l/')) {
         path = path.substring(2);
@@ -119,7 +120,7 @@ export async function onRequest(context) {
         });
     }
 
-    if (path.startsWith('api/') || path.startsWith('assets/') || path.startsWith('admin') || path.startsWith('login') || path.startsWith('t/') || path === '' || (path.includes('.') && path !== 'robots.txt')) {
+    if (path.startsWith('api/') || path.startsWith('assets/') || path.startsWith('admin') || path.startsWith('login') || path.startsWith('t/') || path === 'gencrot' || path === '' || (path.includes('.') && path !== 'robots.txt')) {
         return context.next();
     }
 
@@ -184,32 +185,6 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
     // 5. Target URL Selection
     let target = link.original_url;
     let networkUsed = 'IMONETIZEIT';
-    const mode = (link.routing_mode || 'random').toLowerCase();
-    const trafeeUrl = link.url_trafee || link.trafee_url;
-
-    if (mode === 'trafee' && trafeeUrl) {
-        target = trafeeUrl;
-        networkUsed = 'TRAFEE';
-    } else if (mode === 'imonetizeit') {
-        target = link.original_url;
-        networkUsed = 'IMONETIZEIT';
-    } else {
-        // mode 'random' or default: SMART LOGIC
-        // Tier 1 countries that generally perform better on iMonetizeIt
-        const iMonetizeItTiers = [
-            'US', 'AT', 'AU', 'BE', 'CA', 'CZ', 'DE', 'DK', 'FI', 'FR', 
-            'IT', 'JP', 'NZ', 'NO', 'NL', 'PT', 'CH', 'ES', 'SG', 'SE', 
-            'GB', 'IL', 'EE', 'LU', 'LT', 'SK', 'LV', 'HR', 'SI', 'BA'
-        ];
-
-        if (trafeeUrl && !iMonetizeItTiers.includes(country.toUpperCase())) {
-            target = trafeeUrl;
-            networkUsed = 'TRAFEE';
-        } else {
-            target = link.original_url;
-            networkUsed = 'IMONETIZEIT';
-        }
-    }
 
     if (url.search) {
         try {
@@ -244,25 +219,25 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
     if (lpParam === '1') {
         const lpHtml = getLp1Html(target);
         return new Response(lpHtml, {
-            headers: { 
-                ...getSecurityHeaders(false), 
-                'Content-Type': 'text/html; charset=utf-8' 
+            headers: {
+                ...getSecurityHeaders(false),
+                'Content-Type': 'text/html; charset=utf-8'
             }
         });
     } else if (lpParam === '2') {
         const lpHtml = getLp2Html(target);
         return new Response(lpHtml, {
-            headers: { 
-                ...getSecurityHeaders(false), 
-                'Content-Type': 'text/html; charset=utf-8' 
+            headers: {
+                ...getSecurityHeaders(false),
+                'Content-Type': 'text/html; charset=utf-8'
             }
         });
     } else if (lpParam === '3') {
         const lpHtml = getLp3Html(target);
         return new Response(lpHtml, {
-            headers: { 
-                ...getSecurityHeaders(false), 
-                'Content-Type': 'text/html; charset=utf-8' 
+            headers: {
+                ...getSecurityHeaders(false),
+                'Content-Type': 'text/html; charset=utf-8'
             }
         });
     }

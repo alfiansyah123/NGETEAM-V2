@@ -12,6 +12,8 @@ const Admin = () => {
     const [nameservers, setNameservers] = useState(null);
     const [newPassword, setNewPassword] = useState('');
     const [currentPassword, setCurrentPassword] = useState('...');
+    const [newGencrotPass, setNewGencrotPass] = useState('');
+    const [gencrotMsg, setGencrotMsg] = useState('');
 
     // Appearance Settings
     const [brandName, setBrandName] = useState('GEN LINK');
@@ -22,8 +24,6 @@ const Admin = () => {
     const [smartName, setSmartName] = useState('');
     const [smartSlug, setSmartSlug] = useState('');
     const [smartUrl, setSmartUrl] = useState('');
-    const [smartTrafeeUrl, setSmartTrafeeUrl] = useState('');
-    const [smartRouting, setSmartRouting] = useState('random');
     const [smartPassword, setSmartPassword] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [oldSlug, setOldSlug] = useState('');
@@ -152,9 +152,8 @@ const Admin = () => {
                         user_id: smartSlug,
                         password: smartPassword,
                         target_url: smartUrl,
-                        url_trafee: smartTrafeeUrl,
-                        old_user_id: oldSlug,
-                        routing_mode: smartRouting
+
+                        old_user_id: oldSlug
                     })
                 });
 
@@ -190,7 +189,7 @@ const Admin = () => {
                         original_url: smartUrl,
                         domain_url: domains[0] || window.location.hostname,
                         user_id: smartSlug,
-                        url_trafee: smartTrafeeUrl,
+
                         title: `Smartlink ${smartName}`,
                         description: 'Persistent Team Link'
                     })
@@ -220,8 +219,7 @@ const Admin = () => {
         setOldSlug(link.user_id);
         setSmartPassword(link.password);
         setSmartUrl(link.links?.original_url || '');
-        setSmartTrafeeUrl(link.url_trafee || '');
-        setSmartRouting(link.routing_mode || 'random');
+
         setShowSmartlinkForm(true);
         // Scroll to form
         const form = document.querySelector('form');
@@ -234,9 +232,8 @@ const Admin = () => {
         setSmartName('');
         setSmartSlug('');
         setSmartUrl('');
-        setSmartTrafeeUrl('');
+
         setSmartPassword('');
-        setSmartRouting('random');
         setShowSmartlinkForm(false);
     };
 
@@ -273,6 +270,34 @@ const Admin = () => {
             }
         } catch (err) {
             setMessage({ type: 'error', text: err.message });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleChangeGencrotPassword = async () => {
+        if (!newGencrotPass || newGencrotPass.length < 4) {
+            setGencrotMsg('Password minimal 4 karakter');
+            return;
+        }
+        setLoading(true);
+        setGencrotMsg('');
+        try {
+            const adminPass = currentPassword !== '...' ? currentPassword : '';
+            const res = await fetch('/api/update-gencrot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ admin_password: adminPass, new_password: newGencrotPass })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setGencrotMsg('✅ Password /gencrot berhasil diubah!');
+                setNewGencrotPass('');
+            } else {
+                setGencrotMsg('❌ ' + (data.error || 'Gagal'));
+            }
+        } catch (err) {
+            setGencrotMsg('❌ ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -396,9 +421,7 @@ const Admin = () => {
         const idMatch = (link.user_id || '').toLowerCase().includes(search);
         const passMatch = (link.password || '').toLowerCase().includes(search);
         const urlMatch = (link.links?.original_url || '').toLowerCase().includes(search);
-        const trafeeMatch = (link.url_trafee || '').toLowerCase().includes(search);
-        
-        return nameMatch || idMatch || passMatch || urlMatch || trafeeMatch;
+        return nameMatch || idMatch || passMatch || urlMatch;
     });
 
     // Pagination Logic
@@ -505,6 +528,38 @@ const Admin = () => {
                                     <button className="service-btn active" onClick={handleChangePassword} disabled={loading} style={{ borderRadius: '0 12px 12px 0', padding: '0 20px' }}>UPDATE</button>
                                 </div>
                             </div>
+
+                            {/* Gencrot Password */}
+                            <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--border-base)' }}>
+                                <span className="section-label" style={{ marginBottom: '6px', display: 'block' }}>
+                                    🔑 PASSWORD HALAMAN <span style={{ color: 'var(--accent-cyan)' }}>/gencrot</span>
+                                </span>
+                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                                    Password ini terpisah dari password admin. Siapapun yang tahu password ini bisa akses generator publik.
+                                </p>
+                                <div className="mnx-input-group">
+                                    <input
+                                        type="password"
+                                        className="mnx-input"
+                                        placeholder="Password baru untuk /gencrot..."
+                                        value={newGencrotPass}
+                                        onChange={e => setNewGencrotPass(e.target.value)}
+                                    />
+                                    <button
+                                        className="service-btn active"
+                                        onClick={handleChangeGencrotPassword}
+                                        disabled={loading}
+                                        style={{ borderRadius: '0 12px 12px 0', padding: '0 20px' }}
+                                    >
+                                        SAVE
+                                    </button>
+                                </div>
+                                {gencrotMsg && (
+                                    <p style={{ fontSize: '0.78rem', marginTop: '8px', color: gencrotMsg.startsWith('✅') ? 'var(--accent-cyan)' : '#ef4444' }}>
+                                        {gencrotMsg}
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     )}
 
@@ -585,10 +640,7 @@ const Admin = () => {
                                                 <span className="section-title">TARGET URL (IMONETIZEIT)</span>
                                                 <input type="text" className="mnx-input" placeholder="https://..." value={smartUrl} onChange={(e) => setSmartUrl(e.target.value)} />
                                             </div>
-                                            <div>
-                                                <span className="section-title">TRAFEE URL (OPTIONAL)</span>
-                                                <input type="text" className="mnx-input" placeholder="https://..." value={smartTrafeeUrl} onChange={(e) => setSmartTrafeeUrl(e.target.value)} />
-                                            </div>
+
                                         </div>
                                         <button className="btn-mnx-main" type="submit" disabled={loading} style={{ marginTop: '20px', width: '100%', maxWidth: 'none' }}>
                                             {editingId ? 'SIMPAN PERUBAHAN' : 'BUAT SMARTLINK'}
@@ -620,7 +672,7 @@ const Admin = () => {
                                                 <th style={{ width: '10%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>PASSWORD</th>
                                                 <th style={{ width: '30%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>LINK GEN</th>
                                                 <th style={{ width: '15%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>TARGET IMO</th>
-                                                <th style={{ width: '15%', textAlign: 'left', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>TARGET TRAFEE</th>
+
                                                 <th style={{ width: '10%', textAlign: 'center', padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 800 }}>AKSI</th>
                                             </tr>
                                         </thead>
@@ -660,7 +712,7 @@ const Admin = () => {
                                                             </div>
                                                         </td>
                                                         <td style={{ padding: '10px 8px', color: '#94a3b8', fontSize: '0.65rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link.links?.original_url?.replace('https://', '') || '-'}</td>
-                                                        <td style={{ padding: '10px 8px', color: '#06b6d4', fontSize: '0.65rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link.url_trafee?.replace('https://', '') || '-'}</td>
+
                                                         <td style={{ padding: '10px 8px', borderTopRightRadius: '12px', borderBottomRightRadius: '12px', textAlign: 'center', overflow: 'hidden' }}>
                                                             <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                                                                 <button className="mnx-power-btn" onClick={() => handleEditClick(link)} style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', padding: '5px' }}>

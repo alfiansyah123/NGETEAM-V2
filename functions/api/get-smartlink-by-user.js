@@ -36,10 +36,8 @@ export async function onRequestGet(context) {
             data: {
                 name: team.name,
                 user_id: team.user_id,
-                target_url: link?.original_url || null,
-                url_trafee: link?.url_trafee || link?.trafee_url || null
-            },
-            debug: link // Kita intip semua isinya di sini!
+                target_url: link?.original_url || null
+            }
         }), { status: 200, headers });
 
     } catch (error) {

@@ -39,8 +39,8 @@ export async function onRequestPost(context) {
 
             if (domainId) {
                 statements.push(db.prepare(`
-                    INSERT INTO links (slug, original_url, domain_id, user_id, title, description, image_url, url_trafee, routing_mode)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO links (slug, original_url, domain_id, user_id, title, description, image_url)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 `).bind(
                     link.slug,
                     link.original_url,
@@ -48,9 +48,7 @@ export async function onRequestPost(context) {
                     link.user_id || null,
                     link.title || null,
                     link.description || null,
-                    link.image_url || null,
-                    link.url_trafee || null,
-                    link.routing_mode || 'random'
+                    link.image_url || null
                 ));
                 validLinks.push(link);
             }

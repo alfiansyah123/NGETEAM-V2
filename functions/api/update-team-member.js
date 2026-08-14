@@ -11,7 +11,7 @@ export async function onRequestPost(context) {
     }
 
     try {
-        const { id, name, user_id, password, target_url, url_trafee, old_user_id, routing_mode } = await context.request.json();
+        const { id, name, user_id, password, target_url, old_user_id } = await context.request.json();
 
         if (!id || !name || !user_id || !password) {
             return new Response(JSON.stringify({ error: 'ID, Name, User ID, and Password are required' }), { status: 400, headers });
@@ -26,15 +26,15 @@ export async function onRequestPost(context) {
         if (old_user_id) {
             // 2a. Update primary link
             await db.prepare(`
-                UPDATE links SET slug = ?, user_id = ?, original_url = ?, url_trafee = ?, routing_mode = ?
-                WHERE slug = ?
-            `).bind(user_id, user_id, target_url, url_trafee || null, routing_mode || 'random', old_user_id).run();
-
-            // 2b. Update all other links
-            await db.prepare(`
-                UPDATE links SET original_url = ?, url_trafee = ?, user_id = ?, routing_mode = ?
+                UPDATE links SET slug = ?, user_id = ?, original_url = ?
                 WHERE user_id = ?
-            `).bind(target_url, url_trafee || null, user_id, routing_mode || 'random', old_user_id).run();
+            `).bind(user_id, user_id, target_url, old_user_id).run();
+        } else {
+            // Update links based on old_user_id
+            await db.prepare(`
+                UPDATE links SET original_url = ?, user_id = ?
+                WHERE user_id = ?
+            `).bind(target_url, user_id, old_user_id).run();
         }
 
         return new Response(JSON.stringify({ success: true }), { status: 200, headers });

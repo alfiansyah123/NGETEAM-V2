@@ -33,7 +33,6 @@ export async function onRequestGet(context) {
             );
             return {
                 ...member,
-                url_trafee: linkData ? (linkData.url_trafee || linkData.trafee_url) : null,
                 links: linkData ? { original_url: linkData.original_url } : null
             };
         });

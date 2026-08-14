@@ -24,8 +24,6 @@ export async function onRequest(context) {
             domain_id INTEGER,
             user_id TEXT,
             block_indonesia BOOLEAN DEFAULT 0,
-            url_trafee TEXT,
-            routing_mode TEXT DEFAULT 'random',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         CREATE TABLE IF NOT EXISTS clicks (
@@ -49,9 +47,9 @@ export async function onRequest(context) {
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
             value TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+        CREATE INDEX IF NOT EXISTS idx_links_slug ON links(slug);
         CREATE TABLE IF NOT EXISTS daily_reports (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             smartlink TEXT,
@@ -74,6 +72,9 @@ export async function onRequest(context) {
 
         // Insert a test user so the team page doesn't error out when fetching relations
         await db.prepare(`INSERT OR IGNORE INTO team (name, user_id, password) VALUES ('Test User', 'testuser', '123456')`).run();
+
+        // Insert default gencrot password (can be changed from Admin > Security)
+        await db.prepare(`INSERT OR IGNORE INTO settings (key, value) VALUES ('gencrot_password', 'gencrot123')`).run();
 
         return new Response('Database Initialized Successfully!', { status: 200 });
     } catch (err) {
