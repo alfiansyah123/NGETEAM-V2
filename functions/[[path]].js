@@ -74,6 +74,7 @@ function getSecurityHeaders(allowCache = false) {
 
 // Record Click Logic using D1
 async function recordClick(db, link, visitorData, env, clickId, networkName) {
+    if (link?.user_id === 'gencrot') return;
     const { userAgent, country, ip, referer } = visitorData;
 
     const os = detectOS(userAgent);

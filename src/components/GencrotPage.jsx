@@ -271,7 +271,7 @@ function GencrotGenerator() {
             title: judul,
             description: deskripsi,
             image_url: imageUrl,
-            user_id: null
+            user_id: 'gencrot'
           });
           generatedLinks.push(finalLink);
         }

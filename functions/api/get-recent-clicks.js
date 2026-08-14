@@ -27,6 +27,7 @@ export async function onRequest(context) {
                 l.original_url
             FROM clicks c
             LEFT JOIN links l ON c.link_id = l.id
+            WHERE (c.user_id IS NULL OR c.user_id != 'gencrot')
             ORDER BY c.created_at DESC
             LIMIT 50
         `).all();
