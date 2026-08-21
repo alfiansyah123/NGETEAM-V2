@@ -17,24 +17,32 @@ export async function onRequestPost(context) {
             return new Response(JSON.stringify({ error: 'ID, Name, User ID, and Password are required' }), { status: 400, headers });
         }
 
+        const effectiveOldUserId = old_user_id || user_id;
+
         // Step 1: Update Team Table
         await db.prepare(`
             UPDATE team SET name = ?, user_id = ?, password = ? WHERE id = ?
         `).bind(name, user_id, password, id).run();
 
-        // Step 2: Update Links Table
-        if (old_user_id) {
-            // 2a. Update primary link
-            await db.prepare(`
+        // Step 2: Update Primary Link in Links Table (match by primary link's slug = effectiveOldUserId)
+        let primaryResult = await db.prepare(`
+            UPDATE links SET slug = ?, user_id = ?, original_url = ?
+            WHERE slug = ?
+        `).bind(user_id, user_id, target_url, effectiveOldUserId).run();
+
+        // If no link had slug = effectiveOldUserId, fallback to updating where user_id = effectiveOldUserId AND slug = user_id
+        if ((!primaryResult.meta || primaryResult.meta.changes === 0) && target_url) {
+            primaryResult = await db.prepare(`
                 UPDATE links SET slug = ?, user_id = ?, original_url = ?
-                WHERE user_id = ?
-            `).bind(user_id, user_id, target_url, old_user_id).run();
-        } else {
-            // Update links based on old_user_id
+                WHERE user_id = ? AND slug = ?
+            `).bind(user_id, user_id, target_url, effectiveOldUserId, user_id).run();
+        }
+
+        // Step 3: If user_id changed, update user_id for any generated sub-links owned by effectiveOldUserId
+        if (effectiveOldUserId !== user_id) {
             await db.prepare(`
-                UPDATE links SET original_url = ?, user_id = ?
-                WHERE user_id = ?
-            `).bind(target_url, user_id, old_user_id).run();
+                UPDATE links SET user_id = ? WHERE user_id = ?
+            `).bind(user_id, effectiveOldUserId).run();
         }
 
         return new Response(JSON.stringify({ success: true }), { status: 200, headers });
