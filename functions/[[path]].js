@@ -121,12 +121,10 @@ export async function onRequest(context) {
         return new Response('Database connection error', { status: 500 });
     }
 
-    // 2. Fetch Link Meta from D1
-    // PENTING: lowercase di JS supaya index idx_links_slug terpakai (bukan full scan)
-    const slugLower = path.toLowerCase();
+    // 2. Fetch Link Meta from D1 — pakai LOWER() untuk support slug lama yg masih uppercase
     const link = await db.prepare(
-        'SELECT l.id, l.slug, l.original_url, l.title, l.description, l.image_url, l.user_id, l.block_indonesia, d.url as domain_url FROM links l LEFT JOIN domains d ON l.domain_id = d.id WHERE l.slug = ? LIMIT 1'
-    ).bind(slugLower).first();
+        'SELECT l.id, l.slug, l.original_url, l.title, l.description, l.image_url, l.user_id, l.block_indonesia, d.url as domain_url FROM links l LEFT JOIN domains d ON l.domain_id = d.id WHERE LOWER(l.slug) = LOWER(?) LIMIT 1'
+    ).bind(path).first();
 
     if (!link) return context.next();
 
