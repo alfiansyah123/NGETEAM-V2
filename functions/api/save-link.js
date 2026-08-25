@@ -14,6 +14,9 @@ export async function onRequestPost(context) {
         const body = await context.request.json();
         let { slug, original_url, domain_url, title, description, image_url, user_id } = body;
 
+        // Force slug ke lowercase agar konsisten dengan index D1 (tanpa LOWER() di query)
+        slug = (slug || '').trim().toLowerCase();
+
         domain_url = (domain_url || body.domain || '').trim();
         if (domain_url) {
             domain_url = domain_url.replace(/^https?:\/\//, '').replace(/\/$/, '');

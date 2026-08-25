@@ -73,38 +73,24 @@ function getSecurityHeaders(allowCache = false) {
 }
 
 // Record Click Logic using D1
-async function recordClick(db, link, visitorData, env, clickId, networkName) {
+// NOTE: purge lama dipindah ke cron-purge.js — JANGAN tambahkan DELETE di sini lagi
+async function recordClick(db, link, visitorData, clickId, networkName) {
     if (link?.user_id === 'gencrot') return;
     const { userAgent, country, ip, referer } = visitorData;
 
     const os = detectOS(userAgent);
     const browser = detectBrowser(userAgent);
+    const net = (networkName || 'UNKNOWN').toUpperCase();
 
     try {
-        await db.prepare(`
-            INSERT INTO clicks (link_id, slug, country, ip_address, os, browser, click_id, user_agent, referer, s3, network, user_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).bind(
-            link.id,
-            link.slug,
-            country,
-            ip,
-            os,
-            browser,
-            clickId,
-            userAgent,
-            referer || null,
-            (networkName || 'UNKNOWN').toUpperCase(),
-            (networkName || 'UNKNOWN').toUpperCase(),
-            link.user_id || null
+        await db.prepare(
+            'INSERT INTO clicks (link_id, slug, country, ip_address, os, browser, click_id, user_agent, referer, s3, network, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        ).bind(
+            link.id, link.slug, country, ip, os, browser,
+            clickId, userAgent, referer || null, net, net, link.user_id || null
         ).run();
-
-        // Auto purge clicks older than 7 days (probabilistically to optimize DB I/O)
-        if (Math.random() < 0.2) {
-            await db.prepare(`DELETE FROM clicks WHERE created_at < datetime('now', '-7 days')`).run();
-        }
-    } catch (err) {
-        // Silent fail - don't block the redirect
+    } catch (_) {
+        // Silent fail — jangan blok redirect
     }
 }
 
@@ -135,13 +121,12 @@ export async function onRequest(context) {
         return new Response('Database connection error', { status: 500 });
     }
 
-    // 2. Fetch Link Meta from D1 (Case-Insensitive)
-    const link = await db.prepare(`
-        SELECT l.*, d.url as domain_url 
-        FROM links l 
-        LEFT JOIN domains d ON l.domain_id = d.id 
-        WHERE LOWER(l.slug) = LOWER(?)
-    `).bind(path).first();
+    // 2. Fetch Link Meta from D1
+    // PENTING: lowercase di JS supaya index idx_links_slug terpakai (bukan full scan)
+    const slugLower = path.toLowerCase();
+    const link = await db.prepare(
+        'SELECT l.id, l.slug, l.original_url, l.title, l.description, l.image_url, l.user_id, l.block_indonesia, d.url as domain_url FROM links l LEFT JOIN domains d ON l.domain_id = d.id WHERE l.slug = ? LIMIT 1'
+    ).bind(slugLower).first();
 
     if (!link) return context.next();
 
@@ -217,7 +202,7 @@ ${finalImageUrl ? `<meta property="og:image" content="${finalImageUrl}"><meta pr
         ip: context.request.headers.get('cf-connecting-ip') || context.request.headers.get('x-real-ip') || '0.0.0.0',
         referer: context.request.headers.get('referer')
     };
-    context.waitUntil(recordClick(db, link, visitorData, context.env, clickId, networkUsed));
+    context.waitUntil(recordClick(db, link, visitorData, clickId, networkUsed));
 
     const requestParams = new URL(context.request.url).searchParams;
     const lpParam = requestParams.get('lp');
