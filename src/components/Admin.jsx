@@ -353,6 +353,10 @@ const Admin = () => {
 
     const addDomainWithCloudflare = async () => {
         if (!newDomain.trim()) return;
+        if (!cfToken || !cfAccountId) {
+            setMessage({ type: 'error', text: 'Cloudflare API Token atau Account ID belum diisi. Silakan isi & simpan di tab Cloudflare terlebih dahulu!' });
+            return;
+        }
         setLoading(true);
         setMessage({ type: '', text: '' });
         try {
