@@ -391,6 +391,14 @@ const Admin = () => {
             });
 
             const domainToAdd = newDomain.trim();
+
+            if (zoneData.nameservers && zoneData.nameservers.length > 0) {
+                setNameservers({
+                    domain: domainToAdd,
+                    list: zoneData.nameservers
+                });
+            }
+
             // 5. Add to Database
             await fetch('/api/add-domain', {
                 method: 'POST',
@@ -574,6 +582,66 @@ const Admin = () => {
                         <div className="fade-in">
                             <div className="admin-section">
                                 <span className="section-title">🌐 REGISTERED DOMAINS</span>
+
+                                {nameservers && (
+                                    <div style={{
+                                        background: 'rgba(6, 182, 212, 0.06)',
+                                        border: '1px solid rgba(6, 182, 212, 0.5)',
+                                        borderRadius: '12px',
+                                        padding: '16px 20px',
+                                        marginTop: '15px',
+                                        marginBottom: '15px',
+                                        position: 'relative'
+                                    }}>
+                                        <button 
+                                            onClick={() => setNameservers(null)}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '12px',
+                                                right: '16px',
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#94a3b8',
+                                                cursor: 'pointer',
+                                                fontSize: '18px',
+                                                lineHeight: 1
+                                            }}
+                                        >
+                                            ✕
+                                        </button>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#38bdf8', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                                            <span style={{ color: '#f59e0b' }}>⚠️</span>
+                                            <span>Arahkan NameServer (NS) Domain: <strong style={{ color: '#06b6d4' }}>{nameservers.domain}</strong></span>
+                                        </div>
+                                        <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '0 0 14px 0', lineHeight: 1.4 }}>
+                                            Domain berhasil dibuat di Cloudflare. Silakan ganti NameServer domain Anda di Registrar (Penyedia Domain / Niagahoster / Namecheap / dll) ke NameServer Cloudflare berikut:
+                                        </p>
+                                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                            {nameservers.list.map((ns, idx) => (
+                                                <div key={idx} style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '10px',
+                                                    background: 'rgba(0, 0, 0, 0.4)',
+                                                    border: '1px solid rgba(6, 182, 212, 0.3)',
+                                                    borderRadius: '8px',
+                                                    padding: '8px 14px',
+                                                    fontSize: '0.85rem'
+                                                }}>
+                                                    <span style={{ color: '#94a3b8' }}>NS {idx + 1}:</span>
+                                                    <code style={{ color: '#10b981', fontWeight: 600 }}>{ns}</code>
+                                                    <button 
+                                                        className="service-btn active"
+                                                        onClick={() => copyToClipboard(ns)}
+                                                        style={{ padding: '3px 10px', fontSize: '0.75rem', marginLeft: '6px', borderRadius: '4px' }}
+                                                    >
+                                                        COPY
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="mnx-input-group" style={{ marginTop: '15px', marginBottom: '15px' }}>
                                     <input type="text" className="mnx-input" placeholder="example.com" value={newDomain} onChange={(e) => setNewDomain(e.target.value)} />
                                     <button className="btn-mnx-main" onClick={addDomainWithCloudflare} disabled={loading} style={{ width: 'auto', padding: '0 25px', marginTop: 0, borderRadius: '0 12px 12px 0', minWidth: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
